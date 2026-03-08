@@ -827,8 +827,9 @@ window.openPostModal=function(feedId){
     _modalFeedData={id:feedId,...snap.val()};
     renderModalInfo(_modalFeedData);
     // Subscribe comments sau khi DOM đã render xong
-    _modalCmtsUnsub=db.ref(`comments/${feedId}`).orderByChild('ts').on('value',snap=>{
-      const items=[];snap.forEach(c=>items.push(c.val()));
+    _modalCmtsUnsub=db.ref(`comments/${feedId}`).on('value',snap=>{
+      const items=[];
+      snap.forEach(c=>{const v=c.val();if(v)items.push(v);});
       items.sort((a,b)=>(a.ts||0)-(b.ts||0));
       const el=document.getElementById('modalCmtsList');
       if(!el)return;

@@ -562,7 +562,7 @@
 const FB_CFG = {
   apiKey: "AIzaSyB_YlQ99oal3RrfN8wX9oN5GjuW1QH4g-E",
   authDomain: "kindup-22cea.firebaseapp.com",
-  databaseURL:       "https://kindup-22cea-default-rtdb.asia-southeast1.firebasedatabase.app",
+  databaseURL: "https://kindup-22cea-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "kindup-22cea",
   storageBucket: "kindup-22cea.firebasestorage.app",
   messagingSenderId: "776886224726",
@@ -984,7 +984,7 @@ async function callGemini(prompt, sys){
       generationConfig: { maxOutputTokens:400, temperature:0.8 }
     };
     const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
       { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) }
     );
     const d = await res.json();

@@ -978,65 +978,83 @@ const FALLBACKS = {
 
 async function callGemini(prompt, sys){
   try{
+    const body = {
+      system_instruction: { parts: [{ text: sys }] },
+      contents: [{ role:'user', parts:[{ text: prompt }] }],
+      generationConfig: { maxOutputTokens:400, temperature:0.8 }
+    };
     const res = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
-      {method:'POST',headers:{'Content-Type':'application/json'},
-       body:JSON.stringify({contents:[{parts:[{text:`${sys}\n\nYêu cầu: ${prompt}\n\nTrả lời tiếng Việt, thân thiện, emoji, tối đa 120 từ.`}]}],
-         generationConfig:{maxOutputTokens:300,temperature:0.8}})}
+      { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) }
     );
     const d = await res.json();
-    if(d.error) return null;
-    return d.candidates?.[0]?.content?.parts?.[0]?.text||null;
-  }catch(e){return null;}
+    if(d.error){ console.error('Gemini error:', d.error); return null; }
+    return d.candidates?.[0]?.content?.parts?.[0]?.text || null;
+  } catch(e){ console.error('Gemini fetch error:', e); return null; }
 }
 
 window.aiSuggest = async function(){
-  const box=document.getElementById('suggestBox'),txt=document.getElementById('suggestTxt');
+  const box=document.getElementById('suggestBox'), txt=document.getElementById('suggestTxt');
   box.classList.add('show');
   txt.innerHTML=`<div class="dots-wrap">Đang suy nghĩ... <div class="dots"><span></span><span></span><span></span></div></div>`;
-  const r=await callGemini('Gợi ý 3 việc tốt nên làm hôm nay cho học sinh lớp 8',
-    `Bạn là AI của Kindup – hỗ trợ học sinh lớp 8 Việt Nam rèn thói quen tốt. Gợi ý 3 việc cụ thể, phù hợp, làm được ngay hôm nay.`)||FALLBACKS.suggest;
-  txt.innerHTML=r.replace(/\n/g,'<br>');
+  const r = await callGemini(
+    `Gợi ý 3 việc tốt cụ thể cho học sinh lớp 8 có thể làm ngay hôm nay. Mỗi việc kèm lý do ngắn gọn.`,
+    `Bạn là trợ lý AI của ứng dụng Kindup – giúp học sinh Việt Nam rèn luyện thói quen tốt. Trả lời bằng tiếng Việt, thân thiện, dùng emoji, ngắn gọn tối đa 120 từ.`
+  ) || FALLBACKS.suggest;
+  txt.innerHTML = r.replace(/\n/g,'<br>');
 };
 
 window.aiPraise = async function(){
-  const task=document.getElementById('taskSel').value.split('|')[0];
-  const desc=document.getElementById('taskDesc').value;
-  const box=document.getElementById('praiseBox'),txt=document.getElementById('praiseTxt');
+  const task = document.getElementById('taskSel').value.split('|')[0];
+  const desc = document.getElementById('taskDesc').value;
+  const box=document.getElementById('praiseBox'), txt=document.getElementById('praiseTxt');
   box.classList.add('show');
   txt.innerHTML=`<div class="dots-wrap">Đang tạo lời khen... <div class="dots"><span></span><span></span><span></span></div></div>`;
-  const r=await callGemini(`Việc tốt: ${task||'việc tốt'}\nMô tả: ${desc}`,
-    `Bạn là AI của Kindup. Khen ngợi học sinh và gợi ý cách phát huy thêm. Ấm áp, phù hợp học sinh Việt Nam.`)||FALLBACKS.praise;
-  txt.innerHTML=r.replace(/\n/g,'<br>');
+  const r = await callGemini(
+    `Học sinh vừa hoàn thành: "${task||'một việc tốt'}"\nMô tả: ${desc||'(không có)'}`,
+    `Bạn là trợ lý AI của Kindup. Hãy khen ngợi học sinh thật ấm áp và gợi ý 1-2 cách phát huy thêm. Trả lời tiếng Việt, emoji vừa phải, tối đa 100 từ.`
+  ) || FALLBACKS.praise;
+  txt.innerHTML = r.replace(/\n/g,'<br>');
 };
 
 window.sendChat = async function(){
-  const inp=document.getElementById('chatInp');
-  const msg=inp.value.trim(); if(!msg)return;
-  inp.value='';
-  addChatMsg(msg,'user');
-  G.chatHistory.push({role:'user',parts:[{text:msg}]});
-  const typing=document.createElement('div');
-  typing.className='msg ai';
-  typing.innerHTML=`<div class="dots-wrap"><div class="dots"><span></span><span></span><span></span></div></div>`;
-  const cm=document.getElementById('chatMsgs');
-  cm.appendChild(typing); cm.scrollTop=cm.scrollHeight;
-  const sys=`Bạn là AI thân thiện của Kindup – giúp học sinh Việt Nam (lớp 6-9) rèn thói quen tốt. Vui vẻ, ấm áp như người bạn. Emoji vừa phải. Tối đa 120 từ.`;
-  const history=G.chatHistory.slice(-6);
-  const contents=history.map(h=>({role:h.role,parts:[{text:h.parts[0].text}]}));
-  if(contents.length) contents[0].parts[0].text=sys+'\n\n'+contents[0].parts[0].text;
+  const inp = document.getElementById('chatInp');
+  const msg = inp.value.trim(); if(!msg) return;
+  inp.value = '';
+  addChatMsg(msg, 'user');
+
+  const typing = document.createElement('div');
+  typing.className = 'msg ai';
+  typing.innerHTML = `<div class="dots-wrap"><div class="dots"><span></span><span></span><span></span></div></div>`;
+  const cm = document.getElementById('chatMsgs');
+  cm.appendChild(typing); cm.scrollTop = cm.scrollHeight;
+
+  // Build contents từ history + tin nhắn mới
+  G.chatHistory.push({ role:'user', parts:[{ text:msg }] });
+  const contents = G.chatHistory.slice(-10).map(h => ({
+    role: h.role,
+    parts: [{ text: h.parts[0].text }]
+  }));
+
   let reply;
   try{
-    const res=await fetch(
+    const body = {
+      system_instruction: { parts: [{ text: `Bạn là trợ lý AI thân thiện của ứng dụng Kindup – giúp học sinh Việt Nam (lớp 6-9) rèn luyện thói quen tốt mỗi ngày. Phong cách: vui vẻ, ấm áp, như người bạn. Dùng emoji vừa phải. Trả lời tiếng Việt, tối đa 120 từ.` }] },
+      contents,
+      generationConfig: { maxOutputTokens:300, temperature:0.85 }
+    };
+    const res = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
-      {method:'POST',headers:{'Content-Type':'application/json'},
-       body:JSON.stringify({contents,generationConfig:{maxOutputTokens:300,temperature:0.85}})}
+      { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) }
     );
-    const d=await res.json();
-    reply=d.candidates?.[0]?.content?.parts?.[0]?.text||FALLBACKS.chat;
-  }catch(e){reply=FALLBACKS.chat;}
-  G.chatHistory.push({role:'model',parts:[{text:reply}]});
-  typing.remove(); addChatMsg(reply,'ai');
+    const d = await res.json();
+    if(d.error){ console.error('Chat Gemini error:', d.error); reply = FALLBACKS.chat; }
+    else reply = d.candidates?.[0]?.content?.parts?.[0]?.text || FALLBACKS.chat;
+  } catch(e){ console.error('Chat fetch error:', e); reply = FALLBACKS.chat; }
+
+  G.chatHistory.push({ role:'model', parts:[{ text:reply }] });
+  typing.remove();
+  addChatMsg(reply, 'ai');
 };
 
 function addChatMsg(text,role){

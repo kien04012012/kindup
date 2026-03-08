@@ -562,14 +562,14 @@
 const FB_CFG = {
   apiKey: "AIzaSyB_YlQ99oal3RrfN8wX9oN5GjuW1QH4g-E",
   authDomain: "kindup-22cea.firebaseapp.com",
-  databaseURL: "https://kindup-22cea-default-rtdb.asia-southeast1.firebasedatabase.app",
+  databaseURL:       "https://kindup-22cea-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "kindup-22cea",
   storageBucket: "kindup-22cea.firebasestorage.app",
   messagingSenderId: "776886224726",
   appId: "1:776886224726:web:b30634ca93d58d6d1238f7"
 };
-// ⚙️  BƯỚC 2: Điền Gemini API key của bạn vào đây
-const GEMINI_API_KEY = 'AIzaSyBKPz4-SXikypTChrCls2nllLV153I6LWI';
+// ⚙️  BƯỚC 2: Điền OpenRouter API key vào đây (sk-or-v1-...)
+const OPENROUTER_KEY = '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';
 // ═══════════════════════════════════════════════════════
 
 const fbApp = firebase.initializeApp(FB_CFG);
@@ -978,19 +978,28 @@ const FALLBACKS = {
 
 async function callGemini(prompt, sys){
   try{
-    const body = {
-      system_instruction: { parts: [{ text: sys }] },
-      contents: [{ role:'user', parts:[{ text: prompt }] }],
-      generationConfig: { maxOutputTokens:400, temperature:0.8 }
-    };
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
-      { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) }
-    );
+    const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${OPENROUTER_KEY}`,
+        'HTTP-Referer': window.location.origin,
+        'X-Title': 'Kindup',
+      },
+      body: JSON.stringify({
+        model: 'google/gemini-2.0-flash-exp:free',
+        messages: [
+          { role: 'system', content: sys },
+          { role: 'user',   content: prompt }
+        ],
+        max_tokens: 400,
+        temperature: 0.8,
+      })
+    });
     const d = await res.json();
-    if(d.error){ console.error('Gemini error:', d.error); return null; }
-    return d.candidates?.[0]?.content?.parts?.[0]?.text || null;
-  } catch(e){ console.error('Gemini fetch error:', e); return null; }
+    if(d.error){ console.error('OpenRouter error:', d.error); return null; }
+    return d.choices?.[0]?.message?.content || null;
+  } catch(e){ console.error('OpenRouter fetch error:', e); return null; }
 }
 
 window.aiSuggest = async function(){
@@ -1038,18 +1047,28 @@ window.sendChat = async function(){
 
   let reply;
   try{
-    const body = {
-      system_instruction: { parts: [{ text: `Bạn là trợ lý AI thân thiện của ứng dụng Kindup – giúp học sinh Việt Nam (lớp 6-9) rèn luyện thói quen tốt mỗi ngày. Phong cách: vui vẻ, ấm áp, như người bạn. Dùng emoji vừa phải. Trả lời tiếng Việt, tối đa 120 từ.` }] },
-      contents,
-      generationConfig: { maxOutputTokens:300, temperature:0.85 }
-    };
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
-      { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) }
-    );
+    const messages = [
+      { role: 'system', content: 'Bạn là trợ lý AI thân thiện của ứng dụng Kindup – giúp học sinh Việt Nam (lớp 6-9) rèn luyện thói quen tốt mỗi ngày. Phong cách: vui vẻ, ấm áp, như người bạn. Dùng emoji vừa phải. Trả lời tiếng Việt, tối đa 120 từ.' },
+      ...G.chatHistory.slice(-10).map(h => ({ role: h.role === 'model' ? 'assistant' : h.role, content: h.parts[0].text }))
+    ];
+    const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${OPENROUTER_KEY}`,
+        'HTTP-Referer': window.location.origin,
+        'X-Title': 'Kindup',
+      },
+      body: JSON.stringify({
+        model: 'google/gemini-2.0-flash-exp:free',
+        messages,
+        max_tokens: 300,
+        temperature: 0.85,
+      })
+    });
     const d = await res.json();
-    if(d.error){ console.error('Chat Gemini error:', d.error); reply = FALLBACKS.chat; }
-    else reply = d.candidates?.[0]?.content?.parts?.[0]?.text || FALLBACKS.chat;
+    if(d.error){ console.error('Chat OpenRouter error:', d.error); reply = FALLBACKS.chat; }
+    else reply = d.choices?.[0]?.message?.content || FALLBACKS.chat;
   } catch(e){ console.error('Chat fetch error:', e); reply = FALLBACKS.chat; }
 
   G.chatHistory.push({ role:'model', parts:[{ text:reply }] });

@@ -559,17 +559,17 @@
 // ═══════════════════════════════════════════════════════
 // ⚙️  BƯỚC 1: Điền thông tin Firebase của bạn vào đây
 // ═══════════════════════════════════════════════════════
-const FB_CFG = {
-  apiKey: "AIzaSyB_YlQ99oal3RrfN8wX9oN5GjuW1QH4g-E",
-  authDomain: "kindup-22cea.firebaseapp.com",
-  databaseURL:       "https://kindup-22cea-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "kindup-22cea",
-  storageBucket: "kindup-22cea.firebasestorage.app",
-  messagingSenderId: "776886224726",
-  appId: "1:776886224726:web:b30634ca93d58d6d1238f7"
-};
-// ⚙️  BƯỚC 2: Điền OpenRouter API key vào đây (sk-or-v1-...)
-const OPENROUTER_KEY = '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';
+	const FB_CFG = {
+	  apiKey: "AIzaSyB_YlQ99oal3RrfN8wX9oN5GjuW1QH4g-E",
+	  authDomain: "kindup-22cea.firebaseapp.com",
+	  databaseURL:       "https://kindup-22cea-default-rtdb.asia-southeast1.firebasedatabase.app",
+	  projectId: "kindup-22cea",
+	  storageBucket: "kindup-22cea.firebasestorage.app",
+	  messagingSenderId: "776886224726",
+	  appId: "1:776886224726:web:b30634ca93d58d6d1238f7"
+	};
+// ⚙️  BƯỚC 2: Điền Groq API key vào đây (gsk_...)
+const GROQ_KEY = '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';
 // ═══════════════════════════════════════════════════════
 
 const fbApp = firebase.initializeApp(FB_CFG);
@@ -978,16 +978,14 @@ const FALLBACKS = {
 
 async function callGemini(prompt, sys){
   try{
-    const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${OPENROUTER_KEY}`,
-        'HTTP-Referer': window.location.origin,
-        'X-Title': 'Kindup',
+        'Authorization': `Bearer ${GROQ_KEY}`,
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.0-flash-exp:free',
+        model: 'gemma2-9b-it',
         messages: [
           { role: 'system', content: sys },
           { role: 'user',   content: prompt }
@@ -997,9 +995,9 @@ async function callGemini(prompt, sys){
       })
     });
     const d = await res.json();
-    if(d.error){ console.error('OpenRouter error:', d.error); return null; }
+    if(d.error){ console.error('Groq error:', d.error); return null; }
     return d.choices?.[0]?.message?.content || null;
-  } catch(e){ console.error('OpenRouter fetch error:', e); return null; }
+  } catch(e){ console.error('Groq fetch error:', e); return null; }
 }
 
 window.aiSuggest = async function(){
@@ -1051,23 +1049,21 @@ window.sendChat = async function(){
       { role: 'system', content: 'Bạn là trợ lý AI thân thiện của ứng dụng Kindup – giúp học sinh Việt Nam (lớp 6-9) rèn luyện thói quen tốt mỗi ngày. Phong cách: vui vẻ, ấm áp, như người bạn. Dùng emoji vừa phải. Trả lời tiếng Việt, tối đa 120 từ.' },
       ...G.chatHistory.slice(-10).map(h => ({ role: h.role === 'model' ? 'assistant' : h.role, content: h.parts[0].text }))
     ];
-    const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${OPENROUTER_KEY}`,
-        'HTTP-Referer': window.location.origin,
-        'X-Title': 'Kindup',
+        'Authorization': `Bearer ${GROQ_KEY}`,
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.0-flash-exp:free',
+        model: 'gemma2-9b-it',
         messages,
         max_tokens: 300,
         temperature: 0.85,
       })
     });
     const d = await res.json();
-    if(d.error){ console.error('Chat OpenRouter error:', d.error); reply = FALLBACKS.chat; }
+    if(d.error){ console.error('Chat Groq error:', d.error); reply = FALLBACKS.chat; }
     else reply = d.choices?.[0]?.message?.content || FALLBACKS.chat;
   } catch(e){ console.error('Chat fetch error:', e); reply = FALLBACKS.chat; }
 

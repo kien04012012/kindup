@@ -97,10 +97,13 @@ body{font-family:'Nunito',sans-serif;background:var(--green-bg);color:var(--text
 .dots span{display:inline-block;width:5px;height:5px;background:#a855f7;border-radius:50%;animation:bop .8s infinite}
 .dots span:nth-child(2){animation-delay:.15s}.dots span:nth-child(3){animation-delay:.3s}
 @keyframes bop{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
-.img-upload-wrap{border:2px dashed var(--border);border-radius:14px;padding:16px;text-align:center;cursor:pointer;margin-bottom:14px;transition:border-color .2s;background:#fafafa}
+.img-upload-wrap{border:2px dashed var(--border);border-radius:14px;padding:14px;margin-bottom:14px;transition:border-color .2s;background:#fafafa}
 .img-upload-wrap:hover{border-color:var(--green)}
 .img-upload-wrap input{display:none}
 .img-preview{width:100%;max-height:200px;object-fit:cover;border-radius:10px;margin-top:10px;display:none}
+.img-btn-row{display:flex;gap:8px;margin-bottom:6px}
+.img-btn{flex:1;padding:10px 6px;border:1.5px solid var(--border);border-radius:10px;background:white;font-family:'Nunito',sans-serif;font-weight:700;font-size:.82rem;cursor:pointer;color:var(--green-dark);transition:border-color .2s}
+.img-btn:active{border-color:var(--green);background:var(--green-bg)}
 
 /* COMMUNITY */
 .feed{display:flex;flex-direction:column;gap:12px}
@@ -291,10 +294,18 @@ body{font-family:'Nunito',sans-serif;background:var(--green-bg);color:var(--text
       <label class="lbl">Kể ngắn gọn bạn đã làm gì</label>
       <textarea class="ta" id="taskDesc" placeholder="Ví dụ: Hôm nay mình đã giúp mẹ rửa bát sau bữa cơm tối..."></textarea>
       <label class="lbl">📷 Thêm ảnh (không bắt buộc)</label>
-      <div class="img-upload-wrap" onclick="document.getElementById('photoInput').click()">
-        <input type="file" id="photoInput" accept="image/*" onchange="onPhotoChange(event)"/>
-        <div id="photoPlaceholder" style="color:var(--muted);font-size:.9rem">📷 Nhấn để chọn ảnh từ thư viện</div>
+      <div class="img-upload-wrap">
+        <div class="img-btn-row">
+          <button type="button" class="img-btn" onclick="document.getElementById('photoGallery').click()">🖼️ Chọn từ thư viện</button>
+          <button type="button" class="img-btn" onclick="document.getElementById('photoCamera').click()">📸 Chụp ảnh</button>
+        </div>
+        <input type="file" id="photoGallery" accept="image/*" onchange="onPhotoChange(event)"/>
+        <input type="file" id="photoCamera" accept="image/*" capture="environment" onchange="onPhotoChange(event)"/>
+        <div id="photoPlaceholder" style="color:var(--muted);font-size:.82rem;text-align:center">Chưa có ảnh</div>
         <img id="photoPreview" class="img-preview"/>
+        <div id="photoRemove" style="display:none;text-align:center;margin-top:6px">
+          <button type="button" onclick="removePhoto()" style="background:none;border:none;color:#ef4444;font-size:.8rem;font-weight:700;cursor:pointer">✕ Xoá ảnh</button>
+        </div>
       </div>
       <button class="btn btn-green" id="btnSubmit" onclick="submitTask()">🎉 Ghi lại & nhận điểm</button>
       <div class="ai-box" id="praiseBox" style="margin-top:14px">
@@ -376,7 +387,6 @@ body{font-family:'Nunito',sans-serif;background:var(--green-bg);color:var(--text
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 <script>
 // ═══ CONFIG ═══
 const FB_CFG={
@@ -392,10 +402,8 @@ const GROQ_KEY='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';
 
 firebase.initializeApp(FB_CFG);
 const db=firebase.database();
-const storage=firebase.storage();
 
 let G={uid:null,name:'',points:0,weekDone:0,doneToday:[],emoji:'😊',bg:'#bbf7d0',chatHistory:[],likedPosts:{}};
-let _feedUnsub=null,_boardUnsub=null;
 let _currentPage='home';
 let _modalFeedId=null,_modalCmtsUnsub=null;
 
@@ -495,9 +503,13 @@ function enterApp(data){
 }
 
 window.logout=function(){
-  // Unsubscribe listeners
-  if(_feedUnsub){db.ref('feed').off('value',_feedUnsub);_feedUnsub=null;}
-  if(_boardUnsub){db.ref('users').off('value',_boardUnsub);_boardUnsub=null;}
+  // Unsubscribe all listeners
+  db.ref('feed').off();
+  db.ref('users').off();
+  if(_modalCmtsUnsub&&_modalFeedId){
+    try{db.ref(`comments/${_modalFeedId}`).off('value',_modalCmtsUnsub);}catch(e){}
+    _modalCmtsUnsub=null;
+  }
   G={uid:null,name:'',points:0,weekDone:0,doneToday:[],emoji:'😊',bg:'#bbf7d0',chatHistory:[],likedPosts:{}};
   document.getElementById('logoutMenu').style.display='none';
   document.getElementById('loginName').value='';
@@ -532,20 +544,21 @@ async function postToFeed(task,desc,imageUrl=''){
   });
 }
 
-// ═══ REALTIME — chỉ subscribe 1 lần, luôn cập nhật ═══
+// ═══ REALTIME — subscribe đúng cách, tránh duplicate listeners ═══
 function subscribeToFeed(){
-  if(_feedUnsub)db.ref('feed').off('value',_feedUnsub);
-  _feedUnsub=db.ref('feed').on('value',snap=>{
+  // off listener cũ trước khi đăng ký mới
+  db.ref('feed').off();
+  db.ref('feed').orderByChild('ts').limitToLast(30).on('value',snap=>{
     const items=[];
     snap.forEach(c=>items.push({id:c.key,...c.val()}));
     items.sort((a,b)=>b.ts-a.ts);
-    renderFeed(items.slice(0,30));
+    renderFeed(items);
   });
 }
 
 function subscribeToLeaderboard(){
-  if(_boardUnsub)db.ref('users').off('value',_boardUnsub);
-  _boardUnsub=db.ref('users').on('value',snap=>{
+  db.ref('users').off();
+  db.ref('users').on('value',snap=>{
     const rows=[];
     snap.forEach(c=>{
       const d=c.val();
@@ -558,24 +571,42 @@ function subscribeToLeaderboard(){
   });
 }
 
-// ═══ UPLOAD ẢNH ═══
-let _selectedPhoto=null;
+// ═══ ẢNH — base64 resize, không cần Firebase Storage ═══
+let _photoBase64='';
 window.onPhotoChange=function(e){
   const file=e.target.files[0];if(!file)return;
-  _selectedPhoto=file;
+  // Reset input để có thể chọn lại cùng file
+  e.target.value='';
   const reader=new FileReader();
   reader.onload=ev=>{
-    const img=document.getElementById('photoPreview');
-    img.src=ev.target.result;img.style.display='block';
-    document.getElementById('photoPlaceholder').textContent='✅ Đã chọn ảnh';
+    // Resize ảnh xuống tối đa 800px để tránh quá lớn
+    const img=new Image();
+    img.onload=()=>{
+      const MAX=800;
+      let w=img.width,h=img.height;
+      if(w>MAX){h=Math.round(h*MAX/w);w=MAX;}
+      if(h>MAX){w=Math.round(w*MAX/h);h=MAX;}
+      const canvas=document.createElement('canvas');
+      canvas.width=w;canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      _photoBase64=canvas.toDataURL('image/jpeg',0.75);
+      const prev=document.getElementById('photoPreview');
+      prev.src=_photoBase64;prev.style.display='block';
+      document.getElementById('photoPlaceholder').style.display='none';
+      document.getElementById('photoRemove').style.display='block';
+    };
+    img.src=ev.target.result;
   };
   reader.readAsDataURL(file);
 };
-async function uploadPhoto(){
-  if(!_selectedPhoto)return'';
-  try{const ref=storage.ref(`feed/${G.uid}_${Date.now()}`);await ref.put(_selectedPhoto);return await ref.getDownloadURL();}
-  catch(e){console.error('Upload error',e);return'';}
-}
+window.removePhoto=function(){
+  _photoBase64='';
+  document.getElementById('photoPreview').style.display='none';
+  document.getElementById('photoPlaceholder').style.display='block';
+  document.getElementById('photoRemove').style.display='none';
+  document.getElementById('photoGallery').value='';
+  document.getElementById('photoCamera').value='';
+};
 
 // ═══ INIT ═══
 function initApp(){
@@ -638,7 +669,7 @@ function renderFeed(items){
       <div class="fdesc">${escHtml(f.desc)}</div>
       ${f.imageUrl?`<img class="fimg" src="${escHtml(f.imageUrl)}" loading="lazy" onclick="event.stopPropagation()"/>`:''}
       <div class="fbtns" onclick="event.stopPropagation()">
-        <button class="fbtn ${liked?'liked':''}" data-id="${f.id}" data-likes="${f.likes||0}" onclick="toggleLike(this,event)">${liked?'❤️':'👍'} ${f.likes||0}</button>
+        <button class="fbtn ${liked?'liked':''}" data-id="${f.id}" data-likes="${f.likes||0}" onclick="toggleLike(this,event)">${liked?'❤️':'🤍'} ${f.likes||0}</button>
         <button class="fbtn" onclick="openPostModal('${f.id}')">💬 Bình luận</button>
       </div>
     </div>`;
@@ -692,7 +723,7 @@ window.submitTask=async function(){
   const earnedPts=parseInt(pts)||10;
   const btn=document.getElementById('btnSubmit');
   btn.disabled=true;btn.textContent='⏳ Đang lưu...';
-  const imageUrl=await uploadPhoto();
+  const imageUrl=_photoBase64; // base64, lưu thẳng vào Realtime DB
   const taskObj=DAILY_TASKS.find(t=>t.name===finalName||t.name===taskName);
   if(taskObj&&!G.doneToday.includes(taskObj.id))G.doneToday.push(taskObj.id);
   addPoints(earnedPts);
@@ -716,14 +747,11 @@ window.submitTask=async function(){
   document.getElementById('customTask').value='';
   document.getElementById('customWrap').style.display='none';
   document.getElementById('suggestBox').classList.remove('show');
-  _selectedPhoto=null;
-  document.getElementById('photoPreview').style.display='none';
-  document.getElementById('photoPlaceholder').textContent='📷 Nhấn để chọn ảnh từ thư viện';
-  document.getElementById('photoInput').value='';
+  removePhoto();
   btn.disabled=false;btn.textContent='🎉 Ghi lại & nhận điểm';
 };
 
-// ═══ LIKE — 1 lần ═══
+// ═══ LIKE — 1 lần, luôn dùng ❤️ ═══
 window.toggleLike=async function(btn,e){
   if(e)e.stopPropagation();
   const id=btn.dataset.id;
@@ -731,15 +759,15 @@ window.toggleLike=async function(btn,e){
   const l=parseInt(btn.dataset.likes)||0;
   if(liked){
     G.likedPosts[id]=false;btn.classList.remove('liked');
-    btn.dataset.likes=Math.max(0,l-1);btn.textContent='👍 '+Math.max(0,l-1);
-    db.ref(`feed/${id}`).update({likes:Math.max(0,l-1)});
+    const newL=Math.max(0,l-1);
+    btn.dataset.likes=newL;btn.textContent='🤍 '+newL;
+    db.ref(`feed/${id}`).update({likes:newL});
   }else{
     G.likedPosts[id]=true;btn.classList.add('liked');
     btn.dataset.likes=l+1;btn.textContent='❤️ '+(l+1);
     db.ref(`feed/${id}`).update({likes:l+1});
   }
   db.ref(`users/${G.uid}/likedPosts`).update({[id]:G.likedPosts[id]});
-  // Cập nhật trong modal nếu đang mở
   if(_modalFeedId===id)updateModalLikeBtn();
 };
 
@@ -751,27 +779,37 @@ window.openPostModal=function(feedId){
   const modal=document.getElementById('postModal');
   modal.classList.add('open');
   document.getElementById('modalBody').innerHTML='<div style="text-align:center;padding:32px;color:var(--muted)">Đang tải...</div>';
-  // Load bài đăng
+  // Unsubscribe comments cũ
+  if(_modalCmtsUnsub){
+    try{db.ref(`comments/${_modalFeedId}`).off('value',_modalCmtsUnsub);}catch(e){}
+    _modalCmtsUnsub=null;
+  }
+  // Load bài đăng, sau đó mới subscribe comments
   db.ref(`feed/${feedId}`).get().then(snap=>{
     if(!snap.exists())return;
     _modalFeedData={id:feedId,...snap.val()};
     renderModalBody(_modalFeedData);
-  });
-  // Subscribe comments realtime
-  if(_modalCmtsUnsub)db.ref(`comments/${_modalFeedId}`).off('value',_modalCmtsUnsub);
-  _modalCmtsUnsub=db.ref(`comments/${feedId}`).on('value',snap=>{
-    const items=[];snap.forEach(c=>items.push(c.val()));
-    const el=document.getElementById('modalCmtsList');
-    if(!el)return;
-    if(!items.length){el.innerHTML='<div style="font-size:.84rem;color:var(--muted);padding:4px 0">Chưa có bình luận nào. Hãy là người đầu tiên!</div>';return;}
-    el.innerHTML=items.map(c=>`
-      <div class="cmt-item">
-        <div class="cmt-ava">${escHtml(c.name||'?').charAt(0)}</div>
-        <div class="cmt-body">
-          <div class="cmt-name">${escHtml(c.name)}</div>
-          <div class="cmt-text">${escHtml(c.text)}</div>
-        </div>
-      </div>`).join('');
+    // Subscribe comments sau khi DOM đã có #modalCmtsList
+    _modalCmtsUnsub=db.ref(`comments/${feedId}`).orderByChild('ts').on('value',snap=>{
+      const items=[];snap.forEach(c=>items.push(c.val()));
+      items.sort((a,b)=>(a.ts||0)-(b.ts||0));
+      const el=document.getElementById('modalCmtsList');
+      if(!el)return;
+      if(!items.length){
+        el.innerHTML='<div style="font-size:.84rem;color:var(--muted);padding:4px 0">Chưa có bình luận nào. Hãy là người đầu tiên!</div>';
+        return;
+      }
+      el.innerHTML=items.map(c=>`
+        <div class="cmt-item">
+          <div class="cmt-ava">${escHtml(c.name||'?').charAt(0)}</div>
+          <div class="cmt-body">
+            <div class="cmt-name">${escHtml(c.name)}</div>
+            <div class="cmt-text">${escHtml(c.text)}</div>
+          </div>
+        </div>`).join('');
+      // Scroll xuống cuối comments
+      el.scrollTop=el.scrollHeight;
+    });
   });
 };
 
@@ -786,7 +824,7 @@ function renderModalBody(f){
     <div class="fdesc" style="margin-bottom:12px">${escHtml(f.desc)}</div>
     ${f.imageUrl?`<img class="modal-img" src="${escHtml(f.imageUrl)}"/>`:''}
     <div class="fbtns" style="margin-bottom:16px">
-      <button id="modalLikeBtn" class="fbtn ${liked?'liked':''}" data-id="${f.id}" data-likes="${f.likes||0}" onclick="toggleLike(this,null)">${liked?'❤️':'👍'} ${f.likes||0}</button>
+      <button id="modalLikeBtn" class="fbtn ${liked?'liked':''}" data-id="${f.id}" data-likes="${f.likes||0}" onclick="toggleLike(this,null)">${liked?'❤️':'🤍'} ${f.likes||0}</button>
     </div>
     <div class="sec" style="font-size:1rem;margin-bottom:10px">💬 Bình luận</div>
     <div class="cmts-list" id="modalCmtsList"><div style="font-size:.84rem;color:var(--muted)">Đang tải...</div></div>
@@ -798,7 +836,7 @@ function updateModalLikeBtn(){
   if(!btn||!_modalFeedData)return;
   const liked=G.likedPosts[_modalFeedId]||false;
   btn.className='fbtn '+(liked?'liked':'');
-  btn.textContent=(liked?'❤️ ':'👍 ')+btn.dataset.likes;
+  btn.textContent=(liked?'❤️ ':'🤍 ')+btn.dataset.likes;
 }
 
 window.closeModal=function(e){
@@ -806,7 +844,10 @@ window.closeModal=function(e){
 };
 window.closeModalDirect=function(){
   document.getElementById('postModal').classList.remove('open');
-  if(_modalCmtsUnsub){db.ref(`comments/${_modalFeedId}`).off('value',_modalCmtsUnsub);_modalCmtsUnsub=null;}
+  if(_modalCmtsUnsub&&_modalFeedId){
+    try{db.ref(`comments/${_modalFeedId}`).off('value',_modalCmtsUnsub);}catch(e){}
+    _modalCmtsUnsub=null;
+  }
   _modalFeedId=null;_modalFeedData=null;
   document.getElementById('modalCmtInp').value='';
 };
@@ -901,6 +942,11 @@ window.showPage=function(id){
   document.getElementById('logoutMenu').style.display='none';
   // Tải lại dữ liệu theo trang (trừ AI)
   if(id==='home')refreshHome();
+  if(id==='log'){
+    // Xoá lời khen cũ khi quay lại trang ghi
+    document.getElementById('praiseBox').classList.remove('show');
+    document.getElementById('praiseTxt').innerHTML='';
+  }
   if(id==='community')subscribeToFeed();
   if(id==='ranks')renderRanks();
   if(id==='board')subscribeToLeaderboard();

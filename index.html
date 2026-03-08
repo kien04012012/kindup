@@ -321,7 +321,11 @@ body{font-family:'Nunito',sans-serif;background:var(--green-bg);color:var(--text
 
   <!-- COMMUNITY -->
   <div class="page" id="page-community">
-    <div class="sec" style="margin-bottom:14px">🌍 Cộng đồng việc tốt</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div class="sec" style="margin-bottom:0">🌍 Cộng đồng việc tốt</div>
+      <button onclick="forceRefreshFeed()" style="background:var(--green-light);border:none;border-radius:50px;padding:6px 14px;font-family:'Nunito',sans-serif;font-weight:700;font-size:.78rem;color:var(--green-dark);cursor:pointer">🔄 Làm mới</button>
+    </div>
+    <div id="feedCount" style="font-size:.78rem;color:var(--muted);margin-bottom:10px"></div>
     <div class="feed" id="feed"></div>
   </div>
 
@@ -559,13 +563,22 @@ async function postToFeed(task,desc,imageUrl=''){
 // ═══ REALTIME — subscribe 1 lần duy nhất lúc login ═══
 let _feedListening=false,_boardListening=false;
 function subscribeToFeed(){
-  if(_feedListening)return; // đã subscribe rồi, không subscribe lại
+  if(_feedListening)return;
   _feedListening=true;
-  db.ref('feed').orderByChild('ts').on('value',snap=>{
+  // Không dùng orderByChild (cần index Firebase) — lấy hết rồi sort ở client
+  db.ref('feed').on('value',snap=>{
     const items=[];
-    snap.forEach(c=>items.push({id:c.key,...c.val()}));
+    snap.forEach(c=>{
+      const v=c.val();
+      if(v&&v.ts)items.push({id:c.key,...v});
+    });
+    console.log('[Feed] Tổng bài nhận được từ Firebase:',items.length);
+    // Sort mới nhất lên trên
     items.sort((a,b)=>b.ts-a.ts);
-    renderFeed(items.slice(0,50));
+    renderFeed(items);
+  },err=>{
+    console.error('[Feed] Lỗi đọc Firebase:',err.code, err.message);
+    document.getElementById('feed').innerHTML=`<div style="text-align:center;color:#ef4444;padding:24px;background:white;border-radius:14px;font-size:.88rem"><b>⚠️ Lỗi tải dữ liệu</b><br>${err.message}<br><small>Kiểm tra Firebase Rules</small></div>`;
   });
 }
 
@@ -632,7 +645,13 @@ function initApp(){
   renderAll();
 }
 
-// ═══ RENDER ═══
+// Force refresh feed — dùng khi cần tải lại thủ công
+window.forceRefreshFeed=function(){
+  db.ref('feed').off(); // off tất cả listener trên node feed
+  _feedListening=false;
+  document.getElementById('feed').innerHTML='<div style="text-align:center;color:var(--muted);padding:24px">Đang tải...</div>';
+  subscribeToFeed();
+};
 function renderAll(){
   updateProgress();renderTasks();renderRanks();
   document.getElementById('ptsChip').textContent=`⭐ ${G.points} điểm`;
@@ -671,6 +690,8 @@ function renderTasks(){
 // Feed — nhấn vào card mở modal chi tiết
 function renderFeed(items){
   const el=document.getElementById('feed');
+  const countEl=document.getElementById('feedCount');
+  if(countEl)countEl.textContent=items.length?`Có ${items.length} việc tốt đã được chia sẻ ✨`:'';
   if(!items||!items.length){el.innerHTML='<div style="text-align:center;color:var(--muted);padding:32px 0">Chưa có việc tốt nào. Hãy là người đầu tiên! 🌱</div>';return;}
   el.innerHTML=items.map(f=>{
     const liked=G.likedPosts[f.id]||false;

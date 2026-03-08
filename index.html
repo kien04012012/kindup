@@ -261,6 +261,9 @@ body{font-family:'Nunito',sans-serif;background:var(--green-bg);color:var(--text
       <div class="stat-box"><div class="stat-num" style="color:var(--orange)" id="statPts">0</div><div class="stat-lbl">Điểm tích lũy</div></div>
     </div>
     <div class="sec">📋 Gợi ý việc tốt hôm nay</div>
+    <div id="homeAiLoading" style="color:var(--muted);font-size:.88rem;padding:12px 4px;display:flex;align-items:center;gap:8px">
+      <div class="dots"><span></span><span></span><span></span></div> AI đang gợi ý...
+    </div>
     <div class="tasks-list" id="tasksList"></div>
     <div class="ai-promo" onclick="showPage('ai')">
       <div class="ai-promo-ic">🤖</div>
@@ -272,24 +275,13 @@ body{font-family:'Nunito',sans-serif;background:var(--green-bg);color:var(--text
   <div class="page" id="page-log">
     <div class="sec" style="margin-bottom:14px">✏️ Ghi lại việc tốt</div>
     <div class="form-card">
-      <button class="btn btn-purple" onclick="aiSuggest()"><span>✨</span> AI gợi ý việc tốt hôm nay</button>
-      <div class="ai-box" id="suggestBox">
-        <div class="ai-box-hd">🤖 Gợi ý từ AI Kindup</div>
-        <div class="ai-box-txt" id="suggestTxt"></div>
-      </div>
       <label class="lbl">Chọn việc tốt đã làm</label>
-      <select class="sel" id="taskSel" onchange="onSelChange()">
-        <option value="">-- Chọn nhiệm vụ --</option>
-        <option value="Đánh răng sáng và tối|5">🪥 Đánh răng sáng và tối (+5đ)</option>
-        <option value="Giúp ba mẹ việc nhà|10">🧹 Giúp ba mẹ việc nhà (+10đ)</option>
-        <option value="Nói lời cảm ơn|8">🙏 Nói lời cảm ơn (+8đ)</option>
-        <option value="Chào thầy cô|5">👋 Chào thầy cô (+5đ)</option>
-        <option value="Đọc sách 30 phút|15">📚 Đọc sách 30 phút (+15đ)</option>
-        <option value="Tập thể dục|12">🏃 Tập thể dục (+12đ)</option>
-        <option value="Không dùng điện thoại khi ăn|10">📵 Không dùng điện thoại khi ăn (+10đ)</option>
-        <option value="Giúp bạn bè học bài|15">🤝 Giúp bạn bè học bài (+15đ)</option>
-        <option value="Nhặt rác bảo vệ môi trường|10">🗑️ Nhặt rác bảo vệ môi trường (+10đ)</option>
-        <option value="Việc tốt khác|10">➕ Việc tốt khác</option>
+      <div id="logTaskLoading" style="color:var(--muted);font-size:.85rem;padding:8px 4px 12px;display:flex;align-items:center;gap:8px">
+        <div class="dots"><span></span><span></span><span></span></div> Đang tải gợi ý từ AI...
+      </div>
+      <select class="sel" id="taskSel" onchange="onSelChange()" style="display:none">
+        <option value="">-- Chọn việc tốt --</option>
+        <option value="__other__">➕ Việc tốt khác (tự nhập)</option>
       </select>
       <div id="customWrap" style="display:none">
         <label class="lbl">Tên việc tốt của bạn</label>
@@ -429,14 +421,9 @@ const RANKS=[
   {name:'Đại Sứ Nhân Ái',          icon:'🌟',req:1000},
   {name:'Huyền Thoại Tử Tế',       icon:'👑',req:2000},
 ];
-const DAILY_TASKS=[
-  {id:'t1',name:'Đánh răng sáng & tối',icon:'🪥',pts:5},
-  {id:'t2',name:'Giúp ba mẹ việc nhà', icon:'🧹',pts:10},
-  {id:'t3',name:'Nói lời cảm ơn',      icon:'🙏',pts:8},
-  {id:'t4',name:'Chào thầy cô',        icon:'👋',pts:5},
-  {id:'t5',name:'Đọc sách 30 phút',    icon:'📚',pts:15},
-  {id:'t6',name:'Tập thể dục',         icon:'🏃',pts:12},
-];
+// Gợi ý AI lưu tạm để dùng chung home + log
+let _aiSuggestions=[]; // [{name,icon,reason}]
+let _aiSuggestLoading=false;
 const BG_COLORS=['#bbf7d0','#fce7f3','#dbeafe','#fef9c3','#ede9fe','#ffedd5'];
 const EMOJIS=['😄','🌸','🦁','🌺','⭐','🐬','🌻','🦋'];
 
@@ -550,13 +537,13 @@ function saveUser(){
   });
 }
 
-async function postToFeed(task,desc,imageUrl=''){
+async function postToFeed(task,desc,imageUrl='',pts=0){
   if(!G.uid)return;
   const rank=getRankFor(G.points);
   await db.ref('feed').push({
     uid:G.uid,name:G.name,emoji:G.emoji,bg:G.bg,
     task,desc,imageUrl,rank:rank.icon+' '+rank.name,
-    ts:Date.now(),likes:0,commentCount:0,
+    ts:Date.now(),likes:0,commentCount:0,pts,
   });
 }
 
@@ -643,6 +630,7 @@ function initApp(){
   const days=['Chủ Nhật','Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu','Thứ Bảy'];
   document.getElementById('subDate').textContent=`${G.name} • ${days[d.getDay()]}, ${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}`;
   renderAll();
+  loadAiSuggestions(); // sinh gợi ý AI ngay khi vào app
 }
 
 // Force refresh feed — dùng khi cần tải lại thủ công
@@ -653,7 +641,7 @@ window.forceRefreshFeed=function(){
   subscribeToFeed();
 };
 function renderAll(){
-  updateProgress();renderTasks();renderRanks();
+  updateProgress();renderRanks();
   document.getElementById('ptsChip').textContent=`⭐ ${G.points} điểm`;
   document.getElementById('statDone').textContent=G.weekDone;
   document.getElementById('statPts').textContent=G.points;
@@ -678,14 +666,90 @@ function updateProgress(){
   }
 }
 
-function renderTasks(){
-  document.getElementById('tasksList').innerHTML=DAILY_TASKS.map(t=>`
-    <div class="task-item ${G.doneToday.includes(t.id)?'done':''}">
-      <div class="task-ic">${t.icon}</div>
-      <div class="task-info"><div class="task-name">${t.name}</div><div class="task-pts">+${t.pts} điểm</div></div>
-      <div class="task-check">${G.doneToday.includes(t.id)?'✅':'○'}</div>
-    </div>`).join('');
+// ═══ AI GỢI Ý — sinh tự động, dùng chung home + log ═══
+async function loadAiSuggestions(){
+  if(_aiSuggestLoading)return;
+  _aiSuggestLoading=true;
+  // Show loading
+  const homeLoading=document.getElementById('homeAiLoading');
+  const logLoading=document.getElementById('logTaskLoading');
+  const sel=document.getElementById('taskSel');
+  if(homeLoading)homeLoading.style.display='flex';
+  if(logLoading)logLoading.style.display='flex';
+  if(sel)sel.style.display='none';
+
+  // Fallback nếu AI lỗi
+  const fallback=[
+    {name:'Giúp ba mẹ việc nhà',icon:'🧹',reason:'Thể hiện tình yêu gia đình'},
+    {name:'Đọc sách 30 phút',icon:'📚',reason:'Mở rộng kiến thức mỗi ngày'},
+    {name:'Nói lời cảm ơn với ai đó',icon:'🙏',reason:'Lan tỏa năng lượng tích cực'},
+    {name:'Tập thể dục buổi sáng',icon:'🏃',reason:'Giữ sức khoẻ cho ngày dài'},
+    {name:'Dọn dẹp góc học tập',icon:'🪴',reason:'Môi trường gọn giúp học tốt hơn'},
+  ];
+
+  try{
+    const raw=await callGroq(
+      `Gợi ý 5 việc tốt khác nhau cho học sinh lớp 8 Việt Nam có thể làm hôm nay. Trả về JSON hợp lệ, chỉ JSON, không thêm gì khác:
+[{"name":"tên việc tốt","icon":"emoji","reason":"lý do ngắn gọn dưới 10 từ"},...]`,
+      'Bạn là trợ lý AI Kindup. Chỉ trả về JSON array, không có markdown, không có giải thích.'
+    );
+    if(raw){
+      // Xoá markdown nếu có
+      const clean=raw.replace(/```json|```/g,'').trim();
+      const parsed=JSON.parse(clean);
+      if(Array.isArray(parsed)&&parsed.length)_aiSuggestions=parsed.slice(0,5);
+      else _aiSuggestions=fallback;
+    }else _aiSuggestions=fallback;
+  }catch(e){_aiSuggestions=fallback;}
+
+  // Render home tasks list
+  const tasksList=document.getElementById('tasksList');
+  if(tasksList){
+    tasksList.innerHTML=_aiSuggestions.map(t=>`
+      <div class="task-item" onclick="pickSuggestion('${escHtml(t.name)}')">
+        <div class="task-ic">${t.icon||'✨'}</div>
+        <div class="task-info">
+          <div class="task-name">${escHtml(t.name)}</div>
+          <div class="task-pts" style="color:var(--muted)">${escHtml(t.reason||'')}</div>
+        </div>
+        <div class="task-check" style="font-size:.78rem;color:var(--green-dark);font-weight:700">Ghi →</div>
+      </div>`).join('');
+  }
+
+  // Render log select options
+  if(sel){
+    // Giữ lại option đầu và option "khác"
+    sel.innerHTML=`<option value="">-- Chọn việc tốt --</option>`;
+    _aiSuggestions.forEach(t=>{
+      const opt=document.createElement('option');
+      opt.value=t.name;
+      opt.textContent=`${t.icon||'✨'} ${t.name}`;
+      sel.appendChild(opt);
+    });
+    const other=document.createElement('option');
+    other.value='__other__';other.textContent='➕ Việc tốt khác (tự nhập)';
+    sel.appendChild(other);
+    sel.style.display='block';
+  }
+
+  if(homeLoading)homeLoading.style.display='none';
+  if(logLoading)logLoading.style.display='none';
+  _aiSuggestLoading=false;
 }
+
+// Nhấn vào gợi ý ở trang chủ → chuyển sang trang ghi, điền sẵn
+window.pickSuggestion=function(taskName){
+  showPage('log');
+  const sel=document.getElementById('taskSel');
+  if(sel){
+    // Tìm option khớp
+    for(let i=0;i<sel.options.length;i++){
+      if(sel.options[i].value===taskName){sel.selectedIndex=i;break;}
+    }
+    onSelChange();
+  }
+  document.getElementById('taskDesc').focus();
+};
 
 // Feed — nhấn vào card mở modal chi tiết
 function renderFeed(items){
@@ -745,7 +809,8 @@ function addPoints(pts){
 }
 
 window.onSelChange=function(){
-  document.getElementById('customWrap').style.display=document.getElementById('taskSel').value.includes('Việc tốt khác')?'block':'none';
+  const v=document.getElementById('taskSel').value;
+  document.getElementById('customWrap').style.display=(v==='__other__')?'block':'none';
 };
 
 window.submitTask=async function(){
@@ -753,36 +818,62 @@ window.submitTask=async function(){
   const desc=document.getElementById('taskDesc').value.trim();
   if(!sel){showToast('⚠️ Chọn việc tốt đã làm nhé!');return;}
   if(!desc){showToast('⚠️ Kể ngắn gọn đi bạn!');return;}
-  const [taskName,pts]=sel.split('|');
+  // Tên việc tốt
+  const isOther=(sel==='__other__');
   const custom=document.getElementById('customTask').value.trim();
-  const finalName=(taskName==='Việc tốt khác'&&custom)?custom:taskName;
-  const earnedPts=parseInt(pts)||10;
+  const finalName=isOther?(custom||'Việc tốt khác'):sel;
+  if(isOther&&!custom){showToast('⚠️ Nhập tên việc tốt của bạn nhé!');return;}
+
   const btn=document.getElementById('btnSubmit');
   btn.disabled=true;btn.textContent='⏳ Đang lưu...';
-  const imageUrl=_photoBase64; // base64, lưu thẳng vào Realtime DB
-  const taskObj=DAILY_TASKS.find(t=>t.name===finalName||t.name===taskName);
-  if(taskObj&&!G.doneToday.includes(taskObj.id))G.doneToday.push(taskObj.id);
-  addPoints(earnedPts);
-  await postToFeed(finalName,desc,imageUrl);  // feed realtime tự cập nhật
-  showToast(`🎉 "${finalName}" đã được ghi lại!`);
-  showPointPopup(earnedPts,btn);
-  confetti();
-  // AI khen tự động
+
+  const imageUrl=_photoBase64;
+
+  // ─── AI đánh giá + cho điểm 1-10 ───
   const praiseBox=document.getElementById('praiseBox');
   const praiseTxt=document.getElementById('praiseTxt');
   praiseBox.classList.add('show');
-  praiseTxt.innerHTML='<div class="dots-wrap">AI đang viết lời khen... <div class="dots"><span></span><span></span><span></span></div></div>';
-  const r=await callGroq(
-    `Học sinh vừa hoàn thành: "${finalName}"\nMô tả: ${desc}`,
-    'Bạn là trợ lý AI của Kindup. Hãy khen ngợi học sinh thật ấm áp và gợi ý 1-2 cách phát huy thêm. Trả lời tiếng Việt, emoji vừa phải, tối đa 100 từ.'
-  )||FALLBACKS.praise;
-  praiseTxt.innerHTML=r.replace(/\n/g,'<br>');
+  praiseTxt.innerHTML='<div class="dots-wrap">AI đang đánh giá... <div class="dots"><span></span><span></span><span></span></div></div>';
+
+  const aiRaw=await callGroq(
+    `Học sinh vừa hoàn thành việc tốt: "${finalName}"\nMô tả của học sinh: "${desc}"`,
+    `Bạn là AI đánh giá Kindup. Hãy:
+1. Cho điểm từ 1-10 dựa trên mức độ ý nghĩa, nỗ lực và tác động tích cực của việc tốt.
+2. Viết lời khen ngắn ấm áp, có thể gợi ý 1 cách phát huy thêm.
+Trả về JSON hợp lệ, chỉ JSON: {"score":8,"praise":"lời khen..."}`
+  );
+
+  let earnedPts=5; // fallback
+  let praiseText=FALLBACKS.praise;
+  try{
+    if(aiRaw){
+      const clean=aiRaw.replace(/```json|```/g,'').trim();
+      const parsed=JSON.parse(clean);
+      if(parsed.score&&parsed.score>=1&&parsed.score<=10)earnedPts=parsed.score;
+      if(parsed.praise)praiseText=parsed.praise;
+    }
+  }catch(e){
+    // AI trả text thường, thử parse điểm từ text
+    const m=aiRaw&&aiRaw.match(/\b([1-9]|10)\s*(\/\s*10|điểm)/i);
+    if(m)earnedPts=parseInt(m[1]);
+    praiseText=aiRaw||FALLBACKS.praise;
+  }
+
+  // Lưu điểm + feed
+  addPoints(earnedPts);
+  await postToFeed(finalName,desc,imageUrl,earnedPts);
+  showToast(`🎉 +${earnedPts} điểm! "${finalName}" đã được ghi lại!`);
+  showPointPopup(earnedPts,btn);
+  confetti();
+
+  // Hiện lời khen + điểm
+  praiseTxt.innerHTML=`<div style="margin-bottom:8px"><span style="font-family:'Baloo 2',cursive;font-size:1.4rem;color:var(--orange)">+${earnedPts}</span> <span style="font-size:.85rem;color:var(--muted)">/ 10 điểm</span></div>`+praiseText.replace(/\n/g,'<br>');
+
   // Reset form
   document.getElementById('taskSel').value='';
   document.getElementById('taskDesc').value='';
   document.getElementById('customTask').value='';
   document.getElementById('customWrap').style.display='none';
-  document.getElementById('suggestBox').classList.remove('show');
   removePhoto();
   btn.disabled=false;btn.textContent='🎉 Ghi lại & nhận điểm';
 };
@@ -920,16 +1011,7 @@ async function callGroq(prompt,sys){
   }catch(e){console.error('Groq error:',e);return null;}
 }
 
-window.aiSuggest=async function(){
-  const box=document.getElementById('suggestBox'),txt=document.getElementById('suggestTxt');
-  box.classList.add('show');
-  txt.innerHTML='<div class="dots-wrap">Đang suy nghĩ... <div class="dots"><span></span><span></span><span></span></div></div>';
-  const r=await callGroq(
-    'Gợi ý 3 việc tốt cụ thể cho học sinh lớp 8 có thể làm ngay hôm nay. Mỗi việc kèm lý do ngắn gọn.',
-    'Bạn là trợ lý AI của Kindup – giúp học sinh Việt Nam rèn luyện thói quen tốt. Trả lời tiếng Việt, thân thiện, emoji, tối đa 120 từ.'
-  )||FALLBACKS.suggest;
-  txt.innerHTML=r.replace(/\n/g,'<br>');
-};
+// aiSuggest đã được thay bằng loadAiSuggestions() dùng chung home + log
 
 window.sendChat=async function(){
   const inp=document.getElementById('chatInp');
@@ -980,11 +1062,19 @@ window.showPage=function(id){
   document.querySelector('.main').scrollTop=0;
   document.getElementById('logoutMenu').style.display='none';
   // Tải lại dữ liệu theo trang (trừ AI)
-  if(id==='home')refreshHome();
+  if(id==='home'){
+    refreshHome();
+    // Làm mới gợi ý AI mỗi lần vào trang chủ
+    _aiSuggestLoading=false;
+    _aiSuggestions=[];
+    loadAiSuggestions();
+  }
   if(id==='log'){
     // Xoá lời khen cũ khi quay lại trang ghi
     document.getElementById('praiseBox').classList.remove('show');
     document.getElementById('praiseTxt').innerHTML='';
+    // Nếu chưa có gợi ý AI thì load
+    if(!_aiSuggestions.length&&!_aiSuggestLoading)loadAiSuggestions();
   }
   // community và board dùng realtime listener, tự cập nhật, không cần re-subscribe
 };

@@ -6,171 +6,185 @@
 <title>Kindup – Việc Tốt Mỗi Ngày 🌱</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --green:#22c55e;--green-dark:#15803d;--green-light:#bbf7d0;--green-bg:#f0fdf4;
-    --yellow:#fbbf24;--orange:#f97316;--purple:#a855f7;--purple-light:#f3e8ff;
-    --text:#1c2b1c;--muted:#6b7280;--border:#d1fae5;--card:#ffffff;
-    --radius:18px;--shadow:0 4px 20px rgba(34,197,94,.10);--nav-h:60px;--bottom-h:64px;
-  }
-  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-  html,body{height:100%;overflow:hidden}
-  body{font-family:'Nunito',sans-serif;background:var(--green-bg);color:var(--text);display:flex;flex-direction:column}
+:root{
+  --green:#22c55e;--green-dark:#15803d;--green-light:#bbf7d0;--green-bg:#f0fdf4;
+  --yellow:#fbbf24;--orange:#f97316;--purple:#a855f7;--purple-light:#f3e8ff;
+  --text:#1c2b1c;--muted:#6b7280;--border:#d1fae5;
+  --radius:18px;--shadow:0 4px 20px rgba(34,197,94,.10);--nav-h:60px;--bottom-h:64px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Nunito',sans-serif;background:var(--green-bg);color:var(--text);display:flex;flex-direction:column}
 
-  /* SETUP */
-  #setupScreen{position:fixed;inset:0;z-index:1000;background:linear-gradient(160deg,#166534 0%,#15803d 40%,#22c55e 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;color:white;text-align:center}
-  #setupScreen h1{font-family:'Baloo 2',cursive;font-size:2.4rem;margin-bottom:8px}
-  #setupScreen p{opacity:.85;font-size:1rem;margin-bottom:24px;line-height:1.6}
-  .setup-card{background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.25);border-radius:var(--radius);padding:24px;width:100%;max-width:360px;backdrop-filter:blur(10px)}
-  .setup-label{font-weight:800;font-size:.88rem;text-align:left;margin-bottom:8px;opacity:.9}
-  .setup-input{width:100%;background:rgba(255,255,255,.18);border:1.5px solid rgba(255,255,255,.3);border-radius:12px;padding:12px 16px;color:white;font-family:'Nunito',sans-serif;font-size:.95rem;outline:none;margin-bottom:16px}
-  .setup-input::placeholder{color:rgba(255,255,255,.55)}
-  .setup-input:focus{border-color:var(--yellow);background:rgba(255,255,255,.22)}
-  .btn-setup{width:100%;padding:14px;background:var(--yellow);border:none;border-radius:50px;font-family:'Nunito',sans-serif;font-weight:900;font-size:1.05rem;color:#1c2b1c;cursor:pointer;transition:transform .2s}
-  .btn-setup:active{transform:scale(.97)}
-  .setup-note{font-size:.78rem;opacity:.65;margin-top:16px;line-height:1.5}
+/* SETUP */
+#setupScreen{position:fixed;inset:0;z-index:1000;background:linear-gradient(160deg,#166534,#15803d 40%,#22c55e);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;color:white;text-align:center}
+#setupScreen h1{font-family:'Baloo 2',cursive;font-size:2.4rem;margin-bottom:8px}
+#setupScreen p{opacity:.85;font-size:1rem;margin-bottom:24px;line-height:1.6}
+.setup-card{background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.25);border-radius:var(--radius);padding:24px;width:100%;max-width:360px;backdrop-filter:blur(10px)}
+.setup-label{font-weight:800;font-size:.88rem;text-align:left;margin-bottom:8px;opacity:.9}
+.setup-input{width:100%;background:rgba(255,255,255,.18);border:1.5px solid rgba(255,255,255,.3);border-radius:12px;padding:12px 16px;color:white;font-family:'Nunito',sans-serif;font-size:.95rem;outline:none;margin-bottom:16px}
+.setup-input::placeholder{color:rgba(255,255,255,.55)}
+.setup-input:focus{border-color:var(--yellow)}
+.btn-setup{width:100%;padding:14px;background:var(--yellow);border:none;border-radius:50px;font-family:'Nunito',sans-serif;font-weight:900;font-size:1.05rem;color:#1c2b1c;cursor:pointer}
+.setup-note{font-size:.78rem;opacity:.65;margin-top:16px;line-height:1.5}
 
-  /* TOPBAR */
-  .topbar{height:var(--nav-h);background:white;border-bottom:2px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 16px;flex-shrink:0;box-shadow:0 2px 10px rgba(34,197,94,.07);position:relative;z-index:10}
-  .topbar-logo{font-family:'Baloo 2',cursive;font-size:1.5rem;color:var(--green-dark)}
-  .topbar-right{display:flex;align-items:center;gap:10px}
-  .pts-chip{background:linear-gradient(135deg,var(--yellow),var(--orange));color:white;font-weight:800;font-size:.82rem;padding:5px 12px;border-radius:50px}
-  .user-ava{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--yellow));display:flex;align-items:center;justify-content:center;font-size:1.1rem;cursor:pointer;flex-shrink:0}
+/* TOPBAR */
+.topbar{height:var(--nav-h);background:white;border-bottom:2px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 16px;flex-shrink:0;box-shadow:0 2px 10px rgba(34,197,94,.07);position:relative;z-index:10}
+.topbar-logo{font-family:'Baloo 2',cursive;font-size:1.5rem;color:var(--green-dark)}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.pts-chip{background:linear-gradient(135deg,var(--yellow),var(--orange));color:white;font-weight:800;font-size:.82rem;padding:5px 12px;border-radius:50px}
+.user-ava{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--yellow));display:flex;align-items:center;justify-content:center;font-size:1.1rem;cursor:pointer;flex-shrink:0}
 
-  /* LAYOUT */
-  .main{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
-  .page{display:none;padding:16px;padding-bottom:80px;max-width:480px;margin:0 auto}
-  .page.active{display:block}
-  .bottomnav{height:var(--bottom-h);background:white;border-top:2px solid var(--border);display:flex;align-items:stretch;flex-shrink:0;box-shadow:0 -2px 10px rgba(34,197,94,.07)}
-  .bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:none;background:transparent;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;font-size:.68rem;color:var(--muted);transition:color .15s;padding:0}
-  .bnav-btn span.ic{font-size:1.4rem;line-height:1}
-  .bnav-btn.active{color:var(--green-dark)}
+/* LAYOUT */
+.main{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
+.page{display:none;padding:16px;padding-bottom:80px;max-width:480px;margin:0 auto}
+.page.active{display:block}
 
-  /* COMMON */
-  .sec{font-family:'Baloo 2',cursive;font-size:1.15rem;color:var(--green-dark);margin-bottom:12px;display:flex;align-items:center;gap:6px}
-  .btn{padding:13px 24px;border-radius:50px;border:none;font-family:'Nunito',sans-serif;font-weight:800;font-size:.95rem;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}
-  .btn:active{transform:scale(.97)}
-  .btn-green{background:linear-gradient(135deg,var(--green),var(--green-dark));color:white;width:100%;box-shadow:0 4px 14px rgba(34,197,94,.3)}
-  .btn-purple{background:linear-gradient(135deg,#6d28d9,#a855f7);color:white;width:100%;margin-bottom:14px;box-shadow:0 4px 14px rgba(168,85,247,.3)}
-  .btn-outline{background:var(--green-light);color:var(--green-dark);padding:9px 18px;font-size:.85rem}
-  .lbl{font-weight:800;font-size:.88rem;margin-bottom:7px;display:block;color:var(--text)}
-  .inp,.sel,.ta{width:100%;border:2px solid var(--border);border-radius:12px;padding:11px 14px;font-family:'Nunito',sans-serif;font-size:.93rem;margin-bottom:14px;outline:none;transition:border-color .2s;background:#fafafa;color:var(--text)}
-  .inp:focus,.sel:focus,.ta:focus{border-color:var(--green);background:white}
-  .ta{min-height:90px;resize:vertical}
+/* BOTTOM NAV — fix highlight */
+.bottomnav{height:var(--bottom-h);background:white;border-top:2px solid var(--border);display:flex;align-items:stretch;flex-shrink:0;box-shadow:0 -2px 10px rgba(34,197,94,.07)}
+.bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:none;background:transparent;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;font-size:.68rem;color:var(--muted);transition:color .15s,background .15s;padding:0;border-top:3px solid transparent}
+.bnav-btn span.ic{font-size:1.4rem;line-height:1}
+.bnav-btn.active{color:var(--green-dark);border-top-color:var(--green);background:#f0fdf4}
 
-  /* HOME */
-  .greeting{font-family:'Baloo 2',cursive;font-size:1.75rem;color:var(--green-dark);margin-bottom:2px}
-  .greeting-sub{font-size:.88rem;color:var(--muted);margin-bottom:16px}
-  .rank-hero{background:linear-gradient(135deg,#166534,#15803d,#22c55e);border-radius:var(--radius);padding:20px;color:white;margin-bottom:18px;position:relative;overflow:hidden}
-  .rank-hero::after{content:'🌱';position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:3.5rem;opacity:.25}
-  .rank-hero-name{font-family:'Baloo 2',cursive;font-size:1.3rem;margin-bottom:2px}
-  .rank-hero-pts{font-size:.82rem;opacity:.8;margin-bottom:12px}
-  .pbar{background:rgba(255,255,255,.25);border-radius:50px;height:9px;overflow:hidden}
-  .pbar-fill{background:var(--yellow);height:100%;border-radius:50px;transition:width 1s ease}
-  .pbar-lbl{font-size:.75rem;opacity:.8;margin-top:5px}
-  .stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
-  .stat-box{background:white;border:2px solid var(--border);border-radius:14px;padding:12px 8px;text-align:center}
-  .stat-num{font-family:'Baloo 2',cursive;font-size:1.5rem;line-height:1}
-  .stat-lbl{font-size:.72rem;color:var(--muted);font-weight:700;margin-top:3px}
-  /* Nhiệm vụ — chỉ hiển thị, không click cộng điểm */
-  .tasks-list{display:flex;flex-direction:column;gap:10px;margin-bottom:18px}
-  .task-item{background:white;border:2px solid var(--border);border-radius:14px;padding:14px;display:flex;align-items:center;gap:12px}
-  .task-item.done{background:linear-gradient(135deg,#f0fdf4,#dcfce7);border-color:var(--green)}
-  .task-ic{font-size:1.7rem;flex-shrink:0}
-  .task-info{flex:1}
-  .task-name{font-weight:800;font-size:.93rem}
-  .task-pts{font-size:.78rem;color:var(--green-dark);font-weight:700}
-  .task-check{font-size:1.2rem;flex-shrink:0}
-  .ai-promo{background:linear-gradient(135deg,#6d28d9,#a855f7,#ec4899);border-radius:var(--radius);padding:16px;color:white;display:flex;align-items:center;gap:14px;cursor:pointer;transition:transform .2s}
-  .ai-promo:active{transform:scale(.98)}
-  .ai-promo-ic{font-size:2.2rem;flex-shrink:0}
-  .ai-promo h3{font-family:'Baloo 2',cursive;font-size:1.1rem;margin-bottom:2px}
-  .ai-promo p{font-size:.8rem;opacity:.88;line-height:1.4}
+/* COMMON */
+.sec{font-family:'Baloo 2',cursive;font-size:1.15rem;color:var(--green-dark);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.btn{padding:13px 24px;border-radius:50px;border:none;font-family:'Nunito',sans-serif;font-weight:800;font-size:.95rem;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn:active{transform:scale(.97)}
+.btn-green{background:linear-gradient(135deg,var(--green),var(--green-dark));color:white;width:100%;box-shadow:0 4px 14px rgba(34,197,94,.3)}
+.btn-purple{background:linear-gradient(135deg,#6d28d9,#a855f7);color:white;width:100%;margin-bottom:14px;box-shadow:0 4px 14px rgba(168,85,247,.3)}
+.btn-outline{background:var(--green-light);color:var(--green-dark);padding:9px 18px;font-size:.85rem}
+.lbl{font-weight:800;font-size:.88rem;margin-bottom:7px;display:block;color:var(--text)}
+.inp,.sel,.ta{width:100%;border:2px solid var(--border);border-radius:12px;padding:11px 14px;font-family:'Nunito',sans-serif;font-size:.93rem;margin-bottom:14px;outline:none;transition:border-color .2s;background:#fafafa;color:var(--text)}
+.inp:focus,.sel:focus,.ta:focus{border-color:var(--green);background:white}
+.ta{min-height:90px;resize:vertical}
 
-  /* LOG */
-  .form-card{background:white;border-radius:var(--radius);padding:18px;box-shadow:var(--shadow)}
-  .ai-box{background:var(--purple-light);border:2px solid #d8b4fe;border-radius:14px;padding:14px;margin-bottom:14px;display:none}
-  .ai-box.show{display:block}
-  .ai-box-hd{display:flex;align-items:center;gap:7px;font-weight:800;color:#6d28d9;font-size:.85rem;margin-bottom:8px}
-  .ai-box-txt{font-size:.9rem;color:var(--text);line-height:1.6}
-  .dots-wrap{display:flex;align-items:center;gap:6px;color:#a855f7;font-weight:700;font-size:.85rem}
-  .dots span{display:inline-block;width:5px;height:5px;background:#a855f7;border-radius:50%;animation:bop .8s infinite}
-  .dots span:nth-child(2){animation-delay:.15s}.dots span:nth-child(3){animation-delay:.3s}
-  @keyframes bop{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
-  /* Upload ảnh */
-  .img-upload-wrap{border:2px dashed var(--border);border-radius:14px;padding:16px;text-align:center;cursor:pointer;margin-bottom:14px;transition:border-color .2s;background:#fafafa}
-  .img-upload-wrap:hover{border-color:var(--green)}
-  .img-upload-wrap input{display:none}
-  .img-preview{width:100%;max-height:200px;object-fit:cover;border-radius:10px;margin-top:10px;display:none}
+/* HOME */
+.greeting{font-family:'Baloo 2',cursive;font-size:1.75rem;color:var(--green-dark);margin-bottom:2px}
+.greeting-sub{font-size:.88rem;color:var(--muted);margin-bottom:16px}
+.rank-hero{background:linear-gradient(135deg,#166534,#15803d,#22c55e);border-radius:var(--radius);padding:20px;color:white;margin-bottom:18px;position:relative;overflow:hidden}
+.rank-hero::after{content:'🌱';position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:3.5rem;opacity:.25}
+.rank-hero-name{font-family:'Baloo 2',cursive;font-size:1.3rem;margin-bottom:2px}
+.rank-hero-pts{font-size:.82rem;opacity:.8;margin-bottom:12px}
+.pbar{background:rgba(255,255,255,.25);border-radius:50px;height:9px;overflow:hidden}
+.pbar-fill{background:var(--yellow);height:100%;border-radius:50px;transition:width 1s ease}
+.pbar-lbl{font-size:.75rem;opacity:.8;margin-top:5px}
+/* Chỉ 2 stat: việc tốt + điểm */
+.stats-row{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:18px}
+.stat-box{background:white;border:2px solid var(--border);border-radius:14px;padding:14px 8px;text-align:center}
+.stat-num{font-family:'Baloo 2',cursive;font-size:1.8rem;line-height:1}
+.stat-lbl{font-size:.72rem;color:var(--muted);font-weight:700;margin-top:4px}
+.tasks-list{display:flex;flex-direction:column;gap:10px;margin-bottom:18px}
+.task-item{background:white;border:2px solid var(--border);border-radius:14px;padding:14px;display:flex;align-items:center;gap:12px}
+.task-item.done{background:linear-gradient(135deg,#f0fdf4,#dcfce7);border-color:var(--green)}
+.task-ic{font-size:1.7rem;flex-shrink:0}
+.task-info{flex:1}
+.task-name{font-weight:800;font-size:.93rem}
+.task-pts{font-size:.78rem;color:var(--green-dark);font-weight:700}
+.task-check{font-size:1.2rem;flex-shrink:0}
+.ai-promo{background:linear-gradient(135deg,#6d28d9,#a855f7,#ec4899);border-radius:var(--radius);padding:16px;color:white;display:flex;align-items:center;gap:14px;cursor:pointer;transition:transform .2s}
+.ai-promo:active{transform:scale(.98)}
+.ai-promo-ic{font-size:2.2rem;flex-shrink:0}
+.ai-promo h3{font-family:'Baloo 2',cursive;font-size:1.1rem;margin-bottom:2px}
+.ai-promo p{font-size:.8rem;opacity:.88;line-height:1.4}
 
-  /* COMMUNITY */
-  .feed{display:flex;flex-direction:column;gap:12px}
-  .fcard{background:white;border:2px solid var(--border);border-radius:16px;padding:16px}
-  .fhd{display:flex;align-items:center;gap:10px;margin-bottom:8px}
-  .fava{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
-  .fname{font-weight:800;font-size:.9rem}
-  .ftime{font-size:.74rem;color:var(--muted)}
-  .ftag{background:var(--green-light);color:var(--green-dark);font-size:.76rem;font-weight:700;padding:3px 10px;border-radius:50px;display:inline-block;margin-bottom:7px}
-  .fdesc{font-size:.88rem;color:#374151;line-height:1.5}
-  .fimg{width:100%;max-height:180px;object-fit:cover;border-radius:10px;margin:8px 0}
-  .fbtns{display:flex;gap:10px;margin-top:10px}
-  .fbtn{border:none;background:var(--green-bg);border-radius:50px;padding:5px 14px;font-family:'Nunito',sans-serif;font-weight:700;font-size:.78rem;cursor:pointer;color:var(--muted);transition:all .18s}
-  .fbtn.liked{background:#fef9c3;color:var(--orange)}
-  .fbtn:active{transform:scale(.95)}
-  /* Comments */
-  .comments-wrap{margin-top:10px;border-top:1px solid var(--border);padding-top:10px;display:none}
-  .comments-wrap.open{display:block}
-  .comment-item{display:flex;gap:8px;margin-bottom:8px}
-  .comment-ava{width:26px;height:26px;border-radius:50%;background:var(--green-light);display:flex;align-items:center;justify-content:center;font-size:.8rem;flex-shrink:0;font-weight:800;color:var(--green-dark)}
-  .comment-name{font-weight:800;font-size:.78rem;color:var(--green-dark)}
-  .comment-text{font-size:.82rem;color:var(--text);line-height:1.45}
-  .comment-inp-row{display:flex;gap:6px;margin-top:8px}
-  .comment-inp{flex:1;border:1.5px solid var(--border);border-radius:50px;padding:7px 14px;font-family:'Nunito',sans-serif;font-size:.82rem;outline:none}
-  .comment-inp:focus{border-color:var(--green)}
-  .comment-send{background:var(--green);border:none;border-radius:50px;padding:7px 14px;color:white;font-family:'Nunito',sans-serif;font-weight:700;font-size:.78rem;cursor:pointer}
+/* LOG */
+.form-card{background:white;border-radius:var(--radius);padding:18px;box-shadow:var(--shadow)}
+.ai-box{background:var(--purple-light);border:2px solid #d8b4fe;border-radius:14px;padding:14px;margin-bottom:14px;display:none}
+.ai-box.show{display:block}
+.ai-box-hd{display:flex;align-items:center;gap:7px;font-weight:800;color:#6d28d9;font-size:.85rem;margin-bottom:8px}
+.ai-box-txt{font-size:.9rem;color:var(--text);line-height:1.6}
+.dots-wrap{display:flex;align-items:center;gap:6px;color:#a855f7;font-weight:700;font-size:.85rem}
+.dots span{display:inline-block;width:5px;height:5px;background:#a855f7;border-radius:50%;animation:bop .8s infinite}
+.dots span:nth-child(2){animation-delay:.15s}.dots span:nth-child(3){animation-delay:.3s}
+@keyframes bop{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+.img-upload-wrap{border:2px dashed var(--border);border-radius:14px;padding:16px;text-align:center;cursor:pointer;margin-bottom:14px;transition:border-color .2s;background:#fafafa}
+.img-upload-wrap:hover{border-color:var(--green)}
+.img-upload-wrap input{display:none}
+.img-preview{width:100%;max-height:200px;object-fit:cover;border-radius:10px;margin-top:10px;display:none}
 
-  /* AI CHAT */
-  .chat-wrap{background:white;border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;height:calc(100vh - var(--nav-h) - var(--bottom-h) - 100px);min-height:340px}
-  .chat-hd{background:linear-gradient(135deg,#6d28d9,#a855f7);padding:14px 16px;color:white;display:flex;align-items:center;gap:10px;flex-shrink:0}
-  .chat-hd-ic{font-size:1.6rem}
-  .chat-hd h3{font-family:'Baloo 2',cursive;font-size:1.1rem}
-  .chat-hd p{font-size:.76rem;opacity:.85}
-  .chat-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
-  .msg{max-width:82%;padding:11px 14px;border-radius:16px;font-size:.88rem;line-height:1.55}
-  .msg.ai{background:#f3e8ff;color:var(--text);align-self:flex-start;border-bottom-left-radius:4px}
-  .msg.user{background:linear-gradient(135deg,var(--green),var(--green-dark));color:white;align-self:flex-end;border-bottom-right-radius:4px}
-  .chat-inp-wrap{padding:12px;border-top:2px solid var(--border);display:flex;gap:8px;flex-shrink:0}
-  .chat-inp{flex:1;border:2px solid var(--border);border-radius:50px;padding:9px 16px;font-family:'Nunito',sans-serif;font-size:.9rem;outline:none}
-  .chat-inp:focus{border-color:var(--purple)}
-  .chat-send{width:40px;height:40px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,#6d28d9,#a855f7);border:none;color:white;font-size:1.1rem;cursor:pointer}
-  .quick-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
+/* COMMUNITY */
+.feed{display:flex;flex-direction:column;gap:12px}
+.fcard{background:white;border:2px solid var(--border);border-radius:16px;padding:16px;cursor:pointer;transition:box-shadow .15s}
+.fcard:hover{box-shadow:var(--shadow)}
+.fhd{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.fava{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
+.fname{font-weight:800;font-size:.9rem}
+.ftime{font-size:.74rem;color:var(--muted)}
+.ftag{background:var(--green-light);color:var(--green-dark);font-size:.76rem;font-weight:700;padding:3px 10px;border-radius:50px;display:inline-block;margin-bottom:7px}
+.fdesc{font-size:.88rem;color:#374151;line-height:1.5}
+.fimg{width:100%;max-height:180px;object-fit:cover;border-radius:10px;margin:8px 0}
+.fbtns{display:flex;gap:10px;margin-top:10px}
+.fbtn{border:none;background:var(--green-bg);border-radius:50px;padding:6px 16px;font-family:'Nunito',sans-serif;font-weight:700;font-size:.78rem;cursor:pointer;color:var(--muted);transition:all .18s}
+.fbtn.liked{background:#fef9c3;color:var(--orange)}
+.fbtn:active{transform:scale(.95)}
 
-  /* RANKS + LEADERBOARD */
-  .ranks-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-  .rcard{background:white;border:2px solid var(--border);border-radius:14px;padding:14px;text-align:center;transition:all .2s}
-  .rcard.unlocked{border-color:var(--green);background:linear-gradient(135deg,#f0fdf4,#dcfce7)}
-  .rcard.locked{opacity:.4;filter:grayscale(.5)}
-  .rcard-ic{font-size:2.2rem;margin-bottom:7px}
-  .rcard-name{font-weight:800;font-size:.82rem;margin-bottom:3px}
-  .rcard-req{font-size:.73rem;color:var(--muted)}
-  .board{background:white;border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}
-  .brow{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border)}
-  .brow:last-child{border-bottom:none}
-  .brow.me{background:#f0fdf4;margin:0 -16px;padding:11px 16px;border-radius:10px}
-  .brank{font-family:'Baloo 2',cursive;font-size:1.3rem;width:32px;text-align:center;flex-shrink:0}
-  .bava{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
-  .bname-wrap{flex:1}
-  .bname{font-weight:800;font-size:.9rem}
-  .btitle{font-size:.74rem;color:var(--green-dark);font-weight:700}
-  .bstat{font-size:.72rem;color:var(--muted)}
-  .bpts{font-family:'Baloo 2',cursive;font-size:1rem;color:var(--orange)}
+/* MODAL CHI TIẾT BÀI ĐĂNG */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:800;display:none;align-items:flex-end;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal-sheet{background:white;border-radius:20px 20px 0 0;width:100%;max-width:480px;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;animation:slideUp .3s ease}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-hd{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid var(--border);flex-shrink:0}
+.modal-hd-title{font-family:'Baloo 2',cursive;font-size:1.1rem;color:var(--green-dark)}
+.modal-close{background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--muted);padding:4px}
+.modal-body{overflow-y:auto;padding:16px 18px;flex:1}
+.modal-img{width:100%;max-height:220px;object-fit:cover;border-radius:12px;margin-bottom:12px}
+/* Comments in modal */
+.cmts-list{display:flex;flex-direction:column;gap:10px;margin-bottom:12px}
+.cmt-item{display:flex;gap:8px}
+.cmt-ava{width:28px;height:28px;border-radius:50%;background:var(--green-light);display:flex;align-items:center;justify-content:center;font-size:.82rem;flex-shrink:0;font-weight:800;color:var(--green-dark)}
+.cmt-body{flex:1;background:#f8fafb;border-radius:10px;padding:8px 10px}
+.cmt-name{font-weight:800;font-size:.78rem;color:var(--green-dark)}
+.cmt-text{font-size:.84rem;color:var(--text);line-height:1.45;margin-top:2px}
+.cmt-inp-row{display:flex;gap:8px;padding-top:8px;border-top:1px solid var(--border);flex-shrink:0;padding:12px 18px;background:white}
+.cmt-inp{flex:1;border:2px solid var(--border);border-radius:50px;padding:9px 16px;font-family:'Nunito',sans-serif;font-size:.88rem;outline:none}
+.cmt-inp:focus{border-color:var(--green)}
+.cmt-send{background:var(--green);border:none;border-radius:50px;padding:9px 18px;color:white;font-family:'Nunito',sans-serif;font-weight:700;font-size:.82rem;cursor:pointer;flex-shrink:0}
 
-  /* MISC */
-  .pt-popup{position:fixed;pointer-events:none;z-index:600;font-family:'Baloo 2',cursive;font-size:1.5rem;font-weight:800;color:var(--yellow);text-shadow:0 2px 8px rgba(0,0,0,.25);animation:ptFloat 1.6s ease-out forwards}
-  @keyframes ptFloat{0%{transform:translateY(0) scale(1);opacity:1}60%{transform:translateY(-60px) scale(1.2);opacity:1}100%{transform:translateY(-100px) scale(.8);opacity:0}}
-  .toast{position:fixed;bottom:calc(var(--bottom-h) + 12px);left:50%;transform:translateX(-50%) translateY(20px);background:linear-gradient(135deg,var(--green),var(--green-dark));color:white;padding:12px 22px;border-radius:50px;font-weight:800;font-size:.9rem;z-index:500;opacity:0;transition:transform .35s cubic-bezier(.34,1.56,.64,1),opacity .35s ease;white-space:nowrap;max-width:90vw;text-align:center;box-shadow:0 6px 20px rgba(0,0,0,.2);pointer-events:none}
-  .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
-  .confetti-piece{position:fixed;width:10px;height:10px;border-radius:2px;animation:fall 1.2s ease-in forwards;pointer-events:none;z-index:999}
-  @keyframes fall{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+/* AI CHAT */
+.chat-wrap{background:white;border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;height:calc(100vh - var(--nav-h) - var(--bottom-h) - 100px);min-height:340px}
+.chat-hd{background:linear-gradient(135deg,#6d28d9,#a855f7);padding:14px 16px;color:white;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.chat-hd-ic{font-size:1.6rem}
+.chat-hd h3{font-family:'Baloo 2',cursive;font-size:1.1rem}
+.chat-hd p{font-size:.76rem;opacity:.85}
+.chat-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
+.msg{max-width:82%;padding:11px 14px;border-radius:16px;font-size:.88rem;line-height:1.55}
+.msg.ai{background:#f3e8ff;color:var(--text);align-self:flex-start;border-bottom-left-radius:4px}
+.msg.user{background:linear-gradient(135deg,var(--green),var(--green-dark));color:white;align-self:flex-end;border-bottom-right-radius:4px}
+.chat-inp-wrap{padding:12px;border-top:2px solid var(--border);display:flex;gap:8px;flex-shrink:0}
+.chat-inp{flex:1;border:2px solid var(--border);border-radius:50px;padding:9px 16px;font-family:'Nunito',sans-serif;font-size:.9rem;outline:none}
+.chat-inp:focus{border-color:var(--purple)}
+.chat-send{width:40px;height:40px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,#6d28d9,#a855f7);border:none;color:white;font-size:1.1rem;cursor:pointer}
+.quick-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
+
+/* RANKS — bỏ số sao */
+.ranks-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.rcard{background:white;border:2px solid var(--border);border-radius:14px;padding:14px;text-align:center}
+.rcard.unlocked{border-color:var(--green);background:linear-gradient(135deg,#f0fdf4,#dcfce7)}
+.rcard.locked{opacity:.45;filter:grayscale(.5)}
+.rcard-ic{font-size:2.2rem;margin-bottom:6px}
+.rcard-name{font-weight:800;font-size:.82rem;margin-bottom:3px}
+.rcard-req{font-size:.73rem;color:var(--muted)}
+
+/* LEADERBOARD — trang riêng */
+.board{background:white;border-radius:var(--radius);padding:0;box-shadow:var(--shadow);overflow:hidden}
+.brow{display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid var(--border)}
+.brow:last-child{border-bottom:none}
+.brow.me{background:#f0fdf4}
+.brank{font-family:'Baloo 2',cursive;font-size:1.3rem;width:32px;text-align:center;flex-shrink:0}
+.bava{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
+.bname-wrap{flex:1}
+.bname{font-weight:800;font-size:.9rem}
+.btitle{font-size:.74rem;color:var(--green-dark);font-weight:700}
+.bstat{font-size:.72rem;color:var(--muted)}
+.bpts{font-family:'Baloo 2',cursive;font-size:1rem;color:var(--orange)}
+
+/* MISC */
+.pt-popup{position:fixed;pointer-events:none;z-index:600;font-family:'Baloo 2',cursive;font-size:1.5rem;font-weight:800;color:var(--yellow);text-shadow:0 2px 8px rgba(0,0,0,.25);animation:ptFloat 1.6s ease-out forwards}
+@keyframes ptFloat{0%{transform:translateY(0) scale(1);opacity:1}60%{transform:translateY(-60px) scale(1.2);opacity:1}100%{transform:translateY(-100px) scale(.8);opacity:0}}
+.toast{position:fixed;bottom:calc(var(--bottom-h) + 12px);left:50%;transform:translateX(-50%) translateY(20px);background:linear-gradient(135deg,var(--green),var(--green-dark));color:white;padding:12px 22px;border-radius:50px;font-weight:800;font-size:.9rem;z-index:900;opacity:0;transition:transform .35s cubic-bezier(.34,1.56,.64,1),opacity .35s ease;white-space:nowrap;max-width:90vw;text-align:center;box-shadow:0 6px 20px rgba(0,0,0,.2);pointer-events:none}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.confetti-piece{position:fixed;width:10px;height:10px;border-radius:2px;animation:fall 1.2s ease-in forwards;pointer-events:none;z-index:999}
+@keyframes fall{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
 </style>
 </head>
 <body>
@@ -234,10 +248,10 @@
       <div class="pbar"><div class="pbar-fill" id="pbarFill" style="width:0%"></div></div>
       <div class="pbar-lbl" id="pbarLbl">Còn 50 điểm nữa thăng cấp! 💪</div>
     </div>
+    <!-- Chỉ 2 stat: việc tốt + điểm -->
     <div class="stats-row">
-      <div class="stat-box"><div class="stat-num" id="statDone">0</div><div class="stat-lbl">Việc tốt</div></div>
+      <div class="stat-box"><div class="stat-num" id="statDone">0</div><div class="stat-lbl">Việc tốt đã làm</div></div>
       <div class="stat-box"><div class="stat-num" style="color:var(--orange)" id="statPts">0</div><div class="stat-lbl">Điểm tích lũy</div></div>
-      <div class="stat-box"><div class="stat-num" style="color:var(--purple)" id="statStreak">0🔥</div><div class="stat-lbl">Chuỗi ngày</div></div>
     </div>
     <div class="sec">📋 Gợi ý việc tốt hôm nay</div>
     <div class="tasks-list" id="tasksList"></div>
@@ -305,7 +319,7 @@
         <div><h3>AI Kindup</h3><p>Gợi ý nhiệm vụ • Khen ngợi • Động viên</p></div>
       </div>
       <div class="chat-msgs" id="chatMsgs">
-        <div class="msg ai">Xin chào! 👋 Mình là AI Kindup.<br>Mình có thể giúp bạn:<br>• 💡 Gợi ý việc tốt hôm nay<br>• ⭐ Khen ngợi và động viên<br>• ❓ Giải thích vì sao thói quen tốt quan trọng<br><br>Hãy hỏi mình bất cứ điều gì!</div>
+        <div class="msg ai">Xin chào! 👋 Mình là AI Kindup.<br>Mình có thể giúp bạn:<br>• 💡 Gợi ý việc tốt hôm nay<br>• ⭐ Khen ngợi và động viên<br>• ❓ Vì sao thói quen tốt quan trọng<br><br>Hãy hỏi mình bất cứ điều gì!</div>
       </div>
       <div class="chat-inp-wrap">
         <input class="chat-inp" id="chatInp" placeholder="Nhắn tin với AI..." onkeydown="if(event.key==='Enter')sendChat()"/>
@@ -319,23 +333,43 @@
     </div>
   </div>
 
-  <!-- RANKS + LEADERBOARD -->
+  <!-- DANH HIỆU -->
   <div class="page" id="page-ranks">
     <div class="sec" style="margin-bottom:12px">🏆 Danh hiệu của tôi</div>
-    <div class="ranks-grid" id="ranksGrid" style="margin-bottom:22px"></div>
-    <div class="sec" style="margin-bottom:12px">📊 Bảng xếp hạng người dùng</div>
+    <div class="ranks-grid" id="ranksGrid"></div>
+  </div>
+
+  <!-- BẢNG XẾP HẠNG — trang riêng -->
+  <div class="page" id="page-board">
+    <div class="sec" style="margin-bottom:14px">📊 Bảng xếp hạng</div>
     <div class="board" id="board"></div>
   </div>
 
-</div>
+</div><!-- /main -->
 
-<!-- BOTTOM NAV -->
+<!-- BOTTOM NAV — 6 tab -->
 <div class="bottomnav">
   <button class="bnav-btn active" onclick="showPage('home')" id="bn-home"><span class="ic">🏠</span><span>Trang chủ</span></button>
   <button class="bnav-btn" onclick="showPage('log')" id="bn-log"><span class="ic">✏️</span><span>Ghi việc tốt</span></button>
   <button class="bnav-btn" onclick="showPage('community')" id="bn-community"><span class="ic">🌍</span><span>Cộng đồng</span></button>
   <button class="bnav-btn" onclick="showPage('ai')" id="bn-ai"><span class="ic">🤖</span><span>AI</span></button>
   <button class="bnav-btn" onclick="showPage('ranks')" id="bn-ranks"><span class="ic">🏆</span><span>Danh hiệu</span></button>
+  <button class="bnav-btn" onclick="showPage('board')" id="bn-board"><span class="ic">📊</span><span>Xếp hạng</span></button>
+</div>
+
+<!-- MODAL CHI TIẾT BÀI ĐĂNG -->
+<div class="modal-overlay" id="postModal" onclick="closeModal(event)">
+  <div class="modal-sheet" id="modalSheet">
+    <div class="modal-hd">
+      <div class="modal-hd-title">Chi tiết việc tốt</div>
+      <button class="modal-close" onclick="closeModalDirect()">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="cmt-inp-row">
+      <input class="cmt-inp" id="modalCmtInp" placeholder="Viết bình luận..." onkeydown="if(event.key==='Enter')modalPostComment()"/>
+      <button class="cmt-send" onclick="modalPostComment()">Gửi</button>
+    </div>
+  </div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -344,29 +378,28 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 <script>
-// ═══ CẤU HÌNH ═══
-const FB_CFG = {
-  apiKey:            "AIzaSyB_YlQ99oal3RrfN8wX9oN5GjuW1QH4g-E",
-  authDomain:        "kindup-22cea.firebaseapp.com",
-  databaseURL:       "https://kindup-22cea-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId:         "kindup-22cea",
-  storageBucket:     "kindup-22cea.firebasestorage.app",
-  messagingSenderId: "776886224726",
-  appId:             "1:776886224726:web:b30634ca93d58d6d1238f7"
+// ═══ CONFIG ═══
+const FB_CFG={
+  apiKey:"AIzaSyB_YlQ99oal3RrfN8wX9oN5GjuW1QH4g-E",
+  authDomain:"kindup-22cea.firebaseapp.com",
+  databaseURL:"https://kindup-22cea-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId:"kindup-22cea",
+  storageBucket:"kindup-22cea.firebasestorage.app",
+  messagingSenderId:"776886224726",
+  appId:"1:776886224726:web:b30634ca93d58d6d1238f7"
 };
-const GROQ_KEY = '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';
+const GROQ_KEY='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';
 
 firebase.initializeApp(FB_CFG);
-const db      = firebase.database();
-const storage = firebase.storage();
+const db=firebase.database();
+const storage=firebase.storage();
 
-let G = {
-  uid:null, name:'', points:0, weekDone:0, streak:0,
-  doneToday:[], emoji:'😊', bg:'#bbf7d0',
-  chatHistory:[], likedPosts:{},
-};
+let G={uid:null,name:'',points:0,weekDone:0,doneToday:[],emoji:'😊',bg:'#bbf7d0',chatHistory:[],likedPosts:{}};
+let _feedUnsub=null,_boardUnsub=null;
+let _currentPage='home';
+let _modalFeedId=null,_modalCmtsUnsub=null;
 
-const RANKS = [
+const RANKS=[
   {name:'Tân Binh Việc Tốt',       icon:'🌱',req:0},
   {name:'Người Gieo Hạt',           icon:'🌿',req:50},
   {name:'Chiến Binh Tích Cực',      icon:'⚡',req:200},
@@ -374,16 +407,16 @@ const RANKS = [
   {name:'Đại Sứ Nhân Ái',          icon:'🌟',req:1000},
   {name:'Huyền Thoại Tử Tế',       icon:'👑',req:2000},
 ];
-const DAILY_TASKS = [
-  {id:'t1',name:'Đánh răng sáng & tối', icon:'🪥',pts:5},
-  {id:'t2',name:'Giúp ba mẹ việc nhà',  icon:'🧹',pts:10},
-  {id:'t3',name:'Nói lời cảm ơn',       icon:'🙏',pts:8},
-  {id:'t4',name:'Chào thầy cô',         icon:'👋',pts:5},
-  {id:'t5',name:'Đọc sách 30 phút',     icon:'📚',pts:15},
-  {id:'t6',name:'Tập thể dục',          icon:'🏃',pts:12},
+const DAILY_TASKS=[
+  {id:'t1',name:'Đánh răng sáng & tối',icon:'🪥',pts:5},
+  {id:'t2',name:'Giúp ba mẹ việc nhà', icon:'🧹',pts:10},
+  {id:'t3',name:'Nói lời cảm ơn',      icon:'🙏',pts:8},
+  {id:'t4',name:'Chào thầy cô',        icon:'👋',pts:5},
+  {id:'t5',name:'Đọc sách 30 phút',    icon:'📚',pts:15},
+  {id:'t6',name:'Tập thể dục',         icon:'🏃',pts:12},
 ];
 const BG_COLORS=['#bbf7d0','#fce7f3','#dbeafe','#fef9c3','#ede9fe','#ffedd5'];
-const EMOJIS   =['😄','🌸','🦁','🌺','⭐','🐬','🌻','🦋'];
+const EMOJIS=['😄','🌸','🦁','🌺','⭐','🐬','🌻','🦋'];
 
 function makeUID(n,p){return(n.trim().toLowerCase().replace(/\s+/g,'-')+'-'+p).replace(/[^a-z0-9\-]/g,'')}
 function getRankFor(pts){let r=RANKS[0];for(let i=RANKS.length-1;i>=0;i--){if(pts>=RANKS[i].req){r=RANKS[i];break;}}return r;}
@@ -413,7 +446,7 @@ window.doRegister=async function(){
   setBtn('btnReg',true,'⏳ Đang kiểm tra...');
   const snap=await db.ref(`users/${uid}`).get();
   if(snap.exists()){msg.textContent='⚠️ Tên + PIN này đã tồn tại!';setBtn('btnReg',false,'Tạo tài khoản ✨');return;}
-  const ud={name,pin:hashPin(pin),uid,points:0,weekDone:0,streak:0,doneToday:[],likedPosts:{},
+  const ud={name,pin:hashPin(pin),uid,points:0,weekDone:0,doneToday:[],likedPosts:{},
     createdAt:Date.now(),emoji:EMOJIS[Math.floor(Math.random()*EMOJIS.length)],bg:BG_COLORS[Math.floor(Math.random()*BG_COLORS.length)]};
   await db.ref(`users/${uid}`).set(ud);
   msg.textContent='✅ Đã tạo tài khoản!';
@@ -440,10 +473,11 @@ function setBtn(id,dis,txt){const b=document.getElementById(id);b.disabled=dis;b
 
 function enterApp(data){
   G.uid=data.uid; G.name=data.name;
-  G.points=data.points||0; G.weekDone=data.weekDone||0; G.streak=data.streak||0;
+  G.points=data.points||0; G.weekDone=data.weekDone||0;
   G.doneToday=Array.isArray(data.doneToday)?data.doneToday:[];
   G.emoji=data.emoji||'😊'; G.bg=data.bg||'#bbf7d0';
   G.likedPosts=data.likedPosts||{};
+  G.chatHistory=[];
   const today=new Date().toDateString();
   if((data.lastActiveDay||'')!==today){
     G.doneToday=[];
@@ -453,26 +487,36 @@ function enterApp(data){
   document.getElementById('userAva').textContent=G.name.charAt(0).toUpperCase();
   document.getElementById('menuUserName').textContent='👤 '+G.name;
   initApp();
+  // Subscribe realtime listeners
   subscribeToFeed();
   subscribeToLeaderboard();
+  // Go to home
+  showPage('home');
 }
 
 window.logout=function(){
-  G={uid:null,name:'',points:0,weekDone:0,streak:0,doneToday:[],emoji:'😊',bg:'#bbf7d0',chatHistory:[],likedPosts:{}};
+  // Unsubscribe listeners
+  if(_feedUnsub){db.ref('feed').off('value',_feedUnsub);_feedUnsub=null;}
+  if(_boardUnsub){db.ref('users').off('value',_boardUnsub);_boardUnsub=null;}
+  G={uid:null,name:'',points:0,weekDone:0,doneToday:[],emoji:'😊',bg:'#bbf7d0',chatHistory:[],likedPosts:{}};
   document.getElementById('logoutMenu').style.display='none';
   document.getElementById('loginName').value='';
   document.getElementById('loginPin').value='';
   document.getElementById('loginMsg').textContent='Nhập tên và PIN bạn đã đăng ký.';
+  // Reset chat
+  document.getElementById('chatMsgs').innerHTML='<div class="msg ai">Xin chào! 👋 Mình là AI Kindup.<br>Mình có thể giúp bạn:<br>• 💡 Gợi ý việc tốt hôm nay<br>• ⭐ Khen ngợi và động viên<br>• ❓ Vì sao thói quen tốt quan trọng<br><br>Hãy hỏi mình bất cứ điều gì!</div>';
+  // Clear feed & board
+  document.getElementById('feed').innerHTML='';
+  document.getElementById('board').innerHTML='';
   switchTab('login');
   document.getElementById('setupScreen').style.display='flex';
-  document.getElementById('chatMsgs').innerHTML='<div class="msg ai">Xin chào! 👋 Mình là AI Kindup. Hãy hỏi mình bất cứ điều gì!</div>';
 };
 
 // ═══ FIREBASE ═══
 function saveUser(){
   if(!G.uid)return;
   db.ref(`users/${G.uid}`).update({
-    points:G.points,weekDone:G.weekDone,streak:G.streak,
+    points:G.points,weekDone:G.weekDone,
     doneToday:G.doneToday,lastActiveDay:new Date().toDateString(),
     likedPosts:G.likedPosts,
   });
@@ -488,32 +532,10 @@ async function postToFeed(task,desc,imageUrl=''){
   });
 }
 
-// ═══ UPLOAD ẢNH ═══
-let _selectedPhoto=null;
-window.onPhotoChange=function(e){
-  const file=e.target.files[0];if(!file)return;
-  _selectedPhoto=file;
-  const reader=new FileReader();
-  reader.onload=ev=>{
-    const img=document.getElementById('photoPreview');
-    img.src=ev.target.result; img.style.display='block';
-    document.getElementById('photoPlaceholder').textContent='✅ Đã chọn ảnh';
-  };
-  reader.readAsDataURL(file);
-};
-
-async function uploadPhoto(){
-  if(!_selectedPhoto)return'';
-  try{
-    const ref=storage.ref(`feed/${G.uid}_${Date.now()}`);
-    await ref.put(_selectedPhoto);
-    return await ref.getDownloadURL();
-  }catch(e){console.error('Upload error',e);return'';}
-}
-
-// ═══ REALTIME LISTENERS ═══
+// ═══ REALTIME — chỉ subscribe 1 lần, luôn cập nhật ═══
 function subscribeToFeed(){
-  db.ref('feed').on('value',snap=>{
+  if(_feedUnsub)db.ref('feed').off('value',_feedUnsub);
+  _feedUnsub=db.ref('feed').on('value',snap=>{
     const items=[];
     snap.forEach(c=>items.push({id:c.key,...c.val()}));
     items.sort((a,b)=>b.ts-a.ts);
@@ -522,7 +544,8 @@ function subscribeToFeed(){
 }
 
 function subscribeToLeaderboard(){
-  db.ref('users').on('value',snap=>{
+  if(_boardUnsub)db.ref('users').off('value',_boardUnsub);
+  _boardUnsub=db.ref('users').on('value',snap=>{
     const rows=[];
     snap.forEach(c=>{
       const d=c.val();
@@ -533,6 +556,25 @@ function subscribeToLeaderboard(){
     rows.sort((a,b)=>b.pts-a.pts);
     renderBoard(rows);
   });
+}
+
+// ═══ UPLOAD ẢNH ═══
+let _selectedPhoto=null;
+window.onPhotoChange=function(e){
+  const file=e.target.files[0];if(!file)return;
+  _selectedPhoto=file;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    const img=document.getElementById('photoPreview');
+    img.src=ev.target.result;img.style.display='block';
+    document.getElementById('photoPlaceholder').textContent='✅ Đã chọn ảnh';
+  };
+  reader.readAsDataURL(file);
+};
+async function uploadPhoto(){
+  if(!_selectedPhoto)return'';
+  try{const ref=storage.ref(`feed/${G.uid}_${Date.now()}`);await ref.put(_selectedPhoto);return await ref.getDownloadURL();}
+  catch(e){console.error('Upload error',e);return'';}
 }
 
 // ═══ INIT ═══
@@ -547,11 +589,10 @@ function initApp(){
 
 // ═══ RENDER ═══
 function renderAll(){
-  updateProgress(); renderTasks(); renderRanks();
+  updateProgress();renderTasks();renderRanks();
   document.getElementById('ptsChip').textContent=`⭐ ${G.points} điểm`;
   document.getElementById('statDone').textContent=G.weekDone;
   document.getElementById('statPts').textContent=G.points;
-  document.getElementById('statStreak').textContent=G.streak+'🔥';
 }
 
 function updateProgress(){
@@ -566,14 +607,13 @@ function updateProgress(){
     document.getElementById('pbarFill').style.width=pct+'%';
     document.getElementById('rankPts').textContent=`${pts} / ${next.req} điểm`;
     document.getElementById('pbarLbl').textContent=`Còn ${next.req-pts} điểm nữa thành ${next.name}! 💪`;
-  } else {
+  }else{
     document.getElementById('pbarFill').style.width='100%';
     document.getElementById('rankPts').textContent='Đã đạt cấp cao nhất!';
     document.getElementById('pbarLbl').textContent='Bạn thật tuyệt vời! 👑';
   }
 }
 
-// Nhiệm vụ chỉ hiển thị — không click cộng điểm
 function renderTasks(){
   document.getElementById('tasksList').innerHTML=DAILY_TASKS.map(t=>`
     <div class="task-item ${G.doneToday.includes(t.id)?'done':''}">
@@ -583,35 +623,30 @@ function renderTasks(){
     </div>`).join('');
 }
 
+// Feed — nhấn vào card mở modal chi tiết
 function renderFeed(items){
   const el=document.getElementById('feed');
   if(!items||!items.length){el.innerHTML='<div style="text-align:center;color:var(--muted);padding:32px 0">Chưa có việc tốt nào. Hãy là người đầu tiên! 🌱</div>';return;}
   el.innerHTML=items.map(f=>{
     const liked=G.likedPosts[f.id]||false;
-    return`<div class="fcard">
+    return`<div class="fcard" onclick="openPostModal('${f.id}')">
       <div class="fhd">
         <div class="fava" style="background:${escHtml(f.bg||'#bbf7d0')}">${escHtml(f.emoji||'😊')}</div>
         <div><div class="fname">${escHtml(f.name)}</div><div class="ftime">${timeAgo(f.ts)} • ${escHtml(f.rank||'')}</div></div>
       </div>
       <div class="ftag">✅ ${escHtml(f.task)}</div>
       <div class="fdesc">${escHtml(f.desc)}</div>
-      ${f.imageUrl?`<img class="fimg" src="${escHtml(f.imageUrl)}" loading="lazy"/>`:''}
-      <div class="fbtns">
-        <button class="fbtn ${liked?'liked':''}" data-id="${f.id}" data-likes="${f.likes||0}" onclick="toggleLike(this)">${liked?'❤️':'👍'} ${f.likes||0}</button>
-        <button class="fbtn" onclick="toggleComments('${f.id}')">💬 Bình luận</button>
-      </div>
-      <div class="comments-wrap" id="cmts-${f.id}">
-        <div id="cmts-list-${f.id}"></div>
-        <div class="comment-inp-row">
-          <input class="comment-inp" id="cmts-inp-${f.id}" placeholder="Viết bình luận..." onkeydown="if(event.key==='Enter')postComment('${f.id}')"/>
-          <button class="comment-send" onclick="postComment('${f.id}')">Gửi</button>
-        </div>
+      ${f.imageUrl?`<img class="fimg" src="${escHtml(f.imageUrl)}" loading="lazy" onclick="event.stopPropagation()"/>`:''}
+      <div class="fbtns" onclick="event.stopPropagation()">
+        <button class="fbtn ${liked?'liked':''}" data-id="${f.id}" data-likes="${f.likes||0}" onclick="toggleLike(this,event)">${liked?'❤️':'👍'} ${f.likes||0}</button>
+        <button class="fbtn" onclick="openPostModal('${f.id}')">💬 Bình luận</button>
       </div>
     </div>`;
   }).join('');
 }
 
 function renderRanks(){
+  // Bỏ số sao — chỉ icon, tên, trạng thái
   document.getElementById('ranksGrid').innerHTML=RANKS.map(r=>`
     <div class="rcard ${G.points>=r.req?'unlocked':'locked'}">
       <div class="rcard-ic">${r.icon}</div>
@@ -632,14 +667,14 @@ function renderBoard(rows){
         <div class="btitle">${r.title}</div>
         <div class="bstat">${r.weekDone} việc tốt</div>
       </div>
-      <div class="bpts">${r.pts}⭐</div>
+      <div class="bpts">${r.pts} điểm</div>
     </div>`).join('');
 }
 
 // ═══ ACTIONS ═══
 function addPoints(pts){
-  G.points+=pts; G.weekDone++; G.streak=Math.max(1,G.streak);
-  saveUser(); renderAll();
+  G.points+=pts;G.weekDone++;
+  saveUser();renderAll();
 }
 
 window.onSelChange=function(){
@@ -655,24 +690,17 @@ window.submitTask=async function(){
   const custom=document.getElementById('customTask').value.trim();
   const finalName=(taskName==='Việc tốt khác'&&custom)?custom:taskName;
   const earnedPts=parseInt(pts)||10;
-
   const btn=document.getElementById('btnSubmit');
-  btn.disabled=true; btn.textContent='⏳ Đang lưu...';
-
-  // Upload ảnh nếu có
+  btn.disabled=true;btn.textContent='⏳ Đang lưu...';
   const imageUrl=await uploadPhoto();
-
-  // Đánh dấu task hoàn thành
   const taskObj=DAILY_TASKS.find(t=>t.name===finalName||t.name===taskName);
-  if(taskObj&&!G.doneToday.includes(taskObj.id)) G.doneToday.push(taskObj.id);
+  if(taskObj&&!G.doneToday.includes(taskObj.id))G.doneToday.push(taskObj.id);
   addPoints(earnedPts);
-  await postToFeed(finalName,desc,imageUrl);
-
+  await postToFeed(finalName,desc,imageUrl);  // feed realtime tự cập nhật
   showToast(`🎉 "${finalName}" đã được ghi lại!`);
   showPointPopup(earnedPts,btn);
   confetti();
-
-  // AI tự động khen — không cần nhấn nút riêng
+  // AI khen tự động
   const praiseBox=document.getElementById('praiseBox');
   const praiseTxt=document.getElementById('praiseTxt');
   praiseBox.classList.add('show');
@@ -682,7 +710,6 @@ window.submitTask=async function(){
     'Bạn là trợ lý AI của Kindup. Hãy khen ngợi học sinh thật ấm áp và gợi ý 1-2 cách phát huy thêm. Trả lời tiếng Việt, emoji vừa phải, tối đa 100 từ.'
   )||FALLBACKS.praise;
   praiseTxt.innerHTML=r.replace(/\n/g,'<br>');
-
   // Reset form
   document.getElementById('taskSel').value='';
   document.getElementById('taskDesc').value='';
@@ -693,65 +720,107 @@ window.submitTask=async function(){
   document.getElementById('photoPreview').style.display='none';
   document.getElementById('photoPlaceholder').textContent='📷 Nhấn để chọn ảnh từ thư viện';
   document.getElementById('photoInput').value='';
-  btn.disabled=false; btn.textContent='🎉 Ghi lại & nhận điểm';
+  btn.disabled=false;btn.textContent='🎉 Ghi lại & nhận điểm';
 };
 
-// ═══ LIKE — 1 lần / bài ═══
-window.toggleLike=async function(btn){
+// ═══ LIKE — 1 lần ═══
+window.toggleLike=async function(btn,e){
+  if(e)e.stopPropagation();
   const id=btn.dataset.id;
   const liked=G.likedPosts[id]||false;
   const l=parseInt(btn.dataset.likes)||0;
   if(liked){
-    G.likedPosts[id]=false;
-    btn.classList.remove('liked');
-    btn.dataset.likes=Math.max(0,l-1);
-    btn.textContent='👍 '+Math.max(0,l-1);
-    if(id)db.ref(`feed/${id}`).update({likes:Math.max(0,l-1)});
+    G.likedPosts[id]=false;btn.classList.remove('liked');
+    btn.dataset.likes=Math.max(0,l-1);btn.textContent='👍 '+Math.max(0,l-1);
+    db.ref(`feed/${id}`).update({likes:Math.max(0,l-1)});
   }else{
-    G.likedPosts[id]=true;
-    btn.classList.add('liked');
-    btn.dataset.likes=l+1;
-    btn.textContent='❤️ '+(l+1);
-    if(id)db.ref(`feed/${id}`).update({likes:l+1});
+    G.likedPosts[id]=true;btn.classList.add('liked');
+    btn.dataset.likes=l+1;btn.textContent='❤️ '+(l+1);
+    db.ref(`feed/${id}`).update({likes:l+1});
   }
   db.ref(`users/${G.uid}/likedPosts`).update({[id]:G.likedPosts[id]});
+  // Cập nhật trong modal nếu đang mở
+  if(_modalFeedId===id)updateModalLikeBtn();
 };
 
-// ═══ BÌNH LUẬN ═══
-window.toggleComments=function(feedId){
-  const wrap=document.getElementById(`cmts-${feedId}`);
-  if(wrap.classList.contains('open')){wrap.classList.remove('open');return;}
-  wrap.classList.add('open');
-  loadComments(feedId);
-};
+// ═══ MODAL CHI TIẾT ═══
+let _modalFeedData=null;
 
-function loadComments(feedId){
-  db.ref(`comments/${feedId}`).on('value',snap=>{
-    const list=document.getElementById(`cmts-list-${feedId}`);
-    if(!list)return;
-    const items=[];
-    snap.forEach(c=>items.push(c.val()));
-    if(!items.length){list.innerHTML='<div style="font-size:.8rem;color:var(--muted);margin-bottom:8px">Chưa có bình luận nào.</div>';return;}
-    list.innerHTML=items.map(c=>`
-      <div class="comment-item">
-        <div class="comment-ava">${escHtml(c.name||'?').charAt(0)}</div>
-        <div>
-          <div class="comment-name">${escHtml(c.name)}</div>
-          <div class="comment-text">${escHtml(c.text)}</div>
+window.openPostModal=function(feedId){
+  _modalFeedId=feedId;
+  const modal=document.getElementById('postModal');
+  modal.classList.add('open');
+  document.getElementById('modalBody').innerHTML='<div style="text-align:center;padding:32px;color:var(--muted)">Đang tải...</div>';
+  // Load bài đăng
+  db.ref(`feed/${feedId}`).get().then(snap=>{
+    if(!snap.exists())return;
+    _modalFeedData={id:feedId,...snap.val()};
+    renderModalBody(_modalFeedData);
+  });
+  // Subscribe comments realtime
+  if(_modalCmtsUnsub)db.ref(`comments/${_modalFeedId}`).off('value',_modalCmtsUnsub);
+  _modalCmtsUnsub=db.ref(`comments/${feedId}`).on('value',snap=>{
+    const items=[];snap.forEach(c=>items.push(c.val()));
+    const el=document.getElementById('modalCmtsList');
+    if(!el)return;
+    if(!items.length){el.innerHTML='<div style="font-size:.84rem;color:var(--muted);padding:4px 0">Chưa có bình luận nào. Hãy là người đầu tiên!</div>';return;}
+    el.innerHTML=items.map(c=>`
+      <div class="cmt-item">
+        <div class="cmt-ava">${escHtml(c.name||'?').charAt(0)}</div>
+        <div class="cmt-body">
+          <div class="cmt-name">${escHtml(c.name)}</div>
+          <div class="cmt-text">${escHtml(c.text)}</div>
         </div>
       </div>`).join('');
   });
-}
-
-window.postComment=async function(feedId){
-  if(!G.uid){showToast('⚠️ Cần đăng nhập!');return;}
-  const inp=document.getElementById(`cmts-inp-${feedId}`);
-  const text=inp.value.trim();if(!text)return;
-  inp.value='';
-  await db.ref(`comments/${feedId}`).push({uid:G.uid,name:G.name,text,ts:Date.now()});
 };
 
-// ═══ AI (Groq) ═══
+function renderModalBody(f){
+  const liked=G.likedPosts[f.id]||false;
+  document.getElementById('modalBody').innerHTML=`
+    <div class="fhd" style="margin-bottom:10px">
+      <div class="fava" style="background:${escHtml(f.bg||'#bbf7d0')}">${escHtml(f.emoji||'😊')}</div>
+      <div><div class="fname">${escHtml(f.name)}</div><div class="ftime">${timeAgo(f.ts)} • ${escHtml(f.rank||'')}</div></div>
+    </div>
+    <div class="ftag" style="margin-bottom:10px">✅ ${escHtml(f.task)}</div>
+    <div class="fdesc" style="margin-bottom:12px">${escHtml(f.desc)}</div>
+    ${f.imageUrl?`<img class="modal-img" src="${escHtml(f.imageUrl)}"/>`:''}
+    <div class="fbtns" style="margin-bottom:16px">
+      <button id="modalLikeBtn" class="fbtn ${liked?'liked':''}" data-id="${f.id}" data-likes="${f.likes||0}" onclick="toggleLike(this,null)">${liked?'❤️':'👍'} ${f.likes||0}</button>
+    </div>
+    <div class="sec" style="font-size:1rem;margin-bottom:10px">💬 Bình luận</div>
+    <div class="cmts-list" id="modalCmtsList"><div style="font-size:.84rem;color:var(--muted)">Đang tải...</div></div>
+  `;
+}
+
+function updateModalLikeBtn(){
+  const btn=document.getElementById('modalLikeBtn');
+  if(!btn||!_modalFeedData)return;
+  const liked=G.likedPosts[_modalFeedId]||false;
+  btn.className='fbtn '+(liked?'liked':'');
+  btn.textContent=(liked?'❤️ ':'👍 ')+btn.dataset.likes;
+}
+
+window.closeModal=function(e){
+  if(e.target===document.getElementById('postModal'))closeModalDirect();
+};
+window.closeModalDirect=function(){
+  document.getElementById('postModal').classList.remove('open');
+  if(_modalCmtsUnsub){db.ref(`comments/${_modalFeedId}`).off('value',_modalCmtsUnsub);_modalCmtsUnsub=null;}
+  _modalFeedId=null;_modalFeedData=null;
+  document.getElementById('modalCmtInp').value='';
+};
+
+window.modalPostComment=async function(){
+  if(!G.uid){showToast('⚠️ Cần đăng nhập!');return;}
+  if(!_modalFeedId)return;
+  const inp=document.getElementById('modalCmtInp');
+  const text=inp.value.trim();if(!text)return;
+  inp.value='';
+  await db.ref(`comments/${_modalFeedId}`).push({uid:G.uid,name:G.name,text,ts:Date.now()});
+};
+
+// ═══ AI ═══
 const FALLBACKS={
   suggest:'Hôm nay bạn có thể thử:\n1. 📚 Đọc sách 20-30 phút – giúp não phát triển!\n2. 🙏 Nói "cảm ơn" với ba mẹ hoặc thầy cô.\n3. 🧹 Dọn dẹp góc học tập – môi trường gọn giúp học tốt hơn!',
   praise:'Bạn thật tuyệt vời! 🌟 Việc bạn đã làm không chỉ giúp ích cho người khác mà còn giúp bản thân tốt hơn mỗi ngày. Hãy tiếp tục nhé! 💪✨',
@@ -805,7 +874,7 @@ window.sendChat=async function(){
       body:JSON.stringify({model:'llama-3.1-8b-instant',messages,max_tokens:300,temperature:0.85})
     });
     const d=await res.json();
-    if(d.error){console.error('Chat Groq error:',d.error);reply=FALLBACKS.chat;}
+    if(d.error){reply=FALLBACKS.chat;}
     else reply=d.choices?.[0]?.message?.content||FALLBACKS.chat;
   }catch(e){reply=FALLBACKS.chat;}
   G.chatHistory.push({role:'assistant',content:reply});
@@ -820,15 +889,35 @@ function addChatMsg(text,role){
 }
 window.quickMsg=t=>{document.getElementById('chatInp').value=t;sendChat();};
 
-// ═══ UI HELPERS ═══
+// ═══ NAVIGATION — highlight tab + tải lại dữ liệu ═══
 window.showPage=function(id){
+  _currentPage=id;
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.bnav-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('page-'+id).classList.add('active');
-  document.getElementById('bn-'+id)?.classList.add('active');
+  const btn=document.getElementById('bn-'+id);
+  if(btn)btn.classList.add('active');
   document.querySelector('.main').scrollTop=0;
   document.getElementById('logoutMenu').style.display='none';
+  // Tải lại dữ liệu theo trang (trừ AI)
+  if(id==='home')refreshHome();
+  if(id==='community')subscribeToFeed();
+  if(id==='ranks')renderRanks();
+  if(id==='board')subscribeToLeaderboard();
 };
+
+function refreshHome(){
+  if(!G.uid)return;
+  db.ref(`users/${G.uid}`).get().then(snap=>{
+    if(!snap.exists())return;
+    const d=snap.val();
+    G.points=d.points||0;G.weekDone=d.weekDone||0;
+    G.doneToday=Array.isArray(d.doneToday)?d.doneToday:[];
+    G.likedPosts=d.likedPosts||{};
+    renderAll();
+  });
+}
+
 window.toggleMenu=function(){
   const m=document.getElementById('logoutMenu');
   m.style.display=m.style.display==='none'?'block':'none';
@@ -837,6 +926,7 @@ document.addEventListener('click',e=>{
   const menu=document.getElementById('logoutMenu'),ava=document.getElementById('userAva');
   if(menu&&!menu.contains(e.target)&&!ava.contains(e.target))menu.style.display='none';
 });
+
 let _toastTimer=null;
 window.showToast=function(msg){
   const t=document.getElementById('toast');

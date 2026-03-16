@@ -840,6 +840,8 @@ window.submitTask=async function(){
     `Bạn là AI đánh giá Kindup. Hãy:
 1. Cho điểm từ 1-10 dựa trên mức độ ý nghĩa, nỗ lực và tác động tích cực của việc tốt.
 2. Viết lời khen ngắn ấm áp, có thể gợi ý 1 cách phát huy thêm.
+3. Trường hợp nội dung không có nghĩa, không phải thật sự là việc tốt thì cho không điểm và không lưu vào dữ liệu,
+   và thông báo là nội dung không hợp lệ.
 Trả về JSON hợp lệ, chỉ JSON: {"score":8,"praise":"lời khen..."}`
   );
 

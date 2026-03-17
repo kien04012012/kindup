@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Kindup – Tạo dữ liệu demo</title>
+<style>
+  body{font-family:'Segoe UI',sans-serif;background:#f0fdf4;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;padding:20px;box-sizing:border-box}
+  .box{background:white;border-radius:20px;padding:36px;max-width:540px;width:100%;box-shadow:0 8px 32px rgba(0,120,50,.12)}
+  h2{color:#1b5e20;margin-bottom:6px;font-size:1.5rem}
+  p{color:#555;font-size:.9rem;margin-bottom:24px;line-height:1.6}
+  .btn{width:100%;padding:16px;border:none;border-radius:14px;font-size:1.05rem;font-weight:700;cursor:pointer;transition:all .2s}
+  .btn-go{background:linear-gradient(135deg,#2e7d32,#43a047);color:white;margin-bottom:10px}
+  .btn-go:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,150,50,.3)}
+  .btn-go:disabled{opacity:.5;cursor:not-allowed;transform:none}
+  .btn-clear{background:#fff3f3;color:#c62828;border:2px solid #ffcdd2}
+  .btn-clear:hover{background:#ffcdd2}
+  .btn-clear:disabled{opacity:.5;cursor:not-allowed}
+  .log{margin-top:20px;background:#f8fdf8;border:1.5px solid #c8e6c9;border-radius:12px;padding:16px;max-height:320px;overflow-y:auto;font-size:.82rem;font-family:monospace;line-height:1.7}
+  .log .ok{color:#2e7d32}
+  .log .err{color:#c62828}
+  .log .info{color:#1565c0}
+  .log .warn{color:#e65100}
+  .progress{height:8px;background:#e8f5e9;border-radius:50px;margin:14px 0;overflow:hidden}
+  .progress-bar{height:100%;background:linear-gradient(90deg,#43a047,#00e676);border-radius:50px;transition:width .3s;width:0%}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}
+  .stat{background:#f1fff5;border-radius:10px;padding:12px;text-align:center;border:1.5px solid #c8e6c9}
+  .stat-n{font-size:1.6rem;font-weight:700;color:#1b5e20}
+  .stat-l{font-size:.7rem;color:#555;margin-top:2px}
+</style>
+</head>
+<body>
+<div class="box">
+  <h2>🌱 Kindup – Tạo dữ liệu demo</h2>
+  <p>Công cụ này sẽ tự động tạo dữ liệu mẫu thực tế vào Firebase để demo ứng dụng. Bao gồm người dùng, bài đăng <b>có ảnh minh hoạ thực tế</b>, bình luận và lượt thích đa dạng.<br><small style="color:#888">⏱ Mất khoảng 1-2 phút do cần tải ảnh từ internet.</small></p>
+
+  <div class="stats">
+    <div class="stat"><div class="stat-n">10</div><div class="stat-l">👤 Người dùng</div></div>
+    <div class="stat"><div class="stat-n">35</div><div class="stat-l">📝 Bài đăng</div></div>
+    <div class="stat"><div class="stat-n">15</div><div class="stat-l">📷 Bài có ảnh</div></div>
+  </div>
+
+  <div class="progress"><div class="progress-bar" id="pbar"></div></div>
+
+  <button class="btn btn-go" id="btnSeed" onclick="startSeed()">🚀 Tạo dữ liệu demo ngay</button>
+  <button class="btn btn-clear" id="btnClear" onclick="clearData()">🗑️ Xoá toàn bộ dữ liệu demo</button>
+
+  <div class="log" id="log"><span class="info">Sẵn sàng. Nhấn nút để bắt đầu...</span></div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script>
+// ══════════════════════════════════════════
+// CONFIG — cùng project với app chính
+// ══════════════════════════════════════════
+const FB_CFG={
+  apiKey:"AIzaSyB_YlQ99oal3RrfN8wX9oN5GjuW1QH4g-E",
+  authDomain:"kindup-22cea.firebaseapp.com",
+  databaseURL:"https://kindup-22cea-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId:"kindup-22cea",
+  storageBucket:"kindup-22cea.firebasestorage.app",
+  messagingSenderId:"776886224726",
+  appId:"1:776886224726:web:b30634ca93d58d6d1238f7"
+};
+firebase.initializeApp(FB_CFG);
+const db=firebase.database();
+
+// ══════════════════════════════════════════
+// DỮ LIỆU MẪU
+// ══════════════════════════════════════════
+const USERS=[
+  {name:'Minh Tuấn',   emoji:'🐬', bg:'#bbf7d0', points:285, weekDone:28, pin:'1234'},
+  {name:'Quỳnh Anh',   emoji:'🌻', bg:'#fce7f3', points:142, weekDone:15, pin:'2222'},
+  {name:'Phúc Bình',   emoji:'🦁', bg:'#dbeafe', points:530, weekDone:52, pin:'3333'},
+  {name:'Ngọc Hân',    emoji:'🌸', bg:'#ede9fe', points:198, weekDone:20, pin:'4444'},
+  {name:'Đức Trọng',   emoji:'⭐', bg:'#fef9c3', points:860, weekDone:87, pin:'5555'},
+  {name:'Lan Phương',  emoji:'🦋', bg:'#ffedd5', points:45,  weekDone:5,  pin:'6666'},
+  {name:'Thái Sơn',    emoji:'🌺', bg:'#bbf7d0', points:1250,weekDone:120,pin:'7777'},
+  {name:'Bảo Châu',    emoji:'😄', bg:'#fce7f3', points:320, weekDone:33, pin:'8888'},
+  {name:'Hữu Nghĩa',   emoji:'🌸', bg:'#dbeafe', points:75,  weekDone:8,  pin:'9999'},
+  {name:'Kim Ngân',    emoji:'⭐', bg:'#fef9c3', points:2100,weekDone:210,pin:'0000'},
+];
+
+const RANKS=[
+  {name:'Tân Binh Việc Tốt',req:0,icon:'🌱'},
+  {name:'Người Gieo Hạt',req:50,icon:'🌿'},
+  {name:'Chiến Binh Tích Cực',req:200,icon:'⚡'},
+  {name:'Người Lan Toả Yêu Thương',req:500,icon:'❤️'},
+  {name:'Đại Sứ Nhân Ái',req:1000,icon:'🌟'},
+  {name:'Huyền Thoại Tử Tế',req:2000,icon:'👑'},
+];
+function getRank(pts){let r=RANKS[0];for(let i=RANKS.length-1;i>=0;i--){if(pts>=RANKS[i].req){r=RANKS[i];break;}}return r;}
+function makeUID(n,p){return(n.trim().toLowerCase().replace(/\s+/g,'-')+'-'+p).replace(/[^a-z0-9\-]/g,'');}
+function hashPin(p){return btoa('kindup-'+p);}
+
+// 35 bài đăng mẫu — đa dạng, thực tế, có ảnh giả
+const POSTS_DATA=[
+  {userIdx:0, task:'Giúp mẹ nấu cơm', desc:'Hôm nay mình tự nấu cơm cho cả nhà ăn tối, mẹ khen ngon lắm 😊 Cảm giác rất vui!', pts:8, hoursAgo:0.5},
+  {userIdx:1, task:'Nhặt rác bảo vệ môi trường', desc:'Sau buổi picnic ở công viên, mình và các bạn đã nhặt sạch rác, đóng vào 2 túi lớn. Môi trường sạch hơn một chút rồi 🌿', pts:9, hoursAgo:1},
+  {userIdx:2, task:'Giúp bạn học bài', desc:'Bạn Hùng không hiểu bài toán hình học, mình ngồi giải thích 30 phút cho đến khi bạn hiểu hẳn. Thấy bạn vui là mình vui 🤝', pts:9, hoursAgo:2},
+  {userIdx:3, task:'Đọc sách 30 phút', desc:'Đọc xong cuốn "Tuổi thơ dữ dội" – câu chuyện về các bạn nhỏ dũng cảm thời chiến tranh. Cảm xúc lắm 📚', pts:7, hoursAgo:3},
+  {userIdx:4, task:'Nhường chỗ trên xe buýt', desc:'Lúc lên xe buýt về nhà, thấy bà cụ đứng mỏi, mình liền nhường ghế ngay. Bà cụ cảm ơn và mỉm cười – đủ để mình vui cả buổi tối 🚌', pts:8, hoursAgo:4},
+  {userIdx:5, task:'Tập thể dục buổi sáng', desc:'Dậy sớm 5h30 chạy bộ 2km quanh hồ. Khó lắm nhưng làm được rồi, ngày mai cố gắng tiếp! 🏃', pts:6, hoursAgo:5},
+  {userIdx:6, task:'Dọn dẹp phòng học', desc:'Phòng học lộn xộn bấy lâu nay, hôm nay dọn sạch trong 1 tiếng. Sách vở sắp xếp gọn gàng, học hiệu quả hơn nhiều 📚', pts:5, hoursAgo:6},
+  {userIdx:7, task:'Nói lời cảm ơn với thầy cô', desc:'Sau buổi học thêm, mình đã cảm ơn thầy bằng một tấm thiệp tự làm. Thầy xúc động lắm, mình cũng xúc động theo 🙏', pts:9, hoursAgo:7},
+  {userIdx:8, task:'Chia sẻ đồ ăn với bạn', desc:'Mẹ làm bánh cuộn ngon lắm, mình mang một hộp đến trường chia cho cả nhóm bạn. Ai cũng thích 🍱', pts:7, hoursAgo:8},
+  {userIdx:9, task:'Giúp người già qua đường', desc:'Đang vội đi học thêm nhưng thấy cụ ông loay hoay qua đường đông xe, dừng lại dắt cụ sang. Muộn 5 phút nhưng lòng nhẹ tênh ❤️', pts:10, hoursAgo:9},
+  {userIdx:0, task:'Không dùng điện thoại khi ăn', desc:'Cả gia đình cùng thử một bữa cơm không điện thoại – nói chuyện với nhau nhiều hơn hẳn, vui hẳn ra!', pts:6, hoursAgo:12},
+  {userIdx:1, task:'Trồng cây xanh', desc:'Cùng bạn bè trồng 3 cây hoa ở góc vườn trường. Hy vọng mấy tháng nữa sẽ nở hoa đẹp 🌻', pts:8, hoursAgo:15},
+  {userIdx:2, task:'Tặng sách cũ cho thư viện', desc:'Dọn được 12 cuốn sách giáo khoa cũ còn đẹp, đem tặng thư viện trường để các bạn có hoàn cảnh khó khăn dùng 📚', pts:9, hoursAgo:18},
+  {userIdx:3, task:'Giúp em học bài', desc:'Em gái lớp 3 không làm được bài tập cộng trừ, mình dành buổi tối hướng dẫn từng bước. Em làm được rồi, nhảy lên vui lắm 🥰', pts:8, hoursAgo:20},
+  {userIdx:4, task:'Chào thầy cô mỗi ngày', desc:'Tự hứa sẽ chào thầy cô mỗi khi gặp – không bao giờ giả vờ không thấy nữa. Hôm nay đã làm đúng hứa 👋', pts:5, hoursAgo:22},
+  {userIdx:5, task:'Giúp ba sửa xe đạp', desc:'Ba bận rộn không có thời gian bơm xe, mình tự ra tiệm bơm và tra dầu xích. Ba về nhìn xe sạch đẹp, gật đầu khen 🔧', pts:7, hoursAgo:24},
+  {userIdx:6, task:'Nhặt rác bảo vệ môi trường', desc:'Chiều nay đi dạo phố với bạn, mang theo túi nhặt rác dọc vỉa hè. Người đi đường nhìn có vẻ ngạc nhiên nhưng cảm thấy đúng lắm 🌍', pts:8, hoursAgo:28},
+  {userIdx:7, task:'Tiết kiệm điện', desc:'Nhớ tắt đèn và quạt mỗi khi ra khỏi phòng, dán nhắc nhở lên cửa. Góp sức nhỏ cho Trái Đất xanh hơn 💡', pts:5, hoursAgo:30},
+  {userIdx:8, task:'An ủi bạn buồn', desc:'Bạn thân bị điểm kém, ngồi khóc một mình. Mình ngồi cạnh lắng nghe và nói chuyện cho đến khi bạn cười được 🤗', pts:9, hoursAgo:32},
+  {userIdx:9, task:'Học bài đầy đủ', desc:'Hôm nay ôn đủ 4 môn trước khi ngủ, không để nước đến chân mới nhảy. Tự thưởng một ly sữa cacao 🍫', pts:6, hoursAgo:36},
+  {userIdx:0, task:'Giúp mẹ đi chợ', desc:'Xách túi nặng giúp mẹ từ chợ về, khoảng đường 500m. Tay mỏi nhưng thấy mình có ích 🛒', pts:7, hoursAgo:40},
+  {userIdx:1, task:'Viết thư tay cho ông bà', desc:'Ông bà ở quê, mình viết một lá thư tay kể chuyện ở trường. Mẹ nói ông bà đọc xong xúc động lắm 📝', pts:10, hoursAgo:44},
+  {userIdx:2, task:'Tập thể dục buổi sáng', desc:'Lên kế hoạch tập 5 buổi/tuần. Tuần này đã được 4 buổi rồi, ngày mai buổi cuối cùng, quyết không bỏ! 💪', pts:7, hoursAgo:48},
+  {userIdx:3, task:'Không nói bậy', desc:'Nhóm bạn hay nói bậy nhưng hôm nay mình quyết định không theo. Nhắc khéo các bạn và được mọi người lắng nghe 😊', pts:6, hoursAgo:50},
+  {userIdx:4, task:'Giúp bạn khi bị bắt nạt', desc:'Thấy bạn nhỏ lớp 6 bị mấy bạn khác trêu chọc, mình đứng ra bênh vực. Bạn đó cảm ơn mình mãi 🦸', pts:10, hoursAgo:54},
+  {userIdx:5, task:'Tái chế đồ cũ', desc:'Biến hộp carton cũ thành hộp đựng bút học tập. Không cần mua mới, vừa tiết kiệm vừa sáng tạo ♻️', pts:7, hoursAgo:58},
+  {userIdx:6, task:'Nấu bữa sáng cho gia đình', desc:'Dậy sớm nấu cháo yến mạch cho cả nhà. Ba mẹ đi làm có bữa sáng ấm bụng, mình cũng tự hào lắm 🍲', pts:9, hoursAgo:62},
+  {userIdx:7, task:'Chăm sóc cây cảnh', desc:'Nhổ cỏ, tưới nước và bón phân cho mấy chậu hoa trên ban công. Hoa hồng sắp nở rồi 🌹', pts:6, hoursAgo:66},
+  {userIdx:8, task:'Giúp thầy cô dọn lớp', desc:'Ở lại 15 phút sau giờ học cùng mấy bạn lau bảng, sắp xếp bàn ghế. Lớp học sạch đẹp cho ngày mai 🧹', pts:7, hoursAgo:70},
+  {userIdx:9, task:'Quyên góp sách vở', desc:'Vận động cả lớp quyên góp sách vở cũ, thu được 45 cuốn gửi cho các em miền núi. Thầy chủ nhiệm khen trước lớp 📦', pts:10, hoursAgo:74},
+  {userIdx:0, task:'Đọc sách 30 phút', desc:'Đọc "Nhà giả kim" – cuốn sách hay lắm, dạy về việc theo đuổi giấc mơ. Đọc xong thấy mình cũng muốn cố gắng hơn ✨', pts:7, hoursAgo:78},
+  {userIdx:1, task:'Giữ gìn vệ sinh nơi công cộng', desc:'Ngồi ăn ở vườn hoa, tự dọn hết rác trước khi về. Còn nhặt thêm vài cái của người khác bỏ lại 🌳', pts:7, hoursAgo:82},
+  {userIdx:2, task:'An ủi bạn buồn', desc:'Bạn bị điểm thi thấp, buồn lắm. Mình rủ bạn đi uống trà sữa nói chuyện, cùng lên kế hoạch ôn lại bài. Bạn vui lên rồi 😊', pts:8, hoursAgo:86},
+  {userIdx:3, task:'Tiết kiệm nước', desc:'Hứa tắt vòi nước khi đánh răng và tắm không quá 10 phút. Tuần này thực hiện đúng 7/7 ngày rồi! 💧', pts:6, hoursAgo:90},
+  {userIdx:4, task:'Làm thiệp tặng ba mẹ', desc:'Sinh nhật mẹ tuần sau, mình tự làm thiệp bằng tay, vẽ hình gia đình và viết thư. Mẹ chắc sẽ xúc động lắm 🎨', pts:9, hoursAgo:96},
+];
+
+// ảnh Unsplash — fetch về rồi convert base64 khi seed
+// Chỉ ~15 bài có ảnh (thực tế không phải bài nào cũng đăng ảnh)
+const POST_IMAGES={
+  // key = chỉ số bài trong POSTS_DATA
+  0:  'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=600&q=70', // nấu cơm
+  1:  'https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?w=600&q=70', // nhặt rác
+  2:  'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=600&q=70', // học bài cùng bạn
+  3:  'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=600&q=70', // đọc sách
+  5:  'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&q=70', // chạy bộ
+  8:  'https://images.unsplash.com/photo-1547592180-85f173990554?w=600&q=70', // chia sẻ đồ ăn
+  11: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=600&q=70', // trồng cây
+  16: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=70', // nhặt rác phố
+  18: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=600&q=70', // an ủi bạn
+  21: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?w=600&q=70', // viết thư tay
+  22: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=600&q=70', // tập thể dục
+  26: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&q=70', // nấu bữa sáng
+  27: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=600&q=70', // chăm sóc cây
+  29: 'https://images.unsplash.com/photo-1532012197267-da84d127e765?w=600&q=70', // quyên góp sách
+  34: 'https://images.unsplash.com/photo-1513001900722-370f803f498d?w=600&q=70', // làm thiệp
+};
+
+async function fetchImageBase64(url){
+  try{
+    const res=await fetch(url);
+    if(!res.ok)return '';
+    const blob=await res.blob();
+    return await new Promise(resolve=>{
+      const reader=new FileReader();
+      reader.onloadend=()=>resolve(reader.result);
+      reader.onerror=()=>resolve('');
+      reader.readAsDataURL(blob);
+    });
+  }catch(e){return '';}
+}
+  'Bạn thật tuyệt vời! 👏',
+  'Cảm ơn bạn đã chia sẻ, mình cũng muốn thử cách này 😊',
+  'Bạn truyền cảm hứng cho mình nhiều lắm! 🌟',
+  'Wow, mình chưa nghĩ đến điều này bao giờ. Cảm ơn bạn!',
+  'Bạn thật tốt bụng! ❤️',
+  'Mình cũng sẽ cố gắng làm điều tốt như bạn nhé!',
+  'Cảm ơn bạn đã truyền năng lượng tích cực! ✨',
+  'Hành động nhỏ, ý nghĩa lớn! 💪',
+  'Bạn làm mình muốn ngay lập tức đi làm việc tốt đây 🏃',
+  'Đây là điều mình cần nghe hôm nay. Cảm ơn bạn! 🙏',
+  'Tuyệt quá bạn ơi! Chia sẻ thêm đi 😍',
+  'Mình cũng đã làm điều tương tự, cảm giác rất vui phải không 😄',
+  'Bạn đang làm thế giới tốt đẹp hơn từng ngày! 🌍',
+  'Giỏi lắm bạn ơi, tiếp tục nhé! 🌻',
+  'Hành động của bạn thật ý nghĩa 💚',
+  'Mình sẽ học theo bạn từ ngày mai luôn!',
+  'Bạn nhắc mình nhớ ra nhiều điều quan trọng 🥹',
+  'Thật đáng ngưỡng mộ! ⭐',
+  'Cố lên bạn nhé, mình luôn ủng hộ! 👍',
+  'Câu chuyện của bạn hay quá 🌈',
+];
+
+// ══════════════════════════════════════════
+// SEED ENGINE
+// ══════════════════════════════════════════
+let logEl,pbarEl;
+function log(msg,cls='ok'){
+  const line=document.createElement('div');
+  line.className=cls;line.innerHTML=msg;
+  logEl.appendChild(line);
+  logEl.scrollTop=logEl.scrollHeight;
+}
+function setProgress(pct){pbarEl.style.width=pct+'%';}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+function rand(arr){return arr[Math.floor(Math.random()*arr.length)];}
+function randInt(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+function shuffle(arr){return [...arr].sort(()=>Math.random()-.5);}
+
+async function startSeed(){
+  logEl=document.getElementById('log');
+  pbarEl=document.getElementById('pbar');
+  logEl.innerHTML='';
+  document.getElementById('btnSeed').disabled=true;
+  document.getElementById('btnClear').disabled=true;
+
+  try{
+    log('<b>🚀 Bắt đầu tạo dữ liệu demo...</b>','info');
+    await sleep(300);
+
+    // ─── STEP 1: Tạo users ───
+    log('👤 Tạo 10 người dùng...','info');
+    const uids=[];
+    for(let i=0;i<USERS.length;i++){
+      const u=USERS[i];
+      const uid=makeUID(u.name,u.pin);
+      uids.push(uid);
+      const rank=getRank(u.points);
+      await db.ref(`users/${uid}`).set({
+        uid,name:u.name,emoji:u.emoji,bg:u.bg,
+        pin:hashPin(u.pin),
+        points:u.points,weekDone:u.weekDone,
+        doneToday:[],likedPosts:{},
+        lastActiveDay:new Date().toDateString(),
+        createdAt:Date.now()-randInt(1,30)*86400000,
+        rank:rank.icon+' '+rank.name,
+      });
+      log(`  ✅ ${u.emoji} ${u.name} — ${u.points} điểm — ${rank.icon} ${rank.name}`);
+      setProgress(Math.round((i+1)/USERS.length*20));
+      await sleep(80);
+    }
+
+    // ─── STEP 2: Tạo posts ───
+    log('<br>📝 Tạo 35 bài đăng (có ảnh cho ~15 bài)...','info');
+    const feedIds=[];
+    for(let i=0;i<POSTS_DATA.length;i++){
+      const p=POSTS_DATA[i];
+      const u=USERS[p.userIdx];
+      const uid=uids[p.userIdx];
+      const rank=getRank(u.points);
+      const ts=Date.now()-(p.hoursAgo*3600000)-(randInt(0,30)*60000);
+      const likes=randInt(0,12);
+
+      // Fetch ảnh nếu bài này có ảnh
+      let imageUrl='';
+      if(POST_IMAGES[i]){
+        log(`  📷 Đang tải ảnh bài ${i+1}...`,'info');
+        imageUrl=await fetchImageBase64(POST_IMAGES[i]);
+        if(imageUrl)log(`  ✅ Ảnh OK (${Math.round(imageUrl.length/1024)}KB)`);
+        else log(`  ⚠️ Không tải được ảnh, bỏ qua`,'warn');
+      }
+
+      const ref=await db.ref('feed').push({
+        uid,name:u.name,emoji:u.emoji,bg:u.bg,
+        task:p.task,desc:p.desc,pts:p.pts,
+        rank:rank.icon+' '+rank.name,
+        ts,likes,commentCount:0,imageUrl,
+      });
+      feedIds.push({feedId:ref.key,likes});
+      log(`  ✅ [${i+1}/35] ${u.emoji} ${u.name}: "${p.task}" +${p.pts}đ ${imageUrl?'📷':''}`);
+      setProgress(20+Math.round((i+1)/POSTS_DATA.length*40));
+      await sleep(imageUrl?200:60); // chờ lâu hơn nếu có ảnh
+    }
+
+    // ─── STEP 3: Tạo likes (likedPosts trên user) ───
+    log('<br>❤️ Tạo lượt thích...','info');
+    for(let i=0;i<feedIds.length;i++){
+      const {feedId,likes}=feedIds[i];
+      // Random users like bài này (khác author)
+      const likers=shuffle(uids).slice(0,likes);
+      for(const uid of likers){
+        await db.ref(`users/${uid}/likedPosts/${feedId}`).set(true);
+      }
+      setProgress(60+Math.round((i+1)/feedIds.length*15));
+    }
+    log(`  ✅ Đã tạo lượt thích cho ${feedIds.length} bài`);
+
+    // ─── STEP 4: Tạo comments ───
+    log('<br>💬 Tạo bình luận...','info');
+    let totalCmts=0;
+    for(let i=0;i<feedIds.length;i++){
+      const {feedId}=feedIds[i];
+      const numCmts=randInt(1,4);
+      const commenters=shuffle(uids).slice(0,numCmts);
+      for(const uid of commenters){
+        const u=USERS[uids.indexOf(uid)];
+        const text=rand(COMMENTS_DATA);
+        await db.ref(`comments/${feedId}`).push({
+          uid,name:u.name,text,
+          ts:Date.now()-randInt(0,feedIds[i].likes*3600000||3600000),
+        });
+        totalCmts++;
+        // Tăng commentCount
+        await db.ref(`feed/${feedId}/commentCount`).transaction(n=>(n||0)+1);
+      }
+      setProgress(75+Math.round((i+1)/feedIds.length*20));
+      await sleep(40);
+    }
+    log(`  ✅ Đã tạo ${totalCmts} bình luận`);
+
+    // ─── DONE ───
+    setProgress(100);
+    log('<br>🎉 <b>Hoàn tất! Dữ liệu demo đã sẵn sàng.</b>','ok');
+    log(`📊 Tổng kết: 10 users • 35 bài đăng (15 bài có ảnh) • ${totalCmts} bình luận`,'info');
+    log('👉 Mở ứng dụng Kindup và đăng nhập thử với:<br>  • Tên: <b>Minh Tuấn</b> — PIN: <b>1234</b><br>  • Tên: <b>Kim Ngân</b> — PIN: <b>0000</b> (Huyền Thoại 👑)','warn');
+
+  }catch(err){
+    log('❌ Lỗi: '+err.message,'err');
+    console.error(err);
+  }
+
+  document.getElementById('btnSeed').disabled=false;
+  document.getElementById('btnClear').disabled=false;
+}
+
+async function clearData(){
+  if(!confirm('Xoá toàn bộ dữ liệu feed, comments và users demo?\n(Dữ liệu thật của bạn cũng sẽ bị xoá!)'))return;
+  logEl=document.getElementById('log');
+  pbarEl=document.getElementById('pbar');
+  logEl.innerHTML='';
+  document.getElementById('btnSeed').disabled=true;
+  document.getElementById('btnClear').disabled=true;
+  log('🗑️ Đang xoá dữ liệu...','warn');
+  try{
+    await db.ref('feed').remove();
+    log('  ✅ Đã xoá feed','ok');
+    await db.ref('comments').remove();
+    log('  ✅ Đã xoá comments','ok');
+    await db.ref('users').remove();
+    log('  ✅ Đã xoá users','ok');
+    setProgress(100);
+    log('<b>✅ Đã xoá sạch toàn bộ dữ liệu.</b>','ok');
+  }catch(err){
+    log('❌ Lỗi: '+err.message,'err');
+  }
+  document.getElementById('btnSeed').disabled=false;
+  document.getElementById('btnClear').disabled=false;
+}
+</script>
+</body>
+</html>

@@ -403,7 +403,6 @@ const FB_CFG={
   messagingSenderId:"776886224726",
   appId:"1:776886224726:web:b30634ca93d58d6d1238f7"
 };
-const GROQ_KEY='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';
 
 // ═══ CỜ ĐIỀU KHIỂN ═══
 // Đặt true để cho phép đăng ký thành viên mới, false để tắt (dùng khi demo)
@@ -1031,15 +1030,23 @@ const FALLBACKS={
 
 async function callGroq(prompt,sys){
   try{
-    const res=await fetch('https://api.groq.com/openai/v1/chat/completions',{
+    const res=await fetch('https://groq-proxy-vercel.vercel.app/api/chat',{
       method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':`Bearer ${GROQ_KEY}`},
-      body:JSON.stringify({model:'llama-3.1-8b-instant',messages:[{role:'system',content:sys},{role:'user',content:prompt}],max_tokens:400,temperature:0.8})
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'llama-3.1-8b-instant',
+        messages:[
+          {role:'system',content:sys},
+          {role:'user',content:prompt}
+        ],
+        max_tokens:400,
+        temperature:0.8
+      })
     });
     const d=await res.json();
-    if(d.error){console.error('Groq error:',d.error);return null;}
+    if(d.error){console.error('Proxy error:',d.error);return null;}
     return d.choices?.[0]?.message?.content||null;
-  }catch(e){console.error('Groq error:',e);return null;}
+  }catch(e){console.error('Proxy error:',e);return null;}
 }
 
 // aiSuggest đã được thay bằng loadAiSuggestions() dùng chung home + log

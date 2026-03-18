@@ -1053,32 +1053,57 @@ async function callGroq(prompt,sys){
 
 window.sendChat=async function(){
   const inp=document.getElementById('chatInp');
-  const msg=inp.value.trim();if(!msg)return;
+  const msg=inp.value.trim();
+  if(!msg)return;
+
   inp.value='';
   addChatMsg(msg,'user');
   G.chatHistory.push({role:'user',content:msg});
+
   const typing=document.createElement('div');
   typing.className='msg ai';
   typing.innerHTML='<div class="dots-wrap"><div class="dots"><span></span><span></span><span></span></div></div>';
+
   const cm=document.getElementById('chatMsgs');
-  cm.appendChild(typing);cm.scrollTop=cm.scrollHeight;
+  cm.appendChild(typing);
+  cm.scrollTop=cm.scrollHeight;
+
   const messages=[
-    {role:'system',content:'Bạn là trợ lý AI thân thiện của Kindup – giúp học sinh Việt Nam (lớp 6-9) rèn luyện thói quen tốt mỗi ngày. Vui vẻ, ấm áp như người bạn. Emoji vừa phải. Trả lời tiếng Việt, tối đa 120 từ.'},
+    {
+      role:'system',
+      content:'Bạn là trợ lý AI thân thiện của Kindup – giúp học sinh Việt Nam (lớp 6-9) rèn luyện thói quen tốt mỗi ngày. Vui vẻ, ấm áp như người bạn. Emoji vừa phải. Trả lời tiếng Việt, tối đa 120 từ.'
+    },
     ...G.chatHistory.slice(-10)
   ];
-  let reply;
+
+  let reply=FALLBACKS.chat;
+
   try{
-    const res=await fetch('https://api.groq.com/openai/v1/chat/completions',{
+    const res=await fetch('https://groq-proxy-vercel-three.vercel.app/api/chat',{
       method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':`Bearer ${GROQ_KEY}`},
-      body:JSON.stringify({model:'llama-3.1-8b-instant',messages,max_tokens:300,temperature:0.85})
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'llama-3.1-8b-instant',
+        messages,
+        max_tokens:300,
+        temperature:0.85
+      })
     });
+
     const d=await res.json();
-    if(d.error){reply=FALLBACKS.chat;}
-    else reply=d.choices?.[0]?.message?.content||FALLBACKS.chat;
-  }catch(e){reply=FALLBACKS.chat;}
+
+    if(d.error){
+      console.error('Proxy error:', d.error);
+    }else{
+      reply=d.choices?.[0]?.message?.content || FALLBACKS.chat;
+    }
+  }catch(e){
+    console.error('Chat error:', e);
+  }
+
   G.chatHistory.push({role:'assistant',content:reply});
-  typing.remove();addChatMsg(reply,'ai');
+  typing.remove();
+  addChatMsg(reply,'ai');
 };
 
 function addChatMsg(text,role){

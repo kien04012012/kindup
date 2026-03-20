@@ -397,9 +397,9 @@ body{font-family:'Nunito',sans-serif;background:var(--green-bg);color:var(--text
 const FB_CFG={
   apiKey:"AIzaSyB_YlQ99oal3RrfN8wX9oN5GjuW1QH4g-E",
   authDomain:"kindup-22cea.firebaseapp.com",
-  databaseURL:"https://kindup-22cea-default-rtdb.asia-southeast1.firebasedatabase.app",//,
+  databaseURL:"https://kindup-22cea-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId:"kindup-22cea",
-  storageBucket:"kindup-22cea.firebasestorage.app"
+  storageBucket:"kindup-22cea.firebasestorage.app",
   messagingSenderId:"776886224726",
   appId:"1:776886224726:web:b30634ca93d58d6d1238f7"
 };
@@ -411,11 +411,10 @@ firebase.initializeApp(FB_CFG);
 const db=firebase.database();
 
 // Ẩn tab đăng ký nếu tắt cờ
-document.addEventListener('DOMContentLoaded',()=>{
-  if(!ALLOW_REGISTER){
-    const tabReg=document.getElementById('tabReg');
-    if(tabReg)tabReg.style.display='none';
-  }
+// Ẩn/hiện tab đăng ký theo cờ — chạy ngay sau khi DOM sẵn sàng
+window.addEventListener('load',()=>{
+  const tabReg=document.getElementById('tabReg');
+  if(tabReg) tabReg.style.display=ALLOW_REGISTER?'':'none';
 });
 
 let G={uid:null,name:'',points:0,weekDone:0,doneToday:[],emoji:'😊',bg:'#bbf7d0',chatHistory:[],likedPosts:{}};
@@ -444,7 +443,6 @@ function timeAgo(ts){const s=Math.floor((Date.now()-ts)/1000);if(s<60)return'V�
 
 // ═══ AUTH ═══
 window.switchTab=function(tab){
-  // Nếu tắt đăng ký, chỉ cho dùng tab login
   if(tab==='reg'&&!ALLOW_REGISTER){
     showToast('⚠️ Đăng ký tạm thời bị tắt.');return;
   }
@@ -452,8 +450,12 @@ window.switchTab=function(tab){
   document.getElementById('formLogin').style.display=L?'block':'none';
   document.getElementById('formReg').style.display=L?'none':'block';
   const tL=document.getElementById('tabLogin'),tR=document.getElementById('tabReg');
-  tL.style.background=L?'white':'transparent';tL.style.color=L?'var(--green-dark)':'rgba(255,255,255,.8)';
-  tR.style.background=L?'transparent':'white';tR.style.color=L?'rgba(255,255,255,.8)':'var(--green-dark)';
+  // Đảm bảo tabReg hiện nếu ALLOW_REGISTER=true
+  if(ALLOW_REGISTER&&tR) tR.style.display='';
+  tL.style.background=L?'white':'transparent';
+  tL.style.color=L?'var(--green-dark)':'rgba(255,255,255,.8)';
+  tR.style.background=L?'transparent':'white';
+  tR.style.color=L?'rgba(255,255,255,.8)':'var(--green-dark)';
 };
 
 window.doRegister=async function(){

@@ -375,9 +375,6 @@ body{font-family:'Nunito',sans-serif;background:var(--green-bg);color:var(--text
     <!-- Tổng quan -->
     <div class="ach-overview" id="achOverview"></div>
 
-    <!-- Streak -->
-    <div class="ach-streak-card" id="achStreak"></div>
-
     <!-- Thống kê theo chủ đề -->
     <div class="sec" style="margin-top:16px;margin-bottom:10px;font-size:1rem">📊 Thống kê theo chủ đề</div>
     <div class="ach-cats" id="achCats"></div>
@@ -1019,20 +1016,11 @@ async function loadAchievements(){
       <div class="ach-stat-lbl">${nextRank?'⚡ Điểm lên cấp':'👑 Đã max cấp'}</div>
     </div>`;
 
-  // ── Streak ──
-  const streak=calcStreak(history);
-  document.getElementById('achStreak').innerHTML=`
-    <div class="ach-streak-num">🔥${streak}</div>
-    <div class="ach-streak-info">
-      <h3>${streak} ngày liên tiếp</h3>
-      <p>${streak===0?'Hãy ghi việc tốt hôm nay để bắt đầu chuỗi!':streak<3?'Tốt lắm! Giữ vững nhé 💪':streak<7?'Bạn đang có phong độ tốt! 🌟':'Tuyệt vời! Bạn thật kiên trì 👑'}</p>
-    </div>`;
-
   // ── Thống kê chủ đề ──
   const catCount={};
   history.forEach(h=>{
     const c=catOfTask(h.task,h.desc);
-    catCount[c.name]=(catCount[c.name]||{count:0,icon:c.icon});
+    if(!catCount[c.name])catCount[c.name]={count:0,icon:c.icon};
     catCount[c.name].count++;
   });
   const maxCat=Math.max(1,...Object.values(catCount).map(c=>c.count));
@@ -1046,7 +1034,7 @@ async function loadAchievements(){
         <div class="ach-cat-bar"><div class="ach-cat-fill" style="width:${Math.round(count/maxCat*100)}%"></div></div>
       </div>`).join('')||'<div style="color:var(--muted);font-size:.88rem;padding:8px">Chưa có dữ liệu</div>';
 
-  // ── Lịch sử ──
+  // ── Lịch sử — nhấn vào mở modal chi tiết ──
   document.getElementById('historyCount').textContent=`${history.length} việc tốt`;
   if(!history.length){
     document.getElementById('historyList').innerHTML='<div style="text-align:center;color:var(--muted);padding:24px">Chưa có việc tốt nào. Hãy bắt đầu hôm nay! 🌱</div>';
@@ -1056,7 +1044,9 @@ async function loadAchievements(){
     const d=new Date(h.ts);
     const cat=catOfTask(h.task,h.desc);
     const days=['CN','T2','T3','T4','T5','T6','T7'];
-    return`<div class="hist-item">
+    const liked=G.likedPosts[h.id]||false;
+    const cmtCount=h.commentCount||0;
+    return`<div class="hist-item" onclick="openPostModal('${h.id}')" style="cursor:pointer">
       <div class="hist-date">
         <div class="hist-date-day">${d.getDate()}</div>
         <div style="font-size:.65rem;color:var(--muted)">${days[d.getDay()]}</div>
@@ -1068,9 +1058,11 @@ async function loadAchievements(){
         <div class="hist-meta">
           <span class="hist-pts">+${h.pts||0} điểm</span>
           <span class="hist-cat">${cat.icon} ${cat.name}</span>
-          ${h.likes?`<span style="font-size:.7rem;color:var(--muted)">❤️ ${h.likes}</span>`:''}
+          <span style="font-size:.7rem;color:var(--muted)">${liked?'❤️':'🤍'} ${h.likes||0}</span>
+          ${cmtCount?`<span style="font-size:.7rem;color:var(--muted)">💬 ${cmtCount}</span>`:''}
         </div>
       </div>
+      <div style="color:var(--muted);font-size:.8rem;align-self:center">›</div>
     </div>`;
   }).join('');
 }

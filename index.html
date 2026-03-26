@@ -964,7 +964,6 @@ Trả về JSON hợp lệ, chỉ JSON: {"score":8,"praise":"lời khen..."}`
   // Lưu điểm + feed
   addPoints(earnedPts);
   await postToFeed(finalName,desc,imageUrl,earnedPts);
-  checkAndGenerateStories().catch(err=>console.error('[Story] Generate after post failed:',err));
   showToast(`🎉 +${earnedPts} điểm! "${finalName}" đã được ghi lại!`);
   showPointPopup(earnedPts,btn);
   confetti();
@@ -1134,22 +1133,12 @@ async function renderStories(){
   snap.forEach(c=>stories.push({key:c.key,...c.val()}));
   stories.sort((a,b)=>b.key.localeCompare(a.key));
   if(!stories.length){
-    const feedSnap=await db.ref('feed').get();
-    const byWeek={};
-    let totalPosts=0;
-    feedSnap.forEach(c=>{
-      const v=c.val();
-      if(!v||!v.ts)return;
-      totalPosts++;
-      const wk=getWeekKey(v.ts);
-      if(!byWeek[wk])byWeek[wk]=0;
-      byWeek[wk]++;
-    });
-    const maxPostsInAWeek=Object.values(byWeek).length?Math.max(...Object.values(byWeek)):0;
-    if(totalPosts<3||maxPostsInAWeek<3){
-      el.innerHTML=`<div style="text-align:center;padding:32px 16px;color:var(--muted)">Chưa có đủ dữ liệu trong cùng một tuần để tạo câu chuyện. Cần ít nhất 3 việc tốt trong 1 tuần nhé! 🌱</div>`;
+    const info=await getStoryGenerationStatus();
+    if(info.readyWeeks.length){
+      const labels=info.readyWeeks.slice(-2).reverse().map(weekLabel).join(', ');
+      el.innerHTML=`<div style="text-align:center;padding:32px 16px;color:var(--muted)">Hiện chưa tạo được câu chuyện tuần cho ${escHtml(labels)}. Bạn thử kiểm tra proxy/AI hoặc mở lại sau nhé. ⚠️</div>`;
     }else{
-      el.innerHTML=`<div style="text-align:center;padding:32px 16px;color:var(--muted)">Đã có đủ dữ liệu nhưng chưa tạo được câu chuyện tuần. Có thể AI hoặc proxy đang lỗi, bạn thử mở lại sau hoặc kiểm tra console nhé. ⚠️</div>`;
+      el.innerHTML=`<div style="text-align:center;padding:32px 16px;color:var(--muted)">Chưa có đủ dữ liệu để tạo câu chuyện tuần. Mỗi câu chuyện cần ít nhất 3 việc tốt trong cùng một tuần nhé! 🌱</div>`;
     }
     return;
   }
@@ -1165,6 +1154,30 @@ async function renderStories(){
         <span style="margin-left:auto;font-size:.72rem;color:var(--muted)">✍️ AI Kindup</span>
       </div>
     </div>`).join('');
+}
+
+async function getStoryGenerationStatus(){
+  const [feedSnap,storySnap]=await Promise.all([
+    db.ref('feed').get(),
+    db.ref('weeklyStories').get()
+  ]);
+  const byWeek={};
+  feedSnap.forEach(c=>{
+    const post={id:c.key,...c.val()};
+    const wk=getWeekKey(post.ts);
+    if(!byWeek[wk])byWeek[wk]=[];
+    byWeek[wk].push(post);
+  });
+
+  const existingKeys=new Set();
+  storySnap.forEach(c=>existingKeys.add(c.key));
+
+  const readyWeeks=Object.entries(byWeek)
+    .filter(([wk,posts])=>posts.length>=3&&!existingKeys.has(wk))
+    .map(([wk])=>wk)
+    .sort((a,b)=>b.localeCompare(a));
+
+  return{byWeek,existingKeys,readyWeeks};
 }
 
 async function checkAndGenerateStories(){

@@ -1206,10 +1206,20 @@ async function renderStories(){
 
   await checkAndGenerateStories();
   const snap=await db.ref('weeklyStories').get();
-
-  const stories=[];
-  snap.forEach(c=>stories.push({key:c.key,...c.val()}));
-  stories.sort((a,b)=>b.key.localeCompare(a.key));
+  const rawStories=snap.val()||{};
+  const stories=Object.entries(rawStories)
+    .map(([key,val])=>{
+      const story=val&&typeof val==='object'?val:{};
+      return{
+        key,
+        title:typeof story.title==='string'&&story.title.trim()?story.title.trim():'Câu chuyện tuần',
+        content:typeof story.content==='string'&&story.content.trim()?story.content.trim():'',
+        tags:Array.isArray(story.tags)?story.tags.filter(Boolean):[],
+        generatedAt:Number.isFinite(story.generatedAt)?story.generatedAt:0,
+      };
+    })
+    .filter(s=>s.content)
+    .sort((a,b)=>b.key.localeCompare(a.key));
   if(!stories.length){
     const info=await getStoryGenerationStatus();
     if(info.readyWeeks.length){
@@ -1223,18 +1233,20 @@ async function renderStories(){
     }
     return;
   }
-  el.innerHTML=stories.map(s=>`
+  el.innerHTML=`
+    <div style="font-size:.8rem;color:var(--muted);margin:2px 2px 12px">${stories.length} câu chuyện tuần</div>
+    ${stories.map(s=>`
     <div class="story-card">
       <div class="story-header">
         <div class="story-week">📅 ${weekLabel(s.key)}</div>
         <div class="story-title">${escHtml(s.title)}</div>
       </div>
-      <div class="story-body">${s.content.split('\n').filter(l=>l.trim()).map(l=>`<p>${escHtml(l)}</p>`).join('')}</div>
+      <div class="story-body">${String(s.content).split('\n').filter(l=>l.trim()).map(l=>`<p>${escHtml(l)}</p>`).join('')}</div>
       <div class="story-footer">
         ${(s.tags||[]).map(t=>`<span class="story-tag">${escHtml(t)}</span>`).join('')}
         <span style="margin-left:auto;font-size:.72rem;color:var(--muted)">✍️ AI Kindup</span>
       </div>
-    </div>`).join('');
+    </div>`).join('')}`;
 }
 
 async function getStoryGenerationStatus(){

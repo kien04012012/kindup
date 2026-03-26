@@ -217,6 +217,20 @@ body{font-family:'Nunito',sans-serif;background:var(--green-bg);color:var(--text
 .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
 .confetti-piece{position:fixed;width:10px;height:10px;border-radius:2px;animation:fall 1.2s ease-in forwards;pointer-events:none;z-index:999}
 @keyframes fall{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+
+/* COMMUNITY TABS */
+.comm-tabs{display:flex;gap:6px;margin-bottom:12px}
+.comm-tab{flex:1;padding:8px 10px;border-radius:50px;border:2px solid var(--border);font-family:'Nunito',sans-serif;font-weight:800;font-size:.82rem;color:var(--muted);background:white;cursor:pointer;transition:all .18s}
+.comm-tab.active{background:var(--green-dark);border-color:var(--green-dark);color:white}
+
+/* STORY CARDS */
+.story-card{background:white;border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:16px;overflow:hidden;border:2px solid var(--border)}
+.story-header{background:linear-gradient(135deg,#166534,#22c55e);padding:16px;color:white}
+.story-week{font-size:.75rem;opacity:.8;font-weight:700;margin-bottom:4px}
+.story-title{font-family:'Baloo 2',cursive;font-size:1.15rem;line-height:1.3}
+.story-body{padding:16px;font-size:.9rem;line-height:1.8;color:var(--text)}
+.story-footer{padding:10px 16px 14px;border-top:2px solid var(--border);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.story-tag{background:var(--green-light);color:var(--green-dark);font-size:.72rem;font-weight:800;padding:3px 10px;border-radius:50px}
 </style>
 </head>
 <body>
@@ -337,12 +351,24 @@ body{font-family:'Nunito',sans-serif;background:var(--green-bg);color:var(--text
 
   <!-- COMMUNITY -->
   <div class="page" id="page-community">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
       <div class="sec" style="margin-bottom:0">🌍 Cộng đồng việc tốt</div>
       <button onclick="forceRefreshFeed()" style="background:var(--green-light);border:none;border-radius:50px;padding:6px 14px;font-family:'Nunito',sans-serif;font-weight:700;font-size:.78rem;color:var(--green-dark);cursor:pointer">🔄 Làm mới</button>
     </div>
-    <div id="feedCount" style="font-size:.78rem;color:var(--muted);margin-bottom:10px"></div>
-    <div class="feed" id="feed"></div>
+    <!-- Sub-tabs -->
+    <div class="comm-tabs">
+      <button class="comm-tab active" id="ctab-feed" onclick="switchCommTab('feed')">📢 Bảng tin</button>
+      <button class="comm-tab" id="ctab-story" onclick="switchCommTab('story')">✨ Câu chuyện tuần</button>
+    </div>
+    <!-- Feed panel -->
+    <div id="panel-feed">
+      <div id="feedCount" style="font-size:.78rem;color:var(--muted);margin-bottom:10px"></div>
+      <div class="feed" id="feed"></div>
+    </div>
+    <!-- Story panel -->
+    <div id="panel-story" style="display:none">
+      <div id="storyList"></div>
+    </div>
   </div>
 
   <!-- AI CHAT -->
@@ -557,6 +583,8 @@ function enterApp(data){
   // Subscribe realtime listeners
   subscribeToFeed();
   subscribeToLeaderboard();
+  // Kiểm tra và tạo câu chuyện tuần còn thiếu (chạy nền)
+  setTimeout(()=>checkAndGenerateStories(),3000);
   // Go to home
   showPage('home');
 }
@@ -1066,6 +1094,113 @@ async function loadAchievements(){
     </div>`;
   }).join('');
 }
+// ═══ CÂU CHUYỆN TUẦN ═══
+function getWeekKey(date){
+  const d=new Date(date||Date.now());
+  const startOfYear=new Date(d.getFullYear(),0,1);
+  const week=Math.ceil(((d-startOfYear)/86400000+startOfYear.getDay()+1)/7);
+  return`${d.getFullYear()}-W${String(week).padStart(2,'0')}`;
+}
+function weekLabel(key){
+  const [year,w]=key.split('-W');
+  const jan1=new Date(parseInt(year),0,1);
+  const days=(parseInt(w)-1)*7-jan1.getDay()+1;
+  const monday=new Date(jan1);monday.setDate(jan1.getDate()+days);
+  const sunday=new Date(monday);sunday.setDate(monday.getDate()+6);
+  const fmt=d=>`${d.getDate()}/${d.getMonth()+1}`;
+  return`Tuần ${w} • ${fmt(monday)} – ${fmt(sunday)}/${year}`;
+}
+
+window.switchCommTab=function(tab){
+  document.getElementById('panel-feed').style.display=tab==='feed'?'block':'none';
+  document.getElementById('panel-story').style.display=tab==='story'?'block':'none';
+  document.getElementById('ctab-feed').classList.toggle('active',tab==='feed');
+  document.getElementById('ctab-story').classList.toggle('active',tab==='story');
+  if(tab==='story')renderStories();
+};
+
+async function renderStories(){
+  const el=document.getElementById('storyList');
+  el.innerHTML=`<div style="text-align:center;padding:24px;color:var(--muted);font-size:.88rem"><div class="dots-wrap">Đang tải... <div class="dots"><span></span><span></span><span></span></div></div></div>`;
+  const snap=await db.ref('weeklyStories').get();
+  const stories=[];
+  snap.forEach(c=>stories.push({key:c.key,...c.val()}));
+  stories.sort((a,b)=>b.key.localeCompare(a.key));
+  if(!stories.length){
+    el.innerHTML=`<div style="text-align:center;padding:32px 16px;color:var(--muted)">Chưa có câu chuyện nào. AI đang chuẩn bị... 🌱</div>`;
+    return;
+  }
+  el.innerHTML=stories.map(s=>`
+    <div class="story-card">
+      <div class="story-header">
+        <div class="story-week">📅 ${weekLabel(s.key)}</div>
+        <div class="story-title">${escHtml(s.title)}</div>
+      </div>
+      <div class="story-body">${s.content.split('\n').filter(l=>l.trim()).map(l=>`<p>${escHtml(l)}</p>`).join('')}</div>
+      <div class="story-footer">
+        ${(s.tags||[]).map(t=>`<span class="story-tag">${escHtml(t)}</span>`).join('')}
+        <span style="margin-left:auto;font-size:.72rem;color:var(--muted)">✍️ AI Kindup</span>
+      </div>
+    </div>`).join('');
+}
+
+async function checkAndGenerateStories(){
+  const feedSnap=await db.ref('feed').get();
+  const allPosts=[];
+  feedSnap.forEach(c=>allPosts.push({id:c.key,...c.val()}));
+  if(allPosts.length<3)return;
+
+  const byWeek={};
+  allPosts.forEach(p=>{
+    const wk=getWeekKey(p.ts);
+    if(!byWeek[wk])byWeek[wk]=[];
+    byWeek[wk].push(p);
+  });
+
+  const storySnap=await db.ref('weeklyStories').get();
+  const existingKeys=new Set();
+  storySnap.forEach(c=>existingKeys.add(c.key));
+
+  const missing=Object.entries(byWeek)
+    .filter(([wk,posts])=>!existingKeys.has(wk)&&posts.length>=3)
+    .sort((a,b)=>a[0].localeCompare(b[0]));
+
+  if(!missing.length)return;
+  console.log(`[Story] Tạo ${missing.length} câu chuyện tuần...`);
+  for(const [weekKey,posts] of missing){
+    await generateWeekStory(weekKey,posts);
+    await new Promise(r=>setTimeout(r,1500));
+  }
+}
+
+async function generateWeekStory(weekKey,posts){
+  const top=posts.sort((a,b)=>((b.likes||0)+(b.pts||0))-((a.likes||0)+(a.pts||0))).slice(0,12);
+  const summary=top.map(p=>`- ${p.name}: "${p.task}" — ${p.desc||''} (${p.pts||0} điểm, ❤️${p.likes||0})`).join('\n');
+  const aiRaw=await callGroq(
+    `Danh sách việc tốt học sinh đã thực hiện trong ${weekLabel(weekKey)}:\n${summary}`,
+    `Bạn là biên tập viên của Kindup – ứng dụng việc tốt mỗi ngày dành cho học sinh Việt Nam.
+Viết 1 bài kể chuyện ấm áp, truyền cảm hứng về những việc tốt này. Yêu cầu:
+- Tiêu đề hay, gợi cảm xúc (không dùng từ "tuần")
+- Nội dung 150-200 từ, kể chuyện tự nhiên, có cảm xúc
+- Đề cập tên cụ thể 2-3 học sinh và việc họ đã làm
+- Nêu lợi ích thực tế và ý nghĩa với cộng đồng
+- Kết bằng 1 câu truyền cảm hứng ngắn
+- Tiếng Việt, thân thiện, không dùng emoji trong nội dung
+Chỉ trả về JSON hợp lệ: {"title":"tiêu đề","content":"nội dung, xuống dòng dùng \\n","tags":["tag1","tag2","tag3"]}`
+  );
+  if(!aiRaw)return;
+  try{
+    const clean=aiRaw.replace(/```json|```/g,'').trim();
+    const parsed=JSON.parse(clean);
+    if(!parsed.title||!parsed.content)return;
+    await db.ref(`weeklyStories/${weekKey}`).set({
+      title:parsed.title,content:parsed.content,
+      tags:parsed.tags||[],generatedAt:Date.now(),postCount:posts.length,
+    });
+    console.log(`[Story] ✅ ${weekKey}: "${parsed.title}"`);
+  }catch(e){console.error('[Story] Lỗi:',e);}
+}
+
 window.toggleLike=async function(btn,e){
   if(e)e.stopPropagation();
   const id=btn.dataset.id;

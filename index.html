@@ -30,10 +30,17 @@ body{font-family:'Nunito',sans-serif;background:var(--green-bg);color:var(--text
 
 /* TOPBAR */
 .topbar{height:var(--nav-h);background:white;border-bottom:2px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 16px;flex-shrink:0;box-shadow:0 2px 10px rgba(34,197,94,.07);position:relative;z-index:10}
-.topbar-logo{font-family:'Baloo 2',cursive;font-size:1.5rem;color:var(--green-dark)}
+.topbar-logo{font-family:'Baloo 2',cursive;font-size:1.5rem;color:var(--green-dark);text-shadow:0 2px 0 rgba(255,255,255,.8),0 6px 14px rgba(34,197,94,.14)}
 .topbar-right{display:flex;align-items:center;gap:10px}
 .pts-chip{background:linear-gradient(135deg,var(--yellow),var(--orange));color:white;font-weight:800;font-size:.82rem;padding:5px 12px;border-radius:50px}
-.user-ava{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--yellow));display:flex;align-items:center;justify-content:center;font-size:1.1rem;cursor:pointer;flex-shrink:0}
+.user-ava{
+  width:36px;height:36px;border-radius:50%;
+  background:linear-gradient(180deg,#f4fff6 0%,#c7f2d1 46%,#7fd892 100%);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.1rem;cursor:pointer;flex-shrink:0;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.88),0 8px 14px rgba(34,197,94,.18),0 2px 0 rgba(17,94,39,.12);
+  border:1px solid rgba(255,255,255,.9);
+}
 
 /* LAYOUT */
 .main{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
@@ -41,10 +48,24 @@ body{font-family:'Nunito',sans-serif;background:var(--green-bg);color:var(--text
 .page.active{display:block}
 
 /* BOTTOM NAV — fix highlight */
-.bottomnav{height:var(--bottom-h);background:white;border-top:2px solid var(--border);display:flex;align-items:stretch;flex-shrink:0;box-shadow:0 -2px 10px rgba(34,197,94,.07)}
+.bottomnav{height:var(--bottom-h);background:white;border-top:2px solid var(--border);display:flex;align-items:stretch;flex-shrink:0;box-shadow:0 -2px 16px rgba(34,197,94,.12)}
 .bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:none;background:transparent;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;font-size:.68rem;color:var(--muted);transition:color .15s,background .15s;padding:0;border-top:3px solid transparent}
-.bnav-btn span.ic{font-size:1.4rem;line-height:1}
+.bnav-btn span.ic{
+  font-size:1.15rem;line-height:1;
+  width:30px;height:30px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(180deg,#ffffff 0%,#eefbf2 48%,#d5f4dd 100%);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.9),0 5px 10px rgba(34,197,94,.1),0 1px 0 rgba(22,101,52,.1);
+  border:1px solid rgba(220,252,231,.95);
+  transform:translateY(0);
+  transition:transform .18s ease,box-shadow .18s ease,background .18s ease;
+}
 .bnav-btn.active{color:var(--green-dark);border-top-color:var(--green);background:#f0fdf4}
+.bnav-btn.active span.ic{
+  background:linear-gradient(180deg,#f7fff8 0%,#c9f4d4 52%,#76d58d 100%);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.9),0 9px 16px rgba(34,197,94,.18),0 2px 0 rgba(22,101,52,.12);
+  transform:translateY(-1px);
+}
 
 /* COMMON */
 .sec{font-family:'Baloo 2',cursive;font-size:1.15rem;color:var(--green-dark);margin-bottom:12px;display:flex;align-items:center;gap:6px}
@@ -59,42 +80,389 @@ body{font-family:'Nunito',sans-serif;background:var(--green-bg);color:var(--text
 .ta{min-height:90px;resize:vertical}
 
 /* HOME */
-.greeting{font-family:'Baloo 2',cursive;font-size:1.75rem;color:var(--green-dark);margin-bottom:2px}
-.greeting-sub{font-size:.88rem;color:var(--muted);margin-bottom:16px}
-.rank-hero{background:linear-gradient(135deg,#166534,#15803d,#22c55e);border-radius:var(--radius);padding:20px;color:white;margin-bottom:18px;position:relative;overflow:hidden}
-.rank-hero::after{content:'🌱';position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:3.5rem;opacity:.25}
-.rank-hero-name{font-family:'Baloo 2',cursive;font-size:1.3rem;margin-bottom:2px}
-.rank-hero-pts{font-size:.82rem;opacity:.8;margin-bottom:12px}
-.pbar{background:rgba(255,255,255,.25);border-radius:50px;height:9px;overflow:hidden}
-.pbar-fill{background:var(--yellow);height:100%;border-radius:50px;transition:width 1s ease}
-.pbar-lbl{font-size:.75rem;opacity:.8;margin-top:5px}
-/* Chỉ 2 stat: việc tốt + điểm */
-.stats-row{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:18px}
-.stat-box{background:white;border:2px solid var(--border);border-radius:14px;padding:14px 8px;text-align:center}
-.stat-num{font-family:'Baloo 2',cursive;font-size:1.8rem;line-height:1}
-.stat-lbl{font-size:.72rem;color:var(--muted);font-weight:700;margin-top:4px}
-.tasks-list{display:flex;flex-direction:column;gap:10px;margin-bottom:18px}
-.task-item{background:white;border:2px solid var(--border);border-radius:14px;padding:14px;display:flex;align-items:center;gap:12px}
+.home-scene{
+  position:relative;
+  margin:-16px -16px 0;
+  padding:18px 16px 96px;
+  background:
+    radial-gradient(circle at 20% 10%,rgba(255,255,255,.92) 0 8%,transparent 9%),
+    radial-gradient(circle at 82% 12%,rgba(255,255,255,.88) 0 10%,transparent 11%),
+    radial-gradient(circle at 12% 42%,rgba(220,255,214,.65) 0 12%,transparent 13%),
+    radial-gradient(circle at 88% 78%,rgba(192,241,193,.5) 0 14%,transparent 15%),
+    linear-gradient(180deg,#c6f3d3 0%,#e9fbef 28%,#f7fffa 58%,#eefcf2 100%);
+  overflow:hidden;
+}
+.home-scene::before,
+.home-scene::after{
+  content:'';
+  position:absolute;
+  inset:auto;
+  border-radius:999px;
+  filter:blur(2px);
+  opacity:.75;
+  pointer-events:none;
+}
+.home-scene::before{
+  width:170px;height:170px;left:-50px;top:150px;
+  background:radial-gradient(circle,#d9f7c2 0%,#8bd38b 48%,transparent 70%);
+}
+.home-scene::after{
+  width:190px;height:190px;right:-55px;top:260px;
+  background:radial-gradient(circle,#d8f6d9 0%,#9ddd9f 46%,transparent 70%);
+}
+.home-cloud{
+  position:absolute;
+  background:rgba(255,255,255,.82);
+  border-radius:999px;
+  box-shadow:28px 8px 0 rgba(255,255,255,.82),58px -4px 0 rgba(255,255,255,.82);
+  pointer-events:none;
+}
+.home-cloud.c1{width:58px;height:22px;left:18px;top:84px}
+.home-cloud.c2{width:64px;height:24px;right:54px;top:72px}
+.home-cloud.c3{width:46px;height:18px;left:120px;top:132px;opacity:.66}
+.home-brand{
+  position:relative;
+  z-index:1;
+  text-align:center;
+  margin:2px 0 12px;
+}
+.home-logo{
+  font-family:'Baloo 2',cursive;
+  font-size:3rem;
+  line-height:1;
+  color:#fffefc;
+  text-shadow:0 8px 24px rgba(32,118,61,.18),0 2px 0 rgba(255,255,255,.55);
+}
+.home-logo .accent{color:#22c55e}
+.greeting{
+  font-family:'Baloo 2',cursive;
+  font-size:1.5rem;
+  color:#17603a;
+  text-align:center;
+  margin-bottom:2px;
+  position:relative;
+  z-index:1;
+}
+.greeting-sub{
+  font-size:.88rem;
+  color:#4d7a58;
+  text-align:center;
+  margin-bottom:14px;
+  position:relative;
+  z-index:1;
+}
+.home-hero{
+  position:relative;
+  z-index:1;
+  padding-top:0;
+  margin-bottom:20px;
+}
+.feature-shell{
+  background:rgba(239,252,242,.88);
+  border:1px solid rgba(255,255,255,.78);
+  box-shadow:0 16px 34px rgba(56,161,105,.12);
+  border-radius:28px;
+  padding:14px;
+  backdrop-filter:blur(10px);
+}
+.feature-card{
+  background:linear-gradient(180deg,#ffffff,#f8fff8);
+  border-radius:24px;
+  padding:16px;
+  box-shadow:0 10px 22px rgba(58,141,98,.12);
+}
+.section-hd{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-family:'Baloo 2',cursive;
+  font-size:1.15rem;
+  color:#18723f;
+  margin-bottom:12px;
+}
+.section-hd.centered{
+  justify-content:center;
+  color:#18723f;
+  text-align:center;
+  margin-bottom:14px;
+}
+.section-hd.centered::before,
+.section-hd.centered::after{
+  content:'';
+  height:3px;
+  width:72px;
+  border-radius:999px;
+  background:linear-gradient(90deg,#7ed957,#b7e4c7);
+}
+.section-hd.centered::after{background:linear-gradient(90deg,#b7e4c7,#7ed957)}
+.feature-story-week{
+  margin:2px 0 8px;
+  font-size:.82rem;
+  font-weight:800;
+  color:#4d7a58;
+}
+.feature-story-title{
+  font-family:'Baloo 2',cursive;
+  font-size:1.32rem;
+  line-height:1.2;
+  color:#166534;
+  margin-bottom:8px;
+}
+.feature-story-text{
+  font-size:.97rem;
+  line-height:1.65;
+  color:#284738;
+  white-space:pre-line;
+}
+.home-cta-row{display:flex;justify-content:center;margin-top:16px}
+.home-pill-btn{
+  border:none;
+  border-radius:999px;
+  padding:14px 26px;
+  font-family:'Baloo 2',cursive;
+  font-size:1.1rem;
+  color:white;
+  cursor:pointer;
+  background:linear-gradient(135deg,#22c55e,#15803d);
+  box-shadow:0 12px 24px rgba(21,128,61,.22),inset 0 2px 0 rgba(255,255,255,.24);
+}
+.home-pill-btn.orange{
+  width:100%;
+  justify-content:center;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  background:linear-gradient(135deg,#22c55e,#16a34a);
+  box-shadow:0 14px 26px rgba(22,163,74,.24),inset 0 2px 0 rgba(255,255,255,.28);
+}
+.home-summary{
+  position:relative;
+  z-index:1;
+  margin-bottom:20px;
+}
+.stats-row{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:12px;
+}
+.stat-box{
+  position:relative;
+  overflow:hidden;
+  background:linear-gradient(180deg,rgba(255,255,255,.95),rgba(255,255,255,.88));
+  border-radius:22px;
+  padding:18px 16px 16px;
+  box-shadow:0 14px 30px rgba(111,168,216,.18);
+  min-height:128px;
+}
+.stat-box::before{
+  content:'';
+  position:absolute;
+  inset:auto -12px -24px auto;
+  width:110px;height:110px;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,214,119,.45) 0%,transparent 70%);
+}
+.stat-box.heart::before{background:radial-gradient(circle,rgba(255,150,174,.34) 0%,transparent 70%)}
+.stat-art{
+  font-size:2.15rem;
+  line-height:1;
+  margin-bottom:10px;
+  width:54px;height:54px;border-radius:18px;
+  display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(180deg,#fffef7 0%,#ecfdf3 42%,#c8f1d3 100%);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.95),0 10px 16px rgba(34,197,94,.12);
+}
+.stat-num{
+  font-family:'Baloo 2',cursive;
+  font-size:2.15rem;
+  line-height:1;
+  color:#15803d;
+}
+.stat-box.heart .stat-num{color:#16a34a}
+.stat-lbl{
+  font-size:.88rem;
+  color:#47634b;
+  font-weight:800;
+  margin-top:6px;
+  line-height:1.35;
+}
+.home-action{
+  position:relative;
+  z-index:1;
+  margin-bottom:18px;
+}
+.home-action-card{
+  background:linear-gradient(180deg,rgba(255,255,255,.82),rgba(255,255,255,.68));
+  border-radius:26px;
+  padding:18px 14px 14px;
+  box-shadow:0 16px 32px rgba(120,163,216,.15);
+}
+.home-rank-mini{
+  margin:0 auto 12px;
+  padding:12px 14px;
+  border-radius:18px;
+  background:linear-gradient(135deg,#5aaf6c,#228a5b);
+  color:white;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.2);
+}
+.rank-hero-name{font-family:'Baloo 2',cursive;font-size:1.08rem;margin-bottom:4px}
+.rank-hero-pts{font-size:.82rem;opacity:.92;margin-bottom:10px}
+.pbar{background:rgba(255,255,255,.25);border-radius:50px;height:10px;overflow:hidden}
+.pbar-fill{background:linear-gradient(90deg,#ffe480,#ffd34d);height:100%;border-radius:50px;transition:width 1s ease}
+.pbar-lbl{font-size:.74rem;opacity:.88;margin-top:6px}
+.home-question{
+  font-family:'Baloo 2',cursive;
+  font-size:1.5rem;
+  color:#4c489c;
+  text-align:center;
+  margin-bottom:12px;
+}
+.tasks-list{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  margin:14px 0 18px;
+}
+.task-item{
+  background:rgba(255,255,255,.92);
+  border:1px solid rgba(255,255,255,.8);
+  border-radius:18px;
+  padding:14px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  box-shadow:0 10px 22px rgba(86,164,108,.10);
+}
 .task-item.done{background:linear-gradient(135deg,#f0fdf4,#dcfce7);border-color:var(--green)}
-.task-ic{font-size:1.7rem;flex-shrink:0}
+.task-ic{
+  width:42px;height:42px;border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.5rem;flex-shrink:0;
+  background:linear-gradient(180deg,#ffffff 0%,#eafbf0 42%,#c6efd1 100%);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.92),0 10px 14px rgba(34,197,94,.1),0 1px 0 rgba(22,101,52,.08);
+}
 .task-info{flex:1}
-.task-name{font-weight:800;font-size:.93rem}
-.task-pts{font-size:.78rem;color:var(--green-dark);font-weight:700}
-.task-check{font-size:1.2rem;flex-shrink:0}
-.ai-promo{background:linear-gradient(135deg,#6d28d9,#a855f7,#ec4899);border-radius:var(--radius);padding:16px;color:white;display:flex;align-items:center;gap:14px;cursor:pointer;transition:transform .2s}
+.task-name{font-weight:800;font-size:.93rem;color:#22543d}
+.task-pts{font-size:.78rem;color:#5f7c63;font-weight:700}
+.task-check{font-size:1rem;flex-shrink:0;color:#15803d}
+.ai-promo{
+  background:linear-gradient(135deg,#15803d,#22c55e,#4ade80);
+  border-radius:24px;
+  padding:16px;
+  color:white;
+  display:flex;
+  align-items:center;
+  gap:14px;
+  cursor:pointer;
+  transition:transform .2s;
+  box-shadow:0 16px 26px rgba(34,197,94,.22);
+}
 .ai-promo:active{transform:scale(.98)}
-.ai-promo-ic{font-size:2.2rem;flex-shrink:0}
+.ai-promo-ic{
+  width:52px;height:52px;border-radius:18px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:2rem;flex-shrink:0;
+  background:linear-gradient(180deg,rgba(255,255,255,.45),rgba(255,255,255,.16));
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.55),0 10px 16px rgba(12,87,34,.16);
+}
 .ai-promo h3{font-family:'Baloo 2',cursive;font-size:1.1rem;margin-bottom:2px}
-.ai-promo p{font-size:.8rem;opacity:.88;line-height:1.4}
+.ai-promo p{font-size:.8rem;opacity:.9;line-height:1.45}
+
+.robot-ai{
+  position:relative;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  flex-shrink:0;
+}
+.robot-ai-head{
+  position:relative;
+  display:block;
+  border-radius:22px;
+  background:linear-gradient(180deg,#ffffff 0%,#dcfce7 48%,#86efac 100%);
+  box-shadow:inset 0 3px 0 rgba(255,255,255,.95),0 10px 18px rgba(34,197,94,.18),0 2px 0 rgba(21,128,61,.12),0 0 0 3px rgba(255,255,255,.95);
+}
+.robot-ai-head::before,
+.robot-ai-head::after{
+  content:'';
+  position:absolute;
+  top:50%;
+  width:12px;
+  height:20px;
+  border-radius:8px;
+  background:linear-gradient(180deg,#ffffff,#86efac);
+  box-shadow:0 6px 10px rgba(34,197,94,.16);
+  transform:translateY(-50%);
+}
+.robot-ai-head::before{left:-8px}
+.robot-ai-head::after{right:-8px}
+.robot-ai-visor{
+  position:absolute;
+  left:50%;
+  transform:translateX(-50%);
+  border-radius:12px;
+  background:linear-gradient(180deg,#1f2937,#334155);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.18);
+}
+.robot-ai-eyes{
+  position:absolute;
+  left:50%;
+  transform:translateX(-50%);
+  display:flex;
+  gap:20px;
+}
+.robot-ai-eyes span{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:#86efac;
+  box-shadow:0 0 10px rgba(134,239,172,.75);
+}
+.robot-ai-mouth{
+  position:absolute;
+  left:50%;
+  transform:translateX(-50%);
+  border-bottom:3px solid #15803d;
+  border-radius:0 0 18px 18px;
+}
+.robot-ai-spark{
+  position:absolute;
+  font-size:.9rem;
+  filter:drop-shadow(0 4px 8px rgba(21,128,61,.18));
+  animation:twinkle 1.8s ease-in-out infinite;
+}
+.robot-ai.lg{width:56px;height:56px}
+.robot-ai.lg .robot-ai-head{width:50px;height:42px}
+.robot-ai.lg .robot-ai-visor{top:11px;width:31px;height:12px}
+.robot-ai.lg .robot-ai-eyes{top:14px}
+.robot-ai.lg .robot-ai-mouth{bottom:9px;width:18px;height:8px}
+.robot-ai.lg .robot-ai-spark{right:-2px;top:-3px}
+.robot-ai.md{width:42px;height:42px}
+.robot-ai.md .robot-ai-head{width:38px;height:32px}
+.robot-ai.md .robot-ai-visor{top:8px;width:23px;height:9px}
+.robot-ai.md .robot-ai-eyes{top:11px;gap:14px}
+.robot-ai.md .robot-ai-eyes span{width:7px;height:7px}
+.robot-ai.md .robot-ai-mouth{bottom:7px;width:14px;height:6px}
+.robot-ai.md .robot-ai-spark{right:-1px;top:-3px;font-size:.72rem}
+.robot-ai.sm{width:28px;height:28px}
+.robot-ai.sm .robot-ai-head{width:28px;height:24px;border-radius:12px;box-shadow:inset 0 2px 0 rgba(255,255,255,.95),0 6px 12px rgba(34,197,94,.16),0 1px 0 rgba(21,128,61,.12),0 0 0 2px rgba(255,255,255,.95)}
+.robot-ai.sm .robot-ai-head::before,.robot-ai.sm .robot-ai-head::after{width:6px;height:12px;border-radius:5px}
+.robot-ai.sm .robot-ai-head::before{left:-4px}
+.robot-ai.sm .robot-ai-head::after{right:-4px}
+.robot-ai.sm .robot-ai-visor{top:6px;width:17px;height:7px;border-radius:8px}
+.robot-ai.sm .robot-ai-eyes{top:8px;gap:10px}
+.robot-ai.sm .robot-ai-eyes span{width:5px;height:5px}
+.robot-ai.sm .robot-ai-mouth{bottom:5px;width:10px;height:5px;border-bottom-width:2px}
+.robot-ai.sm .robot-ai-spark{right:-2px;top:-4px;font-size:.56rem}
 
 /* LOG */
-.form-card{background:white;border-radius:var(--radius);padding:18px;box-shadow:var(--shadow)}
-.ai-box{background:var(--purple-light);border:2px solid #d8b4fe;border-radius:14px;padding:14px;margin-bottom:14px;display:none}
+.form-card,.board,.chat-wrap,.story-card,.ach-stat,.ach-cat{background:white;border-radius:var(--radius);box-shadow:0 8px 24px rgba(34,197,94,.08)}
+.form-card{padding:18px;border:1px solid #ecfdf3}
+.ai-box{background:#f0fdf4;border:2px solid #bbf7d0;border-radius:14px;padding:14px;margin-bottom:14px;display:none}
 .ai-box.show{display:block}
-.ai-box-hd{display:flex;align-items:center;gap:7px;font-weight:800;color:#6d28d9;font-size:.85rem;margin-bottom:8px}
+.ai-box-hd{display:flex;align-items:center;gap:7px;font-weight:800;color:var(--green-dark);font-size:.85rem;margin-bottom:8px}
 .ai-box-txt{font-size:.9rem;color:var(--text);line-height:1.6}
-.dots-wrap{display:flex;align-items:center;gap:6px;color:#a855f7;font-weight:700;font-size:.85rem}
-.dots span{display:inline-block;width:5px;height:5px;background:#a855f7;border-radius:50%;animation:bop .8s infinite}
+.dots-wrap{display:flex;align-items:center;gap:6px;color:var(--green-dark);font-weight:700;font-size:.85rem}
+.dots span{display:inline-block;width:5px;height:5px;background:var(--green);border-radius:50%;animation:bop .8s infinite}
 .dots span:nth-child(2){animation-delay:.15s}.dots span:nth-child(3){animation-delay:.3s}
 @keyframes bop{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
 .img-upload-wrap{border:2px dashed var(--border);border-radius:14px;padding:14px;margin-bottom:14px;transition:border-color .2s;background:#fafafa}
@@ -111,6 +479,10 @@ body{font-family:'Nunito',sans-serif;background:var(--green-bg);color:var(--text
 .fcard:hover{box-shadow:var(--shadow)}
 .fhd{display:flex;align-items:center;gap:10px;margin-bottom:8px}
 .fava{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
+.fava,.bava{
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.72),0 8px 14px rgba(34,197,94,.12),0 1px 0 rgba(21,128,61,.1);
+  border:1px solid rgba(255,255,255,.88);
+}
 .fname{font-weight:800;font-size:.9rem}
 .ftime{font-size:.74rem;color:var(--muted)}
 .ftag{background:var(--green-light);color:var(--green-dark);font-size:.76rem;font-weight:700;padding:3px 10px;border-radius:50px;display:inline-block;margin-bottom:7px}
@@ -128,7 +500,12 @@ body{font-family:'Nunito',sans-serif;background:var(--green-bg);color:var(--text
 @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
 .modal-hd{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border);flex-shrink:0}
 .modal-hd-title{font-family:'Baloo 2',cursive;font-size:1.1rem;color:var(--green-dark)}
-.modal-close{background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--muted);padding:4px}
+.modal-close{
+  width:34px;height:34px;border:none;border-radius:12px;
+  font-size:1.15rem;cursor:pointer;color:var(--green-dark);
+  background:linear-gradient(180deg,#ffffff 0%,#ecfdf3 48%,#c9f4d4 100%);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.94),0 8px 14px rgba(34,197,94,.1);
+}
 /* Phần info bài đăng — không scroll */
 .modal-info{padding:14px 18px 10px;flex-shrink:0;border-bottom:1px solid var(--border)}
 .modal-img{width:100%;max-height:180px;object-fit:cover;border-radius:12px;margin-bottom:10px}
@@ -148,19 +525,25 @@ body{font-family:'Nunito',sans-serif;background:var(--green-bg);color:var(--text
 .cmt-send{background:var(--green);border:none;border-radius:50px;padding:9px 18px;color:white;font-family:'Nunito',sans-serif;font-weight:700;font-size:.82rem;cursor:pointer;flex-shrink:0}
 
 /* AI CHAT */
-.chat-wrap{background:white;border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;height:calc(100vh - var(--nav-h) - var(--bottom-h) - 100px);min-height:340px}
-.chat-hd{background:linear-gradient(135deg,#6d28d9,#a855f7);padding:14px 16px;color:white;display:flex;align-items:center;gap:10px;flex-shrink:0}
-.chat-hd-ic{font-size:1.6rem}
+.chat-wrap{overflow:hidden;display:flex;flex-direction:column;height:calc(100vh - var(--nav-h) - var(--bottom-h) - 100px);min-height:340px;border:1px solid #dcfce7}
+.chat-hd{background:linear-gradient(135deg,#166534,#22c55e);padding:14px 16px;color:white;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.chat-hd-ic{
+  width:42px;height:42px;border-radius:16px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.45rem;
+  background:linear-gradient(180deg,rgba(255,255,255,.38),rgba(255,255,255,.12));
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.46),0 8px 14px rgba(12,87,34,.16);
+}
 .chat-hd h3{font-family:'Baloo 2',cursive;font-size:1.1rem}
 .chat-hd p{font-size:.76rem;opacity:.85}
 .chat-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
 .msg{max-width:82%;padding:11px 14px;border-radius:16px;font-size:.88rem;line-height:1.55}
-.msg.ai{background:#f3e8ff;color:var(--text);align-self:flex-start;border-bottom-left-radius:4px}
+.msg.ai{background:#edfdf1;color:var(--text);align-self:flex-start;border-bottom-left-radius:4px}
 .msg.user{background:linear-gradient(135deg,var(--green),var(--green-dark));color:white;align-self:flex-end;border-bottom-right-radius:4px}
 .chat-inp-wrap{padding:12px;border-top:2px solid var(--border);display:flex;gap:8px;flex-shrink:0}
 .chat-inp{flex:1;border:2px solid var(--border);border-radius:50px;padding:9px 16px;font-family:'Nunito',sans-serif;font-size:.9rem;outline:none}
-.chat-inp:focus{border-color:var(--purple)}
-.chat-send{width:40px;height:40px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,#6d28d9,#a855f7);border:none;color:white;font-size:1.1rem;cursor:pointer}
+.chat-inp:focus{border-color:var(--green)}
+.chat-send{width:40px;height:40px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,#16a34a,#15803d);border:none;color:white;font-size:1.1rem;cursor:pointer}
 .quick-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
 
 /* RANKS — bỏ số sao */
@@ -168,16 +551,28 @@ body{font-family:'Nunito',sans-serif;background:var(--green-bg);color:var(--text
 .rcard{background:white;border:2px solid var(--border);border-radius:14px;padding:14px;text-align:center}
 .rcard.unlocked{border-color:var(--green);background:linear-gradient(135deg,#f0fdf4,#dcfce7)}
 .rcard.locked{opacity:.45;filter:grayscale(.5)}
-.rcard-ic{font-size:2.2rem;margin-bottom:6px}
+.rcard-ic{
+  font-size:2.1rem;margin:0 auto 8px;
+  width:58px;height:58px;border-radius:18px;
+  display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(180deg,#ffffff 0%,#eefcf2 46%,#ccf1d4 100%);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.95),0 10px 16px rgba(34,197,94,.1);
+}
 .rcard-name{font-weight:800;font-size:.82rem;margin-bottom:3px}
 .rcard-req{font-size:.73rem;color:var(--muted)}
 
 /* LEADERBOARD — trang riêng */
-.board{background:white;border-radius:var(--radius);padding:0;box-shadow:var(--shadow);overflow:hidden}
+.board{padding:0;overflow:hidden;border:1px solid #dcfce7}
 .brow{display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid var(--border)}
 .brow:last-child{border-bottom:none}
 .brow.me{background:#f0fdf4}
-.brank{font-family:'Baloo 2',cursive;font-size:1.3rem;width:32px;text-align:center;flex-shrink:0}
+.brank{
+  font-family:'Baloo 2',cursive;font-size:1.1rem;width:34px;height:34px;
+  text-align:center;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  border-radius:12px;
+  background:linear-gradient(180deg,#ffffff 0%,#edfdf1 48%,#d3f4db 100%);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.95),0 8px 14px rgba(34,197,94,.1);
+}
 .bava{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
 .bname-wrap{flex:1}
 .bname{font-weight:800;font-size:.9rem}
@@ -187,7 +582,7 @@ body{font-family:'Nunito',sans-serif;background:var(--green-bg);color:var(--text
 
 /* ACHIEVEMENT PAGE */
 .ach-overview{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:4px}
-.ach-stat{background:white;border-radius:14px;padding:14px 12px;text-align:center;box-shadow:var(--shadow);border:2px solid var(--border)}
+.ach-stat{padding:14px 12px;text-align:center;border:2px solid var(--border)}
 .ach-stat-num{font-family:'Baloo 2',cursive;font-size:1.8rem;line-height:1;color:var(--green-dark)}
 .ach-stat-lbl{font-size:.72rem;color:var(--muted);font-weight:700;margin-top:2px}
 .ach-streak-card{background:linear-gradient(135deg,var(--orange),#f97316);border-radius:16px;padding:16px;color:white;display:flex;align-items:center;gap:14px;margin-bottom:4px;box-shadow:0 4px 16px rgba(249,115,22,.3)}
@@ -220,17 +615,53 @@ body{font-family:'Nunito',sans-serif;background:var(--green-bg);color:var(--text
 
 /* COMMUNITY TABS */
 .comm-tabs{display:flex;gap:6px;margin-bottom:12px}
-.comm-tab{flex:1;padding:8px 10px;border-radius:50px;border:2px solid var(--border);font-family:'Nunito',sans-serif;font-weight:800;font-size:.82rem;color:var(--muted);background:white;cursor:pointer;transition:all .18s}
+.comm-tab{flex:1;padding:10px 10px;border-radius:50px;border:2px solid var(--border);font-family:'Nunito',sans-serif;font-weight:800;font-size:.82rem;color:var(--muted);background:white;cursor:pointer;transition:all .18s}
 .comm-tab.active{background:var(--green-dark);border-color:var(--green-dark);color:white}
 
 /* STORY CARDS */
-.story-card{background:white;border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:16px;overflow:hidden;border:2px solid var(--border)}
+.story-card{margin-bottom:16px;overflow:hidden;border:2px solid var(--border)}
 .story-header{background:linear-gradient(135deg,#166534,#22c55e);padding:16px;color:white}
 .story-week{font-size:.75rem;opacity:.8;font-weight:700;margin-bottom:4px}
 .story-title{font-family:'Baloo 2',cursive;font-size:1.15rem;line-height:1.3}
 .story-body{padding:16px;font-size:.9rem;line-height:1.8;color:var(--text)}
 .story-footer{padding:10px 16px 14px;border-top:2px solid var(--border);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .story-tag{background:var(--green-light);color:var(--green-dark);font-size:.72rem;font-weight:800;padding:3px 10px;border-radius:50px}
+
+.scroll-top-btn{
+  position:fixed;
+  right:16px;
+  bottom:calc(var(--bottom-h) + 18px);
+  width:46px;
+  height:46px;
+  border:none;
+  border-radius:50%;
+  background:linear-gradient(135deg,#16a34a,#15803d);
+  color:white;
+  font-size:1.15rem;
+  box-shadow:0 12px 20px rgba(21,128,61,.26);
+  cursor:pointer;
+  z-index:850;
+  opacity:0;
+  pointer-events:none;
+  transform:translateY(12px);
+  transition:opacity .2s ease,transform .2s ease;
+}
+.scroll-top-btn.show{
+  opacity:1;
+  pointer-events:auto;
+  transform:translateY(0);
+}
+
+@keyframes iconBob{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-2px)}
+}
+.bnav-btn.active span.ic,
+.user-ava,
+.ai-promo-ic,
+.chat-hd-ic{
+  animation:iconBob 2.6s ease-in-out infinite;
+}
 </style>
 </head>
 <body>
@@ -285,27 +716,78 @@ body{font-family:'Nunito',sans-serif;background:var(--green-bg);color:var(--text
 
   <!-- HOME -->
   <div class="page active" id="page-home">
-    <div class="greeting" id="greeting">Chào buổi sáng! ☀️</div>
-    <div class="greeting-sub" id="subDate">Đang tải...</div>
-    <div class="rank-hero">
-      <div class="rank-hero-name" id="rankName">🌱 Tân Binh Việc Tốt</div>
-      <div class="rank-hero-pts" id="rankPts">0 / 50 điểm</div>
-      <div class="pbar"><div class="pbar-fill" id="pbarFill" style="width:0%"></div></div>
-      <div class="pbar-lbl" id="pbarLbl">Còn 50 điểm nữa thăng cấp! 💪</div>
-    </div>
-    <!-- Chỉ 2 stat: việc tốt + điểm -->
-    <div class="stats-row">
-      <div class="stat-box"><div class="stat-num" id="statDone">0</div><div class="stat-lbl">Việc tốt đã làm</div></div>
-      <div class="stat-box"><div class="stat-num" style="color:var(--orange)" id="statPts">0</div><div class="stat-lbl">Điểm tích lũy</div></div>
-    </div>
-    <div class="sec">📋 Gợi ý việc tốt hôm nay</div>
-    <div id="homeAiLoading" style="color:var(--muted);font-size:.88rem;padding:12px 4px;display:flex;align-items:center;gap:8px">
-      <div class="dots"><span></span><span></span><span></span></div> AI đang gợi ý...
-    </div>
-    <div class="tasks-list" id="tasksList"></div>
-    <div class="ai-promo" onclick="showPage('ai')">
-      <div class="ai-promo-ic">🤖</div>
-      <div><h3>Trợ lý AI Kindup</h3><p>Hỏi AI để được gợi ý và động viên riêng cho bạn!</p></div>
+    <div class="home-scene">
+      <div class="home-cloud c1"></div>
+      <div class="home-cloud c2"></div>
+      <div class="home-cloud c3"></div>
+
+      <div class="home-brand">
+        <div class="home-logo">Kind<span class="accent">Up</span></div>
+      </div>
+      <div class="greeting" id="greeting">Chào buổi sáng! ☀️</div>
+      <div class="greeting-sub" id="subDate">Đang tải...</div>
+
+      <div class="home-hero">
+        <div class="feature-shell">
+          <div class="feature-card">
+            <div class="section-hd">🌟 Việc tốt nổi bật tuần này</div>
+            <div class="feature-story-week" id="homeStoryWeek">Đang cập nhật câu chuyện tuần...</div>
+            <div class="feature-story-title" id="homeStoryTitle">Những điều tử tế đang được lan tỏa</div>
+            <div class="feature-story-text" id="homeStoryText">Mỗi việc tốt nhỏ đều có thể trở thành điều ấm áp lớn. KindUp sẽ chọn ra câu chuyện nổi bật nhất để kể lại tại đây.</div>
+            <div class="home-cta-row">
+              <button class="home-pill-btn" onclick="openFeaturedStory()">Xem tất cả ›</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="home-summary">
+        <div class="section-hd centered">Tuần này chúng mình đã ghi nhận</div>
+        <div class="stats-row">
+          <div class="stat-box">
+            <div class="stat-art">⭐</div>
+            <div class="stat-num" id="statDone">0</div>
+            <div class="stat-lbl" id="statDoneLabel">Việc tốt của bạn</div>
+          </div>
+          <div class="stat-box heart">
+            <div class="stat-art">💖</div>
+            <div class="stat-num" id="statPts">0</div>
+            <div class="stat-lbl" id="statPtsLabel">Điểm tích lũy</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="home-action">
+        <div class="section-hd centered">Bạn đã làm việc tốt gì hôm nay?</div>
+        <div class="home-action-card">
+          <div class="home-rank-mini">
+            <div class="rank-hero-name" id="rankName">🌱 Tân Binh Việc Tốt</div>
+            <div class="rank-hero-pts" id="rankPts">0 / 50 điểm</div>
+            <div class="pbar"><div class="pbar-fill" id="pbarFill" style="width:0%"></div></div>
+            <div class="pbar-lbl" id="pbarLbl">Còn 50 điểm nữa thăng cấp! 💪</div>
+          </div>
+          <button class="home-pill-btn orange" onclick="showPage('log')">＋ Ghi nhận việc tốt <span>›</span></button>
+        </div>
+      </div>
+
+      <div class="section-hd centered">Gợi ý việc tốt hôm nay</div>
+      <div id="homeAiLoading" style="color:#5f6f94;font-size:.88rem;padding:8px 4px 4px;display:flex;align-items:center;justify-content:center;gap:8px">
+        <div class="dots"><span></span><span></span><span></span></div> AI đang gợi ý...
+      </div>
+      <div class="tasks-list" id="tasksList"></div>
+      <div class="ai-promo" onclick="showPage('ai')">
+        <div class="ai-promo-ic">
+          <span class="robot-ai md" aria-hidden="true">
+            <span class="robot-ai-head">
+              <span class="robot-ai-visor"></span>
+              <span class="robot-ai-eyes"><span></span><span></span></span>
+              <span class="robot-ai-mouth"></span>
+            </span>
+            <span class="robot-ai-spark">✨</span>
+          </span>
+        </div>
+        <div><h3>Trợ lý AI Kindup</h3><p>Hỏi AI để được gợi ý và động viên riêng cho bạn!</p></div>
+      </div>
     </div>
   </div>
 
@@ -343,7 +825,7 @@ body{font-family:'Nunito',sans-serif;background:var(--green-bg);color:var(--text
       </div>
       <button class="btn btn-green" id="btnSubmit" onclick="submitTask()">🎉 Ghi lại & nhận điểm</button>
       <div class="ai-box" id="praiseBox" style="margin-top:14px">
-        <div class="ai-box-hd">🌟 Lời khen từ AI Kindup</div>
+        <div class="ai-box-hd"><span class="robot-ai sm" aria-hidden="true"><span class="robot-ai-head"><span class="robot-ai-visor"></span><span class="robot-ai-eyes"><span></span><span></span></span><span class="robot-ai-mouth"></span></span><span class="robot-ai-spark">✨</span></span> Lời khen từ AI Kindup</div>
         <div class="ai-box-txt" id="praiseTxt"></div>
       </div>
     </div>
@@ -373,10 +855,19 @@ body{font-family:'Nunito',sans-serif;background:var(--green-bg);color:var(--text
 
   <!-- AI CHAT -->
   <div class="page" id="page-ai">
-    <div class="sec" style="margin-bottom:12px">🤖 Trợ lý AI Kindup</div>
+    <div class="sec" style="margin-bottom:12px"><span class="robot-ai sm" aria-hidden="true"><span class="robot-ai-head"><span class="robot-ai-visor"></span><span class="robot-ai-eyes"><span></span><span></span></span><span class="robot-ai-mouth"></span></span><span class="robot-ai-spark">✨</span></span> Trợ lý AI Kindup</div>
     <div class="chat-wrap">
       <div class="chat-hd">
-        <div class="chat-hd-ic">🤖</div>
+        <div class="chat-hd-ic">
+          <span class="robot-ai md" aria-hidden="true">
+            <span class="robot-ai-head">
+              <span class="robot-ai-visor"></span>
+              <span class="robot-ai-eyes"><span></span><span></span></span>
+              <span class="robot-ai-mouth"></span>
+            </span>
+            <span class="robot-ai-spark">✨</span>
+          </span>
+        </div>
         <div><h3>AI Kindup</h3><p>Gợi ý nhiệm vụ • Khen ngợi • Động viên</p></div>
       </div>
       <div class="chat-msgs" id="chatMsgs">
@@ -430,10 +921,12 @@ body{font-family:'Nunito',sans-serif;background:var(--green-bg);color:var(--text
   <button class="bnav-btn active" onclick="showPage('home')" id="bn-home"><span class="ic">🏠</span><span>Trang chủ</span></button>
   <button class="bnav-btn" onclick="showPage('log')" id="bn-log"><span class="ic">✏️</span><span>Ghi việc tốt</span></button>
   <button class="bnav-btn" onclick="showPage('community')" id="bn-community"><span class="ic">🌍</span><span>Cộng đồng</span></button>
-  <button class="bnav-btn" onclick="showPage('ai')" id="bn-ai"><span class="ic">🤖</span><span>AI</span></button>
+  <button class="bnav-btn" onclick="showPage('ai')" id="bn-ai"><span class="ic"><span class="robot-ai sm" aria-hidden="true"><span class="robot-ai-head"><span class="robot-ai-visor"></span><span class="robot-ai-eyes"><span></span><span></span></span><span class="robot-ai-mouth"></span></span><span class="robot-ai-spark">✨</span></span></span><span>AI</span></button>
   <button class="bnav-btn" onclick="showPage('ranks')" id="bn-ranks"><span class="ic">🏆</span><span>Thành tích</span></button>
   <button class="bnav-btn" onclick="showPage('board')" id="bn-board"><span class="ic">📊</span><span>Xếp hạng</span></button>
 </div>
+
+<button id="scrollTopBtn" class="scroll-top-btn" onclick="scrollMainToTop()" aria-label="Lên đầu trang">↑</button>
 
 <!-- MODAL CHI TIẾT BÀI ĐĂNG -->
 <div class="modal-overlay" id="postModal" onclick="closeModal(event)">
@@ -718,6 +1211,7 @@ function initApp(){
   const days=['Chủ Nhật','Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu','Thứ Bảy'];
   document.getElementById('subDate').textContent=`${G.name} • ${days[d.getDay()]}, ${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}`;
   renderAll();
+  loadHomeShowcase();
   loadAiSuggestions(); // sinh gợi ý AI ngay khi vào app
 }
 
@@ -731,8 +1225,6 @@ window.forceRefreshFeed=function(){
 function renderAll(){
   updateProgress();renderRanks();
   document.getElementById('ptsChip').textContent=`⭐ ${G.points} điểm`;
-  document.getElementById('statDone').textContent=G.weekDone;
-  document.getElementById('statPts').textContent=G.points;
 }
 
 function updateProgress(){
@@ -753,6 +1245,56 @@ function updateProgress(){
     document.getElementById('pbarLbl').textContent='Bạn thật tuyệt vời! 👑';
   }
 }
+
+async function loadHomeShowcase(){
+  try{
+    const [storySnap,feedSnap,usersSnap]=await Promise.all([
+      db.ref('weeklyStories').get(),
+      db.ref('feed').get(),
+      db.ref('users').get()
+    ]);
+
+    const stories=Object.entries(storySnap.val()||{})
+      .map(([key,val])=>({key,...(val||{})}))
+      .filter(s=>typeof s.content==='string'&&s.content.trim())
+      .sort((a,b)=>b.key.localeCompare(a.key));
+
+    const latest=stories[0]||null;
+    const storyWeek=document.getElementById('homeStoryWeek');
+    const storyTitle=document.getElementById('homeStoryTitle');
+    const storyText=document.getElementById('homeStoryText');
+
+    if(latest){
+      storyWeek.textContent=weekLabel(latest.key);
+      storyTitle.textContent=latest.title||'Câu chuyện tuần nổi bật';
+      storyText.textContent=String(latest.content||'').trim();
+    }else{
+      storyWeek.textContent='Câu chuyện tuần sẽ xuất hiện tại đây';
+      storyTitle.textContent='Những điều tử tế đang được lan tỏa';
+      storyText.textContent='Khi tuần hoàn thành, KindUp sẽ chọn việc tốt nổi bật nhất để kể lại trên trang chủ.';
+    }
+
+    let totalGood=0;
+    feedSnap.forEach(c=>{if(c.val())totalGood++;});
+    let totalUsers=0;
+    usersSnap.forEach(c=>{if(c.val())totalUsers++;});
+
+    document.getElementById('statDone').textContent=String(totalGood);
+    document.getElementById('statPts').textContent=String(totalUsers);
+    document.getElementById('statDoneLabel').textContent='Việc tốt toàn cộng đồng';
+    document.getElementById('statPtsLabel').textContent='Bạn tham gia KindUp';
+  }catch(e){
+    console.error('[Home] Load showcase failed:',e);
+    document.getElementById('homeStoryWeek').textContent='Không tải được câu chuyện tuần';
+    document.getElementById('homeStoryTitle').textContent='Hãy thử mở lại sau nhé';
+    document.getElementById('homeStoryText').textContent='KindUp sẽ hiển thị việc tốt nổi bật nhất tại đây khi dữ liệu sẵn sàng.';
+  }
+}
+
+window.openFeaturedStory=function(){
+  showPage('community');
+  switchCommTab('story');
+};
 
 // ═══ AI GỢI Ý — sinh tự động, dùng chung home + log ═══
 async function loadAiSuggestions(){
@@ -1533,6 +2075,17 @@ function addChatMsg(text,role){
 }
 window.quickMsg=t=>{document.getElementById('chatInp').value=t;sendChat();};
 
+function updateScrollTopBtn(){
+  const main=document.querySelector('.main');
+  const btn=document.getElementById('scrollTopBtn');
+  if(!main||!btn)return;
+  btn.classList.toggle('show',main.scrollTop>320);
+}
+window.scrollMainToTop=function(){
+  const main=document.querySelector('.main');
+  if(main)main.scrollTo({top:0,behavior:'smooth'});
+};
+
 // ═══ NAVIGATION — highlight tab + tải lại dữ liệu ═══
 window.showPage=function(id){
   _currentPage=id;
@@ -1546,6 +2099,7 @@ window.showPage=function(id){
   // Tải lại dữ liệu theo trang (trừ AI)
   if(id==='home'){
     refreshHome();
+    loadHomeShowcase();
     // Làm mới gợi ý AI mỗi lần vào trang chủ
     _aiSuggestLoading=false;
     _aiSuggestions=[];
@@ -1560,6 +2114,7 @@ window.showPage=function(id){
   }
   // community và board dùng realtime listener, tự cập nhật, không cần re-subscribe
   if(id==='ranks') loadAchievements();
+  updateScrollTopBtn();
 };
 
 function refreshHome(){
@@ -1582,6 +2137,7 @@ document.addEventListener('click',e=>{
   const menu=document.getElementById('logoutMenu'),ava=document.getElementById('userAva');
   if(menu&&!menu.contains(e.target)&&!ava.contains(e.target))menu.style.display='none';
 });
+document.querySelector('.main').addEventListener('scroll',updateScrollTopBtn,{passive:true});
 
 let _toastTimer=null;
 window.showToast=function(msg){

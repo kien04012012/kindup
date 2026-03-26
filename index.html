@@ -964,6 +964,7 @@ Trả về JSON hợp lệ, chỉ JSON: {"score":8,"praise":"lời khen..."}`
   // Lưu điểm + feed
   addPoints(earnedPts);
   await postToFeed(finalName,desc,imageUrl,earnedPts);
+  checkAndGenerateStories().catch(err=>console.error('[Story] Generate after post failed:',err));
   showToast(`🎉 +${earnedPts} điểm! "${finalName}" đã được ghi lại!`);
   showPointPopup(earnedPts,btn);
   confetti();
@@ -1126,17 +1127,30 @@ async function renderStories(){
   const el=document.getElementById('storyList');
   el.innerHTML=`<div style="text-align:center;padding:24px;color:var(--muted);font-size:.88rem"><div class="dots-wrap">Đang tải... <div class="dots"><span></span><span></span><span></span></div></div></div>`;
 
-  let snap=await db.ref('weeklyStories').get();
-  if(!snap.exists()){
-    await checkAndGenerateStories();
-    snap=await db.ref('weeklyStories').get();
-  }
+  await checkAndGenerateStories();
+  const snap=await db.ref('weeklyStories').get();
 
   const stories=[];
   snap.forEach(c=>stories.push({key:c.key,...c.val()}));
   stories.sort((a,b)=>b.key.localeCompare(a.key));
   if(!stories.length){
-    el.innerHTML=`<div style="text-align:center;padding:32px 16px;color:var(--muted)">Chưa có đủ dữ liệu để tạo câu chuyện tuần. Hãy thêm ít nhất 3 việc tốt nhé! 🌱</div>`;
+    const feedSnap=await db.ref('feed').get();
+    const byWeek={};
+    let totalPosts=0;
+    feedSnap.forEach(c=>{
+      const v=c.val();
+      if(!v||!v.ts)return;
+      totalPosts++;
+      const wk=getWeekKey(v.ts);
+      if(!byWeek[wk])byWeek[wk]=0;
+      byWeek[wk]++;
+    });
+    const maxPostsInAWeek=Object.values(byWeek).length?Math.max(...Object.values(byWeek)):0;
+    if(totalPosts<3||maxPostsInAWeek<3){
+      el.innerHTML=`<div style="text-align:center;padding:32px 16px;color:var(--muted)">Chưa có đủ dữ liệu trong cùng một tuần để tạo câu chuyện. Cần ít nhất 3 việc tốt trong 1 tuần nhé! 🌱</div>`;
+    }else{
+      el.innerHTML=`<div style="text-align:center;padding:32px 16px;color:var(--muted)">Đã có đủ dữ liệu nhưng chưa tạo được câu chuyện tuần. Có thể AI hoặc proxy đang lỗi, bạn thử mở lại sau hoặc kiểm tra console nhé. ⚠️</div>`;
+    }
     return;
   }
   el.innerHTML=stories.map(s=>`

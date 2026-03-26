@@ -7,14 +7,23 @@
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
 <style>
 :root{
-  --green:#22c55e;--green-dark:#15803d;--green-light:#bbf7d0;--green-bg:#f0fdf4;
+  --green:#22c55e;--green-dark:#15803d;--green-light:#bbf7d0;--green-bg:#dff5e5;
   --yellow:#fbbf24;--orange:#f97316;--purple:#a855f7;--purple-light:#f3e8ff;
-  --text:#1c2b1c;--muted:#6b7280;--border:#d1fae5;
-  --radius:18px;--shadow:0 4px 20px rgba(34,197,94,.10);--nav-h:60px;--bottom-h:64px;
+  --text:#1c2b1c;--muted:#5d6f62;--border:#bfe6c9;
+  --radius:18px;--shadow:0 14px 34px rgba(21,128,61,.12);--nav-h:60px;--bottom-h:64px;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overflow:hidden}
-body{font-family:'Nunito',sans-serif;background:var(--green-bg);color:var(--text);display:flex;flex-direction:column}
+body{
+  font-family:'Nunito',sans-serif;
+  background:
+    radial-gradient(circle at top left,rgba(255,255,255,.7) 0 14%,transparent 15%),
+    radial-gradient(circle at 85% 12%,rgba(235,255,240,.78) 0 12%,transparent 13%),
+    linear-gradient(180deg,#d6f0de 0%,#ccebd5 42%,#dff6e6 100%);
+  color:var(--text);
+  display:flex;
+  flex-direction:column
+}
 
 /* SETUP */
 #setupScreen{position:fixed;inset:0;z-index:1000;background:linear-gradient(160deg,#166534,#15803d 40%,#22c55e);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;color:white;text-align:center}
@@ -44,7 +53,12 @@ body{font-family:'Nunito',sans-serif;background:var(--green-bg);color:var(--text
 
 /* LAYOUT */
 .main{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
-.page{display:none;padding:16px;padding-bottom:80px;max-width:480px;margin:0 auto}
+.page{
+  display:none;
+  padding:18px 16px 88px;
+  max-width:480px;
+  margin:0 auto;
+}
 .page.active{display:block}
 
 /* BOTTOM NAV — fix highlight */
@@ -87,9 +101,9 @@ body{font-family:'Nunito',sans-serif;background:var(--green-bg);color:var(--text
   background:
     radial-gradient(circle at 20% 10%,rgba(255,255,255,.92) 0 8%,transparent 9%),
     radial-gradient(circle at 82% 12%,rgba(255,255,255,.88) 0 10%,transparent 11%),
-    radial-gradient(circle at 12% 42%,rgba(220,255,214,.65) 0 12%,transparent 13%),
-    radial-gradient(circle at 88% 78%,rgba(192,241,193,.5) 0 14%,transparent 15%),
-    linear-gradient(180deg,#c6f3d3 0%,#e9fbef 28%,#f7fffa 58%,#eefcf2 100%);
+    radial-gradient(circle at 12% 42%,rgba(187,247,208,.7) 0 12%,transparent 13%),
+    radial-gradient(circle at 88% 78%,rgba(134,239,172,.36) 0 14%,transparent 15%),
+    linear-gradient(180deg,#afe2bf 0%,#d4f1dc 26%,#eefbf2 58%,#e1f5e7 100%);
   overflow:hidden;
 }
 .home-scene::before,
@@ -158,18 +172,19 @@ body{font-family:'Nunito',sans-serif;background:var(--green-bg);color:var(--text
   margin-bottom:20px;
 }
 .feature-shell{
-  background:rgba(239,252,242,.88);
-  border:1px solid rgba(255,255,255,.78);
-  box-shadow:0 16px 34px rgba(56,161,105,.12);
+  background:rgba(226,247,231,.92);
+  border:1px solid rgba(255,255,255,.88);
+  box-shadow:0 18px 36px rgba(36,118,65,.16);
   border-radius:28px;
   padding:14px;
   backdrop-filter:blur(10px);
 }
 .feature-card{
-  background:linear-gradient(180deg,#ffffff,#f8fff8);
+  background:linear-gradient(180deg,#ffffff,#f5fff7);
   border-radius:24px;
   padding:16px;
-  box-shadow:0 10px 22px rgba(58,141,98,.12);
+  box-shadow:0 14px 28px rgba(36,118,65,.14);
+  border:1px solid #d9f2df;
 }
 .section-hd{
   display:flex;
@@ -248,10 +263,11 @@ body{font-family:'Nunito',sans-serif;background:var(--green-bg);color:var(--text
 .stat-box{
   position:relative;
   overflow:hidden;
-  background:linear-gradient(180deg,rgba(255,255,255,.95),rgba(255,255,255,.88));
+  background:linear-gradient(180deg,rgba(255,255,255,.98),rgba(247,255,249,.94));
   border-radius:22px;
   padding:18px 16px 16px;
-  box-shadow:0 14px 30px rgba(111,168,216,.18);
+  box-shadow:0 16px 30px rgba(34,139,84,.14);
+  border:1px solid #d9f2df;
   min-height:128px;
 }
 .stat-box::before{
@@ -291,10 +307,11 @@ body{font-family:'Nunito',sans-serif;background:var(--green-bg);color:var(--text
   margin-bottom:18px;
 }
 .home-action-card{
-  background:linear-gradient(180deg,rgba(255,255,255,.82),rgba(255,255,255,.68));
+  background:linear-gradient(180deg,rgba(255,255,255,.9),rgba(245,255,247,.8));
   border-radius:26px;
   padding:18px 14px 14px;
-  box-shadow:0 16px 32px rgba(120,163,216,.15);
+  box-shadow:0 18px 34px rgba(34,139,84,.14);
+  border:1px solid rgba(255,255,255,.88);
 }
 .home-rank-mini{
   margin:0 auto 12px;
@@ -455,8 +472,12 @@ body{font-family:'Nunito',sans-serif;background:var(--green-bg);color:var(--text
 .robot-ai.sm .robot-ai-spark{right:-2px;top:-4px;font-size:.56rem}
 
 /* LOG */
-.form-card,.board,.chat-wrap,.story-card,.ach-stat,.ach-cat{background:white;border-radius:var(--radius);box-shadow:0 8px 24px rgba(34,197,94,.08)}
-.form-card{padding:18px;border:1px solid #ecfdf3}
+.form-card,.board,.chat-wrap,.story-card,.ach-stat,.ach-cat{
+  background:#ffffff;
+  border-radius:var(--radius);
+  box-shadow:0 14px 30px rgba(21,128,61,.11);
+}
+.form-card{padding:18px;border:1px solid #d8f2df}
 .ai-box{background:#f0fdf4;border:2px solid #bbf7d0;border-radius:14px;padding:14px;margin-bottom:14px;display:none}
 .ai-box.show{display:block}
 .ai-box-hd{display:flex;align-items:center;gap:7px;font-weight:800;color:var(--green-dark);font-size:.85rem;margin-bottom:8px}
@@ -475,7 +496,15 @@ body{font-family:'Nunito',sans-serif;background:var(--green-bg);color:var(--text
 
 /* COMMUNITY */
 .feed{display:flex;flex-direction:column;gap:12px}
-.fcard{background:white;border:2px solid var(--border);border-radius:16px;padding:16px;cursor:pointer;transition:box-shadow .15s}
+.fcard{
+  background:#ffffff;
+  border:2px solid var(--border);
+  border-radius:16px;
+  padding:16px;
+  cursor:pointer;
+  transition:box-shadow .15s,transform .15s;
+  box-shadow:0 12px 24px rgba(21,128,61,.08);
+}
 .fcard:hover{box-shadow:var(--shadow)}
 .fhd{display:flex;align-items:center;gap:10px;margin-bottom:8px}
 .fava{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
@@ -562,7 +591,7 @@ body{font-family:'Nunito',sans-serif;background:var(--green-bg);color:var(--text
 .rcard-req{font-size:.73rem;color:var(--muted)}
 
 /* LEADERBOARD — trang riêng */
-.board{padding:0;overflow:hidden;border:1px solid #dcfce7}
+.board{padding:0;overflow:hidden;border:1px solid #d3efdb}
 .brow{display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid var(--border)}
 .brow:last-child{border-bottom:none}
 .brow.me{background:#f0fdf4}
@@ -597,7 +626,20 @@ body{font-family:'Nunito',sans-serif;background:var(--green-bg);color:var(--text
 .ach-cat-bar{height:6px;background:var(--green-light);border-radius:50px;overflow:hidden}
 .ach-cat-fill{height:100%;border-radius:50px;background:linear-gradient(90deg,var(--green),var(--green-dark));transition:width .6s ease}
 /* History list */
-.hist-item{background:white;border-radius:14px;padding:12px 14px;margin-bottom:8px;box-shadow:var(--shadow);border-left:4px solid var(--green);display:flex;gap:12px;align-items:flex-start}
+.hist-item{
+  background:#ffffff;
+  border-radius:14px;
+  padding:12px 14px;
+  margin-bottom:8px;
+  box-shadow:0 12px 24px rgba(21,128,61,.08);
+  border-left:4px solid var(--green);
+  border-top:1px solid #e2f6e7;
+  border-right:1px solid #e2f6e7;
+  border-bottom:1px solid #e2f6e7;
+  display:flex;
+  gap:12px;
+  align-items:flex-start
+}
 .hist-date{font-size:.7rem;color:var(--muted);font-weight:700;flex-shrink:0;text-align:center;min-width:36px;padding-top:2px}
 .hist-date-day{font-family:'Baloo 2',cursive;font-size:1.2rem;color:var(--green-dark);line-height:1}
 .hist-body{flex:1}
@@ -619,7 +661,12 @@ body{font-family:'Nunito',sans-serif;background:var(--green-bg);color:var(--text
 .comm-tab.active{background:var(--green-dark);border-color:var(--green-dark);color:white}
 
 /* STORY CARDS */
-.story-card{margin-bottom:16px;overflow:hidden;border:2px solid var(--border)}
+.story-card{
+  margin-bottom:16px;
+  overflow:hidden;
+  border:2px solid var(--border);
+  box-shadow:0 14px 28px rgba(21,128,61,.1)
+}
 .story-header{background:linear-gradient(135deg,#166534,#22c55e);padding:16px;color:white}
 .story-week{font-size:.75rem;opacity:.8;font-weight:700;margin-bottom:4px}
 .story-title{font-family:'Baloo 2',cursive;font-size:1.15rem;line-height:1.3}

@@ -488,6 +488,7 @@ window.addEventListener('load',()=>{
 let G={uid:null,name:'',points:0,weekDone:0,doneToday:[],emoji:'😊',bg:'#bbf7d0',chatHistory:[],likedPosts:{}};
 let _currentPage='home';
 let _modalFeedId=null,_modalCmtsUnsub=null;
+let _storyGenerating=false;
 
 const RANKS=[
   {name:'Tân Binh Việc Tốt',       icon:'🌱',req:0},
@@ -584,7 +585,7 @@ function enterApp(data){
   subscribeToFeed();
   subscribeToLeaderboard();
   // Kiểm tra và tạo câu chuyện tuần còn thiếu (chạy nền)
-  setTimeout(()=>checkAndGenerateStories(),3000);
+  checkAndGenerateStories().catch(err=>console.error('[Story] Background generate failed:',err));
   // Go to home
   showPage('home');
 }
@@ -1111,23 +1112,31 @@ function weekLabel(key){
   return`Tuần ${w} • ${fmt(monday)} – ${fmt(sunday)}/${year}`;
 }
 
-window.switchCommTab=function(tab){
+window.switchCommTab=async function(tab){
   document.getElementById('panel-feed').style.display=tab==='feed'?'block':'none';
   document.getElementById('panel-story').style.display=tab==='story'?'block':'none';
   document.getElementById('ctab-feed').classList.toggle('active',tab==='feed');
   document.getElementById('ctab-story').classList.toggle('active',tab==='story');
-  if(tab==='story')renderStories();
+  if(tab==='story'){
+    await renderStories();
+  }
 };
 
 async function renderStories(){
   const el=document.getElementById('storyList');
   el.innerHTML=`<div style="text-align:center;padding:24px;color:var(--muted);font-size:.88rem"><div class="dots-wrap">Đang tải... <div class="dots"><span></span><span></span><span></span></div></div></div>`;
-  const snap=await db.ref('weeklyStories').get();
+
+  let snap=await db.ref('weeklyStories').get();
+  if(!snap.exists()){
+    await checkAndGenerateStories();
+    snap=await db.ref('weeklyStories').get();
+  }
+
   const stories=[];
   snap.forEach(c=>stories.push({key:c.key,...c.val()}));
   stories.sort((a,b)=>b.key.localeCompare(a.key));
   if(!stories.length){
-    el.innerHTML=`<div style="text-align:center;padding:32px 16px;color:var(--muted)">Chưa có câu chuyện nào. AI đang chuẩn bị... 🌱</div>`;
+    el.innerHTML=`<div style="text-align:center;padding:32px 16px;color:var(--muted)">Chưa có đủ dữ liệu để tạo câu chuyện tuần. Hãy thêm ít nhất 3 việc tốt nhé! 🌱</div>`;
     return;
   }
   el.innerHTML=stories.map(s=>`
@@ -1145,31 +1154,37 @@ async function renderStories(){
 }
 
 async function checkAndGenerateStories(){
-  const feedSnap=await db.ref('feed').get();
-  const allPosts=[];
-  feedSnap.forEach(c=>allPosts.push({id:c.key,...c.val()}));
-  if(allPosts.length<3)return;
+  if(_storyGenerating)return;
+  _storyGenerating=true;
+  try{
+    const feedSnap=await db.ref('feed').get();
+    const allPosts=[];
+    feedSnap.forEach(c=>allPosts.push({id:c.key,...c.val()}));
+    if(allPosts.length<3)return;
 
-  const byWeek={};
-  allPosts.forEach(p=>{
-    const wk=getWeekKey(p.ts);
-    if(!byWeek[wk])byWeek[wk]=[];
-    byWeek[wk].push(p);
-  });
+    const byWeek={};
+    allPosts.forEach(p=>{
+      const wk=getWeekKey(p.ts);
+      if(!byWeek[wk])byWeek[wk]=[];
+      byWeek[wk].push(p);
+    });
 
-  const storySnap=await db.ref('weeklyStories').get();
-  const existingKeys=new Set();
-  storySnap.forEach(c=>existingKeys.add(c.key));
+    const storySnap=await db.ref('weeklyStories').get();
+    const existingKeys=new Set();
+    storySnap.forEach(c=>existingKeys.add(c.key));
 
-  const missing=Object.entries(byWeek)
-    .filter(([wk,posts])=>!existingKeys.has(wk)&&posts.length>=3)
-    .sort((a,b)=>a[0].localeCompare(b[0]));
+    const missing=Object.entries(byWeek)
+      .filter(([wk,posts])=>!existingKeys.has(wk)&&posts.length>=3)
+      .sort((a,b)=>a[0].localeCompare(b[0]));
 
-  if(!missing.length)return;
-  console.log(`[Story] Tạo ${missing.length} câu chuyện tuần...`);
-  for(const [weekKey,posts] of missing){
-    await generateWeekStory(weekKey,posts);
-    await new Promise(r=>setTimeout(r,1500));
+    if(!missing.length)return;
+    console.log(`[Story] Tạo ${missing.length} câu chuyện tuần...`);
+    for(const [weekKey,posts] of missing){
+      await generateWeekStory(weekKey,posts);
+      await new Promise(r=>setTimeout(r,1500));
+    }
+  }finally{
+    _storyGenerating=false;
   }
 }
 

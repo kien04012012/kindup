@@ -185,7 +185,32 @@ body{font-family:'Nunito',sans-serif;background:var(--green-bg);color:var(--text
 .bstat{font-size:.72rem;color:var(--muted)}
 .bpts{font-family:'Baloo 2',cursive;font-size:1rem;color:var(--orange)}
 
-/* MISC */
+/* ACHIEVEMENT PAGE */
+.ach-overview{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:4px}
+.ach-stat{background:white;border-radius:14px;padding:14px 12px;text-align:center;box-shadow:var(--shadow);border:2px solid var(--border)}
+.ach-stat-num{font-family:'Baloo 2',cursive;font-size:1.8rem;line-height:1;color:var(--green-dark)}
+.ach-stat-lbl{font-size:.72rem;color:var(--muted);font-weight:700;margin-top:2px}
+.ach-streak-card{background:linear-gradient(135deg,var(--orange),#f97316);border-radius:16px;padding:16px;color:white;display:flex;align-items:center;gap:14px;margin-bottom:4px;box-shadow:0 4px 16px rgba(249,115,22,.3)}
+.ach-streak-num{font-family:'Baloo 2',cursive;font-size:3rem;line-height:1;flex-shrink:0}
+.ach-streak-info h3{font-size:1rem;font-weight:800;margin-bottom:2px}
+.ach-streak-info p{font-size:.8rem;opacity:.85}
+.ach-cats{display:flex;flex-direction:column;gap:8px}
+.ach-cat{background:white;border-radius:12px;padding:12px 14px;box-shadow:var(--shadow);border:2px solid var(--border)}
+.ach-cat-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.ach-cat-name{font-weight:800;font-size:.88rem}
+.ach-cat-count{font-size:.78rem;color:var(--muted);font-weight:700}
+.ach-cat-bar{height:6px;background:var(--green-light);border-radius:50px;overflow:hidden}
+.ach-cat-fill{height:100%;border-radius:50px;background:linear-gradient(90deg,var(--green),var(--green-dark));transition:width .6s ease}
+/* History list */
+.hist-item{background:white;border-radius:14px;padding:12px 14px;margin-bottom:8px;box-shadow:var(--shadow);border-left:4px solid var(--green);display:flex;gap:12px;align-items:flex-start}
+.hist-date{font-size:.7rem;color:var(--muted);font-weight:700;flex-shrink:0;text-align:center;min-width:36px;padding-top:2px}
+.hist-date-day{font-family:'Baloo 2',cursive;font-size:1.2rem;color:var(--green-dark);line-height:1}
+.hist-body{flex:1}
+.hist-task{font-weight:800;font-size:.9rem;margin-bottom:2px}
+.hist-desc{font-size:.8rem;color:var(--muted);line-height:1.4;margin-bottom:4px}
+.hist-meta{display:flex;align-items:center;gap:8px}
+.hist-pts{background:var(--green-light);color:var(--green-dark);font-size:.72rem;font-weight:800;padding:2px 8px;border-radius:50px}
+.hist-cat{font-size:.7rem;color:var(--muted)}
 .pt-popup{position:fixed;pointer-events:none;z-index:600;font-family:'Baloo 2',cursive;font-size:1.5rem;font-weight:800;color:var(--yellow);text-shadow:0 2px 8px rgba(0,0,0,.25);animation:ptFloat 1.6s ease-out forwards}
 @keyframes ptFloat{0%{transform:translateY(0) scale(1);opacity:1}60%{transform:translateY(-60px) scale(1.2);opacity:1}100%{transform:translateY(-100px) scale(.8);opacity:0}}
 .toast{position:fixed;bottom:calc(var(--bottom-h) + 12px);left:50%;transform:translateX(-50%) translateY(20px);background:linear-gradient(135deg,var(--green),var(--green-dark));color:white;padding:12px 22px;border-radius:50px;font-weight:800;font-size:.9rem;z-index:900;opacity:0;transition:transform .35s cubic-bezier(.34,1.56,.64,1),opacity .35s ease;white-space:nowrap;max-width:90vw;text-align:center;box-shadow:0 6px 20px rgba(0,0,0,.2);pointer-events:none}
@@ -343,10 +368,30 @@ body{font-family:'Nunito',sans-serif;background:var(--green-bg);color:var(--text
     </div>
   </div>
 
-  <!-- DANH HIỆU -->
+  <!-- THÀNH TÍCH CÁ NHÂN -->
   <div class="page" id="page-ranks">
-    <div class="sec" style="margin-bottom:12px">🏆 Danh hiệu của tôi</div>
+    <div class="sec" style="margin-bottom:14px">🏆 Thành tích của tôi</div>
+
+    <!-- Tổng quan -->
+    <div class="ach-overview" id="achOverview"></div>
+
+    <!-- Streak -->
+    <div class="ach-streak-card" id="achStreak"></div>
+
+    <!-- Thống kê theo chủ đề -->
+    <div class="sec" style="margin-top:16px;margin-bottom:10px;font-size:1rem">📊 Thống kê theo chủ đề</div>
+    <div class="ach-cats" id="achCats"></div>
+
+    <!-- Danh hiệu -->
+    <div class="sec" style="margin-top:16px;margin-bottom:10px;font-size:1rem">🎖️ Danh hiệu</div>
     <div class="ranks-grid" id="ranksGrid"></div>
+
+    <!-- Lịch sử việc tốt -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:16px;margin-bottom:10px">
+      <div class="sec" style="margin-bottom:0;font-size:1rem">📅 Lịch sử việc tốt</div>
+      <span id="historyCount" style="font-size:.78rem;color:var(--muted)"></span>
+    </div>
+    <div id="historyList"></div>
   </div>
 
   <!-- BẢNG XẾP HẠNG — trang riêng -->
@@ -363,7 +408,7 @@ body{font-family:'Nunito',sans-serif;background:var(--green-bg);color:var(--text
   <button class="bnav-btn" onclick="showPage('log')" id="bn-log"><span class="ic">✏️</span><span>Ghi việc tốt</span></button>
   <button class="bnav-btn" onclick="showPage('community')" id="bn-community"><span class="ic">🌍</span><span>Cộng đồng</span></button>
   <button class="bnav-btn" onclick="showPage('ai')" id="bn-ai"><span class="ic">🤖</span><span>AI</span></button>
-  <button class="bnav-btn" onclick="showPage('ranks')" id="bn-ranks"><span class="ic">🏆</span><span>Danh hiệu</span></button>
+  <button class="bnav-btn" onclick="showPage('ranks')" id="bn-ranks"><span class="ic">🏆</span><span>Thành tích</span></button>
   <button class="bnav-btn" onclick="showPage('board')" id="bn-board"><span class="ic">📊</span><span>Xếp hạng</span></button>
 </div>
 
@@ -909,7 +954,126 @@ Trả về JSON hợp lệ, chỉ JSON: {"score":8,"praise":"lời khen..."}`
   btn.disabled=false;btn.textContent='🎉 Ghi lại & nhận điểm';
 };
 
-// ═══ LIKE — 1 lần, luôn dùng ❤️ ═══
+// ═══ THÀNH TÍCH CÁ NHÂN ═══
+const TASK_CATS={
+  'Gia đình':    {icon:'❤️', keys:['mẹ','ba','cha','bố','gia đình','em','anh','chị','ông','bà','nấu','dọn','giặt','chợ','nhà']},
+  'Môi trường':  {icon:'🌍', keys:['rác','môi trường','cây','trồng','điện','nước','tái chế','xanh','sạch']},
+  'Học tập':     {icon:'📚', keys:['sách','học','bài','đọc','ôn','kiến thức','thư viện','nghiên cứu']},
+  'Cộng đồng':   {icon:'🤝', keys:['bạn','giúp','nhường','quyên','tặng','an ủi','thầy','cô','người','cụ','bà']},
+  'Sức khoẻ':    {icon:'💪', keys:['tập','chạy','thể dục','sport','vận động','ngủ','ăn']},
+};
+
+function catOfTask(taskName, desc){
+  const txt=(taskName+' '+(desc||'')).toLowerCase();
+  for(const [cat,info] of Object.entries(TASK_CATS)){
+    if(info.keys.some(k=>txt.includes(k)))return{name:cat,icon:info.icon};
+  }
+  return{name:'Khác',icon:'✨'};
+}
+
+function calcStreak(history){
+  if(!history.length)return 0;
+  const days=[...new Set(history.map(h=>{
+    const d=new Date(h.ts);
+    return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+  }))].sort().reverse();
+  let streak=0;
+  const today=new Date();
+  for(let i=0;i<days.length;i++){
+    const d=new Date(days[i].replace(/-/g,',').replace(',','/'));
+    const diff=Math.round((today-d)/(1000*60*60*24));
+    if(diff===i||diff===i+1){streak++;} else break;
+  }
+  return streak;
+}
+
+async function loadAchievements(){
+  const snap=await db.ref('feed').orderByChild('uid').equalTo(G.uid).get();
+  const history=[];
+  snap.forEach(c=>{
+    const v=c.val();
+    if(v)history.push({id:c.key,...v});
+  });
+  history.sort((a,b)=>b.ts-a.ts);
+
+  // ── Tổng quan ──
+  const totalPts=G.points;
+  const totalDone=history.length;
+  const rank=getRankFor(totalPts);
+  const nextRank=RANKS[RANKS.findIndex(r=>r.req===rank.req)+1];
+  document.getElementById('achOverview').innerHTML=`
+    <div class="ach-stat">
+      <div class="ach-stat-num" style="color:var(--green-dark)">${totalDone}</div>
+      <div class="ach-stat-lbl">🌟 Việc tốt đã làm</div>
+    </div>
+    <div class="ach-stat">
+      <div class="ach-stat-num" style="color:var(--orange)">${totalPts}</div>
+      <div class="ach-stat-lbl">⭐ Điểm tích luỹ</div>
+    </div>
+    <div class="ach-stat">
+      <div class="ach-stat-num" style="color:var(--purple)">${rank.icon}</div>
+      <div class="ach-stat-lbl">${rank.name}</div>
+    </div>
+    <div class="ach-stat">
+      <div class="ach-stat-num" style="color:#06b6d4">${nextRank?nextRank.req-totalPts:'MAX'}</div>
+      <div class="ach-stat-lbl">${nextRank?'⚡ Điểm lên cấp':'👑 Đã max cấp'}</div>
+    </div>`;
+
+  // ── Streak ──
+  const streak=calcStreak(history);
+  document.getElementById('achStreak').innerHTML=`
+    <div class="ach-streak-num">🔥${streak}</div>
+    <div class="ach-streak-info">
+      <h3>${streak} ngày liên tiếp</h3>
+      <p>${streak===0?'Hãy ghi việc tốt hôm nay để bắt đầu chuỗi!':streak<3?'Tốt lắm! Giữ vững nhé 💪':streak<7?'Bạn đang có phong độ tốt! 🌟':'Tuyệt vời! Bạn thật kiên trì 👑'}</p>
+    </div>`;
+
+  // ── Thống kê chủ đề ──
+  const catCount={};
+  history.forEach(h=>{
+    const c=catOfTask(h.task,h.desc);
+    catCount[c.name]=(catCount[c.name]||{count:0,icon:c.icon});
+    catCount[c.name].count++;
+  });
+  const maxCat=Math.max(1,...Object.values(catCount).map(c=>c.count));
+  document.getElementById('achCats').innerHTML=
+    Object.entries(catCount).sort((a,b)=>b[1].count-a[1].count).map(([name,{count,icon}])=>`
+      <div class="ach-cat">
+        <div class="ach-cat-hd">
+          <div class="ach-cat-name">${icon} ${name}</div>
+          <div class="ach-cat-count">${count} việc tốt</div>
+        </div>
+        <div class="ach-cat-bar"><div class="ach-cat-fill" style="width:${Math.round(count/maxCat*100)}%"></div></div>
+      </div>`).join('')||'<div style="color:var(--muted);font-size:.88rem;padding:8px">Chưa có dữ liệu</div>';
+
+  // ── Lịch sử ──
+  document.getElementById('historyCount').textContent=`${history.length} việc tốt`;
+  if(!history.length){
+    document.getElementById('historyList').innerHTML='<div style="text-align:center;color:var(--muted);padding:24px">Chưa có việc tốt nào. Hãy bắt đầu hôm nay! 🌱</div>';
+    return;
+  }
+  document.getElementById('historyList').innerHTML=history.map(h=>{
+    const d=new Date(h.ts);
+    const cat=catOfTask(h.task,h.desc);
+    const days=['CN','T2','T3','T4','T5','T6','T7'];
+    return`<div class="hist-item">
+      <div class="hist-date">
+        <div class="hist-date-day">${d.getDate()}</div>
+        <div style="font-size:.65rem;color:var(--muted)">${days[d.getDay()]}</div>
+        <div style="font-size:.65rem;color:var(--muted)">${d.getMonth()+1}/${d.getFullYear().toString().slice(2)}</div>
+      </div>
+      <div class="hist-body">
+        <div class="hist-task">${escHtml(h.task)}</div>
+        ${h.desc?`<div class="hist-desc">${escHtml(h.desc)}</div>`:''}
+        <div class="hist-meta">
+          <span class="hist-pts">+${h.pts||0} điểm</span>
+          <span class="hist-cat">${cat.icon} ${cat.name}</span>
+          ${h.likes?`<span style="font-size:.7rem;color:var(--muted)">❤️ ${h.likes}</span>`:''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
 window.toggleLike=async function(btn,e){
   if(e)e.stopPropagation();
   const id=btn.dataset.id;
@@ -1141,6 +1305,7 @@ window.showPage=function(id){
     if(!_aiSuggestions.length&&!_aiSuggestLoading)loadAiSuggestions();
   }
   // community và board dùng realtime listener, tự cập nhật, không cần re-subscribe
+  if(id==='ranks') loadAchievements();
 };
 
 function refreshHome(){

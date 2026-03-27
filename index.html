@@ -306,6 +306,143 @@ body{
   z-index:1;
   margin-bottom:18px;
 }
+.impact-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  margin-bottom:18px;
+  position:relative;
+  z-index:1;
+}
+.impact-mini{
+  background:linear-gradient(180deg,rgba(255,255,255,.98),rgba(244,255,247,.92));
+  border-radius:18px;
+  padding:14px 10px 12px;
+  text-align:center;
+  border:1px solid #d9f2df;
+  box-shadow:0 12px 24px rgba(34,139,84,.1);
+}
+.impact-mini-num{
+  font-family:'Baloo 2',cursive;
+  font-size:1.35rem;
+  line-height:1;
+  color:#166534;
+}
+.impact-mini-lbl{
+  margin-top:5px;
+  font-size:.73rem;
+  line-height:1.35;
+  color:#577060;
+  font-weight:800;
+}
+.challenge-card{
+  position:relative;
+  z-index:1;
+  margin-bottom:18px;
+  padding:18px 16px;
+  border-radius:26px;
+  color:white;
+  background:linear-gradient(135deg,#0f766e,#14b8a6,#34d399);
+  box-shadow:0 18px 30px rgba(20,184,166,.24);
+  overflow:hidden;
+}
+.challenge-card::after{
+  content:'';
+  position:absolute;
+  right:-30px;
+  top:-34px;
+  width:120px;
+  height:120px;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(255,255,255,.3) 0%,transparent 68%);
+}
+.challenge-top{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:10px;
+}
+.challenge-kicker{
+  font-size:.76rem;
+  font-weight:900;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+  opacity:.9;
+  margin-bottom:4px;
+}
+.challenge-title{
+  font-family:'Baloo 2',cursive;
+  font-size:1.28rem;
+  line-height:1.15;
+}
+.challenge-desc{
+  font-size:.86rem;
+  line-height:1.55;
+  opacity:.92;
+  margin-bottom:12px;
+}
+.challenge-badge{
+  flex-shrink:0;
+  min-width:78px;
+  border-radius:18px;
+  padding:10px 8px;
+  text-align:center;
+  background:rgba(255,255,255,.16);
+  border:1px solid rgba(255,255,255,.22);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.18);
+}
+.challenge-badge strong{
+  display:block;
+  font-family:'Baloo 2',cursive;
+  font-size:1.2rem;
+  line-height:1;
+}
+.challenge-badge span{
+  display:block;
+  margin-top:4px;
+  font-size:.72rem;
+  opacity:.92;
+}
+.challenge-meta{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  font-size:.78rem;
+  font-weight:800;
+  opacity:.95;
+  margin-top:8px;
+}
+.challenge-note{
+  margin-top:10px;
+  font-size:.76rem;
+  line-height:1.45;
+  opacity:.88;
+}
+.home-values{
+  position:relative;
+  z-index:1;
+  margin-bottom:18px;
+}
+.value-chip-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+.value-chip{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:8px 12px;
+  border-radius:999px;
+  background:rgba(255,255,255,.88);
+  border:1px solid #d9f2df;
+  color:#22543d;
+  font-size:.8rem;
+  font-weight:800;
+  box-shadow:0 10px 18px rgba(34,139,84,.08);
+}
 .home-action-card{
   background:linear-gradient(180deg,rgba(255,255,255,.9),rgba(245,255,247,.8));
   border-radius:26px;
@@ -618,6 +755,27 @@ body{
 .ach-streak-num{font-family:'Baloo 2',cursive;font-size:3rem;line-height:1;flex-shrink:0}
 .ach-streak-info h3{font-size:1rem;font-weight:800;margin-bottom:2px}
 .ach-streak-info p{font-size:.8rem;opacity:.85}
+.values-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.value-card{
+  background:white;
+  border:2px solid var(--border);
+  border-radius:16px;
+  padding:14px 12px;
+  box-shadow:0 12px 24px rgba(21,128,61,.08);
+}
+.value-card-top{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.value-card-ic{
+  width:42px;height:42px;border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.3rem;
+  background:linear-gradient(180deg,#ffffff 0%,#eefcf2 46%,#ccf1d4 100%);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.95),0 10px 16px rgba(34,197,94,.1);
+}
+.value-card-name{font-weight:800;font-size:.84rem;color:var(--text)}
+.value-card-count{font-size:.74rem;color:var(--muted);font-weight:700}
+.value-card-desc{font-size:.76rem;line-height:1.45;color:#53705a;margin-bottom:8px}
+.value-card-bar{height:7px;border-radius:999px;overflow:hidden;background:#dcfce7}
+.value-card-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#16a34a,#15803d)}
 .ach-cats{display:flex;flex-direction:column;gap:8px}
 .ach-cat{background:white;border-radius:12px;padding:12px 14px;box-shadow:var(--shadow);border:2px solid var(--border)}
 .ach-cat-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
@@ -708,6 +866,9 @@ body{
 .ai-promo-ic,
 .chat-hd-ic{
   animation:iconBob 2.6s ease-in-out infinite;
+}
+@media (max-width:380px){
+  .impact-grid,.values-grid{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -801,6 +962,47 @@ body{
             <div class="stat-num" id="statPts">0</div>
             <div class="stat-lbl" id="statPtsLabel">Điểm tích lũy</div>
           </div>
+        </div>
+      </div>
+
+      <div class="challenge-card" id="challengeCard">
+        <div class="challenge-top">
+          <div>
+            <div class="challenge-kicker">Thử thách thành phố</div>
+            <div class="challenge-title" id="challengeTitle">Đang tạo thử thách tuần...</div>
+          </div>
+          <div class="challenge-badge">
+            <strong id="challengeProgressNum">0/0</strong>
+            <span>Tiến độ</span>
+          </div>
+        </div>
+        <div class="challenge-desc" id="challengeDesc">KindUp sẽ gợi ý một mục tiêu đẹp để bạn cùng cộng đồng thực hiện trong tuần này.</div>
+        <div class="pbar"><div class="pbar-fill" id="challengeFill" style="width:0%"></div></div>
+        <div class="challenge-meta">
+          <span id="challengeMetaLeft">Mục tiêu tuần</span>
+          <span id="challengeMetaRight">Chưa bắt đầu</span>
+        </div>
+        <div class="challenge-note" id="challengeNote">Hoàn thành thử thách giúp phần demo có chiều sâu hơn khi trình bày với ban giám khảo.</div>
+      </div>
+
+      <div class="home-values">
+        <div class="section-hd centered">Giá trị bạn đang lan tỏa</div>
+        <div class="value-chip-row" id="homeValues"></div>
+      </div>
+
+      <div class="section-hd centered">Tác động cộng đồng tuần này</div>
+      <div class="impact-grid">
+        <div class="impact-mini">
+          <div class="impact-mini-num" id="impactTasks">0</div>
+          <div class="impact-mini-lbl">Việc tốt trong tuần</div>
+        </div>
+        <div class="impact-mini">
+          <div class="impact-mini-num" id="impactUsers">0</div>
+          <div class="impact-mini-lbl">Bạn tham gia</div>
+        </div>
+        <div class="impact-mini">
+          <div class="impact-mini-num" id="impactLikes">0</div>
+          <div class="impact-mini-lbl">Lượt lan tỏa</div>
         </div>
       </div>
 
@@ -939,9 +1141,20 @@ body{
     <!-- Tổng quan -->
     <div class="ach-overview" id="achOverview"></div>
 
+    <div class="ach-streak-card" id="achStreakCard">
+      <div class="ach-streak-num" id="streakNum">0</div>
+      <div class="ach-streak-info">
+        <h3 id="streakTitle">Chuỗi tử tế đang chờ bạn</h3>
+        <p id="streakDesc">Mỗi ngày một việc tốt nhỏ sẽ tạo nên thay đổi lớn.</p>
+      </div>
+    </div>
+
     <!-- Thống kê theo chủ đề -->
     <div class="sec" style="margin-top:16px;margin-bottom:10px;font-size:1rem">📊 Thống kê theo chủ đề</div>
     <div class="ach-cats" id="achCats"></div>
+
+    <div class="sec" style="margin-top:16px;margin-bottom:10px;font-size:1rem">💎 Huy hiệu giá trị sống</div>
+    <div class="values-grid" id="valuesGrid"></div>
 
     <!-- Danh hiệu -->
     <div class="sec" style="margin-top:16px;margin-bottom:10px;font-size:1rem">🎖️ Danh hiệu</div>
@@ -1300,6 +1513,11 @@ async function loadHomeShowcase(){
       db.ref('feed').get(),
       db.ref('users').get()
     ]);
+    const feedItems=[];
+    feedSnap.forEach(c=>{
+      const v=c.val();
+      if(v&&v.ts)feedItems.push({id:c.key,...v});
+    });
 
     const stories=Object.entries(storySnap.val()||{})
       .map(([key,val])=>({key,...(val||{})}))
@@ -1321,8 +1539,11 @@ async function loadHomeShowcase(){
       storyText.textContent='Khi tuần hoàn thành, KindUp sẽ chọn việc tốt nổi bật nhất để kể lại trên trang chủ.';
     }
 
+    renderHomeImpact(feedItems);
+    renderHomeValues(feedItems);
+
     let totalGood=0;
-    feedSnap.forEach(c=>{if(c.val())totalGood++;});
+    feedItems.forEach(()=>{totalGood++;});
     let totalUsers=0;
     usersSnap.forEach(c=>{if(c.val())totalUsers++;});
 
@@ -1554,12 +1775,23 @@ Trả về JSON hợp lệ, chỉ JSON: {"score":8,"praise":"lời khen..."}`
   // Lưu điểm + feed
   addPoints(earnedPts);
   await postToFeed(finalName,desc,imageUrl,earnedPts);
+  loadHomeShowcase();
   showToast(`🎉 +${earnedPts} điểm! "${finalName}" đã được ghi lại!`);
   showPointPopup(earnedPts,btn);
   confetti();
 
   // Hiện lời khen + điểm
-  praiseTxt.innerHTML=`<div style="margin-bottom:8px"><span style="font-family:'Baloo 2',cursive;font-size:1.4rem;color:var(--orange)">+${earnedPts}</span> <span style="font-size:.85rem;color:var(--muted)">/ 10 điểm</span></div>`+praiseText.replace(/\n/g,'<br>');
+  const taskCat=catOfTask(finalName,desc);
+  const values=inferValues(finalName,desc);
+  const challenge=getCurrentWeeklyChallenge(Date.now());
+  praiseTxt.innerHTML=
+    `<div style="margin-bottom:8px"><span style="font-family:'Baloo 2',cursive;font-size:1.4rem;color:var(--orange)">+${earnedPts}</span> <span style="font-size:.85rem;color:var(--muted)">/ 10 điểm</span></div>`+
+    praiseText.replace(/\n/g,'<br>')+
+    `<div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:6px">
+      <span class="value-chip">${taskCat.icon} ${escHtml(taskCat.name)}</span>
+      ${values.map(v=>`<span class="value-chip">${v.icon} ${escHtml(v.name)}</span>`).join('')}
+    </div>
+    <div style="margin-top:10px;font-size:.78rem;color:var(--muted)">Thử thách tuần hiện tại: ${escHtml(challenge.title)}</div>`;
 
   // Reset form
   document.getElementById('taskSel').value='';
@@ -1578,6 +1810,29 @@ const TASK_CATS={
   'Cộng đồng':   {icon:'🤝', keys:['bạn','giúp','nhường','quyên','tặng','an ủi','thầy','cô','người','cụ','bà']},
   'Sức khoẻ':    {icon:'💪', keys:['tập','chạy','thể dục','sport','vận động','ngủ','ăn']},
 };
+const VALUE_BADGES=[
+  {id:'yeu_thuong',name:'Yêu thương',icon:'❤️',desc:'Quan tâm gia đình, bạn bè và người xung quanh.',keys:['mẹ','ba','gia đình','em','anh','chị','cảm ơn','an ủi','giúp','chia sẻ']},
+  {id:'trach_nhiem',name:'Trách nhiệm',icon:'🛡️',desc:'Biết chủ động làm điều đúng và hoàn thành việc cần làm.',keys:['dọn','rửa','nấu','trực nhật','hoàn thành','giúp việc','đúng giờ']},
+  {id:'cham_hoc',name:'Chăm học',icon:'📚',desc:'Nuôi dưỡng tinh thần tự học và tiến bộ mỗi ngày.',keys:['đọc','sách','học','bài','ôn','kiến thức','thư viện']},
+  {id:'chia_se',name:'Chia sẻ',icon:'🤝',desc:'Sẵn sàng giúp đỡ và lan tỏa điều tích cực.',keys:['tặng','quyên','nhường','giúp','hỗ trợ','bình luận','động viên']},
+  {id:'xanh',name:'Sống xanh',icon:'🌍',desc:'Biết bảo vệ môi trường từ những việc nhỏ nhất.',keys:['rác','cây','trồng','điện','nước','tái chế','xanh','sạch']},
+  {id:'ky_luat',name:'Kỷ luật',icon:'⏰',desc:'Rèn thói quen tốt và biết chăm sóc bản thân bền bỉ.',keys:['tập','chạy','thể dục','ngủ sớm','buổi sáng','vận động']},
+];
+const CATEGORY_TO_VALUES={
+  'Gia đình':['yeu_thuong','trach_nhiem'],
+  'Môi trường':['xanh','trach_nhiem'],
+  'Học tập':['cham_hoc','ky_luat'],
+  'Cộng đồng':['chia_se','yeu_thuong'],
+  'Sức khoẻ':['ky_luat','trach_nhiem'],
+  'Khác':['trach_nhiem']
+};
+const WEEKLY_CHALLENGES=[
+  {id:'family',icon:'❤️',title:'Tuần yêu thương gia đình',desc:'Hoàn thành 2 việc tốt hướng về gia đình như giúp việc nhà, hỏi han hoặc chăm sóc người thân.',target:2,type:'category',category:'Gia đình',valueIds:['yeu_thuong','trach_nhiem'],note:'Rất phù hợp để chứng minh app nuôi dưỡng phẩm chất trong đời sống thật.'},
+  {id:'green',icon:'🌍',title:'Tuần sống xanh',desc:'Hoàn thành 2 việc tốt giúp môi trường sạch hơn hoặc tiết kiệm tài nguyên.',target:2,type:'category',category:'Môi trường',valueIds:['xanh','trach_nhiem'],note:'Có thể dùng để thuyết trình tác động của sản phẩm với môi trường học đường.'},
+  {id:'community',icon:'🤝',title:'Tuần sẻ chia',desc:'Thực hiện 2 hành động hỗ trợ bạn bè, thầy cô hoặc cộng đồng xung quanh.',target:2,type:'category',category:'Cộng đồng',valueIds:['chia_se','yeu_thuong'],note:'Điểm mạnh ở chỗ kết nối cá nhân với tập thể chứ không chỉ tự ghi điểm.'},
+  {id:'study',icon:'📚',title:'Tuần tự học tích cực',desc:'Ghi nhận 2 việc tốt giúp bản thân học tập tốt hơn và truyền cảm hứng học tập.',target:2,type:'category',category:'Học tập',valueIds:['cham_hoc','ky_luat'],note:'Cho thấy KindUp không chỉ rèn đạo đức mà còn hỗ trợ thói quen học tập.'},
+  {id:'streak',icon:'✨',title:'Tuần bền bỉ 3 ngày',desc:'Ghi nhận ít nhất 3 việc tốt trong tuần để tạo nhịp thói quen tích cực.',target:3,type:'count',note:'Ban giám khảo thường đánh giá cao yếu tố hình thành thói quen bền vững.'},
+];
 
 function catOfTask(taskName, desc){
   const txt=(taskName+' '+(desc||'')).toLowerCase();
@@ -1587,20 +1842,122 @@ function catOfTask(taskName, desc){
   return{name:'Khác',icon:'✨'};
 }
 
+function inferValues(taskName,desc){
+  const txt=(taskName+' '+(desc||'')).toLowerCase();
+  const scores=VALUE_BADGES.map(v=>({
+    ...v,
+    score:v.keys.reduce((sum,key)=>sum+(txt.includes(key)?1:0),0)
+  }));
+  const direct=scores.filter(v=>v.score>0).sort((a,b)=>b.score-a.score);
+  if(direct.length)return direct.slice(0,2);
+  const category=catOfTask(taskName,desc).name;
+  const fallbackIds=CATEGORY_TO_VALUES[category]||CATEGORY_TO_VALUES['Khác'];
+  return fallbackIds.map(id=>VALUE_BADGES.find(v=>v.id===id)).filter(Boolean).slice(0,2);
+}
+
+function getCurrentWeeklyChallenge(date){
+  const info=getWeekInfo(date||Date.now());
+  return WEEKLY_CHALLENGES[(info.week-1)%WEEKLY_CHALLENGES.length];
+}
+
+function countChallengeProgress(challenge,items){
+  if(!challenge)return 0;
+  if(challenge.type==='count')return items.length;
+  if(challenge.type==='category'){
+    return items.filter(item=>{
+      const category=catOfTask(item.task,item.desc).name;
+      if(category===challenge.category)return true;
+      const valueIds=inferValues(item.task,item.desc).map(value=>value.id);
+      return (challenge.valueIds||[]).some(id=>valueIds.includes(id));
+    }).length;
+  }
+  return 0;
+}
+
+function uniqueCount(items,key){
+  return new Set(items.map(item=>item&&item[key]).filter(Boolean)).size;
+}
+
+function sumField(items,key){
+  return items.reduce((sum,item)=>sum+(parseInt(item?.[key],10)||0),0);
+}
+
+function renderHomeImpact(feedItems){
+  const currentWeek=getWeekKey(Date.now());
+  const weekItems=(feedItems||[]).filter(item=>getWeekKey(item.ts)===currentWeek);
+  const impactTasks=document.getElementById('impactTasks');
+  const impactUsers=document.getElementById('impactUsers');
+  const impactLikes=document.getElementById('impactLikes');
+  if(impactTasks)impactTasks.textContent=String(weekItems.length);
+  if(impactUsers)impactUsers.textContent=String(uniqueCount(weekItems,'uid'));
+  if(impactLikes)impactLikes.textContent=String(sumField(weekItems,'likes'));
+
+  const challenge=getCurrentWeeklyChallenge(Date.now());
+  const userItems=weekItems.filter(item=>item.uid===G.uid);
+  const progress=countChallengeProgress(challenge,userItems);
+  const target=Math.max(1,challenge?.target||1);
+  const pct=Math.min(100,Math.round(progress/target*100));
+  document.getElementById('challengeTitle').textContent=`${challenge.icon} ${challenge.title}`;
+  document.getElementById('challengeDesc').textContent=challenge.desc;
+  document.getElementById('challengeProgressNum').textContent=`${Math.min(progress,target)}/${target}`;
+  document.getElementById('challengeFill').style.width=pct+'%';
+  document.getElementById('challengeMetaLeft').textContent=challenge.type==='category'?`Mục tiêu: ${challenge.category}`:'Mục tiêu: duy trì đều';
+  document.getElementById('challengeMetaRight').textContent=progress>=target?'Đã hoàn thành':'Còn '+Math.max(0,target-progress)+' bước nữa';
+  document.getElementById('challengeNote').textContent=challenge.note;
+}
+
+function renderHomeValues(feedItems){
+  const el=document.getElementById('homeValues');
+  if(!el)return;
+  const myItems=(feedItems||[]).filter(item=>item.uid===G.uid).sort((a,b)=>(b.ts||0)-(a.ts||0));
+  if(!myItems.length){
+    el.innerHTML='<span class="value-chip">🌱 Bắt đầu việc tốt đầu tiên để mở huy hiệu</span>';
+    return;
+  }
+  const scoreMap={};
+  myItems.forEach(item=>{
+    inferValues(item.task,item.desc).forEach(value=>{
+      scoreMap[value.id]=(scoreMap[value.id]||0)+1;
+    });
+  });
+  const top=Object.entries(scoreMap)
+    .sort((a,b)=>b[1]-a[1])
+    .slice(0,3)
+    .map(([id,count])=>{
+      const value=VALUE_BADGES.find(v=>v.id===id);
+      return value?{...value,count}:null;
+    })
+    .filter(Boolean);
+  el.innerHTML=top.map(value=>`<span class="value-chip">${value.icon} ${escHtml(value.name)} • ${value.count}</span>`).join('');
+}
+
 function calcStreak(history){
   if(!history.length)return 0;
-  const days=[...new Set(history.map(h=>{
-    const d=new Date(h.ts);
-    return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
-  }))].sort().reverse();
-  let streak=0;
   const today=new Date();
-  for(let i=0;i<days.length;i++){
-    const d=new Date(days[i].replace(/-/g,',').replace(',','/'));
-    const diff=Math.round((today-d)/(1000*60*60*24));
-    if(diff===i||diff===i+1){streak++;} else break;
+  today.setHours(0,0,0,0);
+  const dayKeys=[...new Set(history.map(h=>{
+    const d=new Date(h.ts);
+    d.setHours(0,0,0,0);
+    return d.getTime();
+  }))].sort((a,b)=>b-a);
+  let streak=0;
+  for(let i=0;i<dayKeys.length;i++){
+    const diff=Math.round((today-dayKeys[i])/86400000);
+    if(diff===i||diff===i+1)streak++;
+    else break;
   }
   return streak;
+}
+
+function buildValueStats(history){
+  const stats={};
+  VALUE_BADGES.forEach(value=>{stats[value.id]={...value,count:0};});
+  (history||[]).forEach(item=>{
+    inferValues(item.task,item.desc).forEach(value=>{
+      if(stats[value.id])stats[value.id].count++;
+    });
+  });
+  return Object.values(stats).sort((a,b)=>b.count-a.count);
 }
 
 async function loadAchievements(){
@@ -1617,6 +1974,7 @@ async function loadAchievements(){
   const totalDone=history.length;
   const rank=getRankFor(totalPts);
   const nextRank=RANKS[RANKS.findIndex(r=>r.req===rank.req)+1];
+  const streak=calcStreak(history);
   document.getElementById('achOverview').innerHTML=`
     <div class="ach-stat">
       <div class="ach-stat-num" style="color:var(--green-dark)">${totalDone}</div>
@@ -1634,6 +1992,9 @@ async function loadAchievements(){
       <div class="ach-stat-num" style="color:#06b6d4">${nextRank?nextRank.req-totalPts:'MAX'}</div>
       <div class="ach-stat-lbl">${nextRank?'⚡ Điểm lên cấp':'👑 Đã max cấp'}</div>
     </div>`;
+  document.getElementById('streakNum').textContent=String(streak);
+  document.getElementById('streakTitle').textContent=streak>=7?'Chuỗi tử tế rất ấn tượng':'Chuỗi việc tốt của bạn';
+  document.getElementById('streakDesc').textContent=streak?`Bạn đã duy trì ${streak} ngày có việc tốt liên tiếp hoặc sát nhau. Đây là minh chứng rất đẹp cho việc hình thành thói quen.`:'Hãy ghi nhận việc tốt hôm nay để bắt đầu chuỗi thói quen tích cực.';
 
   // ── Thống kê chủ đề ──
   const catCount={};
@@ -1652,6 +2013,21 @@ async function loadAchievements(){
         </div>
         <div class="ach-cat-bar"><div class="ach-cat-fill" style="width:${Math.round(count/maxCat*100)}%"></div></div>
       </div>`).join('')||'<div style="color:var(--muted);font-size:.88rem;padding:8px">Chưa có dữ liệu</div>';
+
+  const valueStats=buildValueStats(history);
+  const maxValue=Math.max(1,...valueStats.map(v=>v.count));
+  document.getElementById('valuesGrid').innerHTML=valueStats.map(value=>`
+    <div class="value-card">
+      <div class="value-card-top">
+        <div class="value-card-ic">${value.icon}</div>
+        <div>
+          <div class="value-card-name">${value.name}</div>
+          <div class="value-card-count">${value.count} lần được ghi nhận</div>
+        </div>
+      </div>
+      <div class="value-card-desc">${value.desc}</div>
+      <div class="value-card-bar"><div class="value-card-fill" style="width:${Math.round(value.count/maxValue*100)}%"></div></div>
+    </div>`).join('');
 
   // ── Lịch sử — nhấn vào mở modal chi tiết ──
   document.getElementById('historyCount').textContent=`${history.length} việc tốt`;
@@ -1904,7 +2280,7 @@ Yêu cầu:
   const parsed=safeJsonParse(aiRaw)||buildFallbackStory(weekKey,posts,primary);
   if(!parsed.title||!parsed.content)return;
 
-  await db.ref(`weeklyStories/${weekKey}`).set({
+  const payload={
     title:parsed.title,
     content:parsed.content,
     tags:Array.isArray(parsed.tags)?parsed.tags.slice(0,5):[],
@@ -1913,8 +2289,19 @@ Yêu cầu:
     sourcePostId:primary.id||null,
     sourceTask:primary.task||'',
     sourceName:primary.name||'',
+  };
+
+  // Chỉ tạo nếu tuần này chưa có story hoàn chỉnh, tránh ghi đè khi nhiều lượt load cùng chạy generate.
+  const result=await db.ref(`weeklyStories/${weekKey}`).transaction(current=>{
+    if(current&&typeof current.content==='string'&&current.content.trim()) return;
+    return payload;
   });
-  console.log(`[Story] ✅ ${weekKey}: "${parsed.title}"`);
+
+  if(result.committed){
+    console.log(`[Story] ✅ ${weekKey}: "${parsed.title}"`);
+  }else{
+    console.log(`[Story] ⏭️ Bỏ qua ${weekKey}: story đã tồn tại`);
+  }
 }
 
 window.toggleLike=async function(btn,e){

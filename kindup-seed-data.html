@@ -2,10 +2,10 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<title>Kindup – Tạo dữ liệu demo</title>
+<title>Kindup – Tạo dữ liệu demo v3</title>
 <style>
   body{font-family:'Segoe UI',sans-serif;background:#f0fdf4;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;padding:20px;box-sizing:border-box}
-  .box{background:white;border-radius:20px;padding:36px;max-width:540px;width:100%;box-shadow:0 8px 32px rgba(0,120,50,.12)}
+  .box{background:white;border-radius:20px;padding:36px;max-width:580px;width:100%;box-shadow:0 8px 32px rgba(0,120,50,.12)}
   h2{color:#1b5e20;margin-bottom:6px;font-size:1.5rem}
   p{color:#555;font-size:.9rem;margin-bottom:24px;line-height:1.6}
   .btn{width:100%;padding:16px;border:none;border-radius:14px;font-size:1.05rem;font-weight:700;cursor:pointer;transition:all .2s}
@@ -15,25 +15,623 @@
   .btn-clear{background:#fff3f3;color:#c62828;border:2px solid #ffcdd2}
   .btn-clear:hover{background:#ffcdd2}
   .btn-clear:disabled{opacity:.5;cursor:not-allowed}
-  .log{margin-top:20px;background:#f8fdf8;border:1.5px solid #c8e6c9;border-radius:12px;padding:16px;max-height:320px;overflow-y:auto;font-size:.82rem;font-family:monospace;line-height:1.7}
+  .log{margin-top:20px;background:#f8fdf8;border:1.5px solid #c8e6c9;border-radius:12px;padding:16px;max-height:380px;overflow-y:auto;font-size:.82rem;font-family:monospace;line-height:1.7}
   .log .ok{color:#2e7d32}
   .log .err{color:#c62828}
   .log .info{color:#1565c0}
   .log .warn{color:#e65100}
   .progress{height:8px;background:#e8f5e9;border-radius:50px;margin:14px 0;overflow:hidden}
   .progress-bar{height:100%;background:linear-gradient(90deg,#43a047,#00e676);border-radius:50px;transition:width .3s;width:0%}
-  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
   .stat{background:#f1fff5;border-radius:10px;padding:12px;text-align:center;border:1.5px solid #c8e6c9}
-  .stat-n{font-size:1.6rem;font-weight:700;color:#1b5e20}
+  .stat-n{font-size:1.4rem;font-weight:700;color:#1b5e20}
   .stat-l{font-size:.7rem;color:#555;margin-top:2px}
 </style>
 </head>
 <body>
 <div class="box">
-  <h2>🌱 Kindup – Tạo dữ liệu demo</h2>
-  <p>Công cụ này sẽ tự động tạo dữ liệu mẫu thực tế vào Firebase để demo ứng dụng. Bao gồm người dùng, bài đăng <b>có ảnh minh hoạ thực tế</b>, bình luận và lượt thích đa dạng.<br><small style="color:#888">⏱ Mất khoảng 1-2 phút do cần tải ảnh từ internet.</small></p>
+  <h2>🌱 Kindup – Tạo dữ liệu demo v3</h2>
+  <p>Tạo dữ liệu mẫu <b>30 ngày × 5 bài/ngày</b> với ảnh học sinh Việt Nam thực tế. Mỗi bài đều có ảnh minh hoạ phù hợp với nội dung.<br><small style="color:#888">⏱ Mất khoảng 3–5 phút do cần tải ~150 ảnh.</small></p>
 
   <div class="stats">
+    <div class="stat"><div class="stat-n">12</div><div class="stat-l">👤 Người dùng</div></div>
+    <div class="stat"><div class="stat-n">150</div><div class="stat-l">📝 Bài đăng</div></div>
+    <div class="stat"><div class="stat-n">150</div><div class="stat-l">📷 Bài có ảnh</div></div>
+    <div class="stat"><div class="stat-n">30</div><div class="stat-l">📅 Ngày</div></div>
+  </div>
+
+  <div class="progress"><div class="progress-bar" id="pbar"></div></div>
+
+  <button class="btn btn-go" id="btnSeed" onclick="startSeed()">🚀 Tạo dữ liệu demo ngay</button>
+  <button class="btn btn-clear" id="btnClear" onclick="clearData()">🗑️ Xoá toàn bộ dữ liệu demo</button>
+
+  <div class="log" id="log"><span class="info">Sẵn sàng. Nhấn nút để bắt đầu...</span></div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script>
+const FB_CFG={
+  apiKey:"AIzaSyB_YlQ99oal3RrfN8wX9oN5GjuW1QH4g-E",
+  authDomain:"kindup-22cea.firebaseapp.com",
+  databaseURL:"https://kindup-22cea-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId:"kindup-22cea",
+  storageBucket:"kindup-22cea.firebasestorage.app",
+  messagingSenderId:"776886224726",
+  appId:"1:776886224726:web:b30634ca93d58d6d1238f7"
+};
+firebase.initializeApp(FB_CFG);
+const db=firebase.database();
+
+// ══════════════════════════════════════════
+// NGƯỜI DÙNG
+// ══════════════════════════════════════════
+const USERS=[
+  {name:'Minh Tuấn',   emoji:'🐬', bg:'#bbf7d0', points:285,  weekDone:28,  pin:'1234'},
+  {name:'Quỳnh Anh',   emoji:'🌻', bg:'#fce7f3', points:142,  weekDone:15,  pin:'2222'},
+  {name:'Phúc Bình',   emoji:'🦁', bg:'#dbeafe', points:530,  weekDone:52,  pin:'3333'},
+  {name:'Ngọc Hân',    emoji:'🌸', bg:'#ede9fe', points:198,  weekDone:20,  pin:'4444'},
+  {name:'Đức Trọng',   emoji:'⭐', bg:'#fef9c3', points:860,  weekDone:87,  pin:'5555'},
+  {name:'Lan Phương',  emoji:'🦋', bg:'#ffedd5', points:45,   weekDone:5,   pin:'6666'},
+  {name:'Thái Sơn',    emoji:'🌺', bg:'#bbf7d0', points:1250, weekDone:120, pin:'7777'},
+  {name:'Bảo Châu',    emoji:'😄', bg:'#fce7f3', points:320,  weekDone:33,  pin:'8888'},
+  {name:'Hữu Nghĩa',   emoji:'🌸', bg:'#dbeafe', points:75,   weekDone:8,   pin:'9999'},
+  {name:'Kim Ngân',    emoji:'👑', bg:'#fef9c3', points:2100, weekDone:210, pin:'0000'},
+  {name:'Tuấn Kiệt',   emoji:'🚀', bg:'#e0f2fe', points:410,  weekDone:41,  pin:'1111'},
+  {name:'Diễm Hương',  emoji:'🌹', bg:'#fdf4ff', points:670,  weekDone:67,  pin:'3131'},
+];
+
+const RANKS=[
+  {name:'Tân Binh Việc Tốt',req:0,icon:'🌱'},
+  {name:'Người Gieo Hạt',req:50,icon:'🌿'},
+  {name:'Chiến Binh Tích Cực',req:200,icon:'⚡'},
+  {name:'Người Lan Toả Yêu Thương',req:500,icon:'❤️'},
+  {name:'Đại Sứ Nhân Ái',req:1000,icon:'🌟'},
+  {name:'Huyền Thoại Tử Tế',req:2000,icon:'👑'},
+];
+function getRank(pts){let r=RANKS[0];for(let i=RANKS.length-1;i>=0;i--){if(pts>=RANKS[i].req){r=RANKS[i];break;}}return r;}
+function makeUID(n,p){return(n.trim().toLowerCase().replace(/\s+/g,'-')+'-'+p).replace(/[^a-z0-9\-]/g,'');}
+function hashPin(p){return btoa('kindup-'+p);}
+
+// ══════════════════════════════════════════
+// POOL ẢNH — ảnh học sinh / thanh thiếu niên Việt Nam
+// Mỗi chủ đề có nhiều ảnh để xoay vòng, tránh trùng
+// ══════════════════════════════════════════
+const IMG = {
+  // Nấu ăn / bếp núc
+  cook: [
+    'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=600&q=75',
+    'https://images.unsplash.com/photo-1507048331197-7d4ac70811cf?w=600&q=75',
+    'https://images.unsplash.com/photo-1542010589005-d1eacc3918f2?w=600&q=75',
+    'https://images.unsplash.com/photo-1466637574441-749b8f19452f?w=600&q=75',
+    'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=600&q=75',
+  ],
+  // Đọc sách / học bài
+  study: [
+    'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=600&q=75',
+    'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=600&q=75',
+    'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=600&q=75',
+    'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=600&q=75',
+    'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=600&q=75',
+    'https://images.unsplash.com/photo-1588072432836-e10032774350?w=600&q=75',
+    'https://images.unsplash.com/photo-1509062522246-3755977927d7?w=600&q=75',
+  ],
+  // Thể dục / chạy bộ
+  sport: [
+    'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&q=75',
+    'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=600&q=75',
+    'https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=600&q=75',
+    'https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?w=600&q=75',
+    'https://images.unsplash.com/photo-1530549387789-4c1017266635?w=600&q=75',
+  ],
+  // Nhặt rác / môi trường
+  eco: [
+    'https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?w=600&q=75',
+    'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=75',
+    'https://images.unsplash.com/photo-1604187351574-c75ca79f5807?w=600&q=75',
+    'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=600&q=75',
+    'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=600&q=75',
+  ],
+  // Giúp đỡ bạn bè / cộng đồng
+  help: [
+    'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=600&q=75',
+    'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=600&q=75',
+    'https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?w=600&q=75',
+    'https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?w=600&q=75',
+    'https://images.unsplash.com/photo-1491438590914-bc09fcaaf77a?w=600&q=75',
+  ],
+  // Chia sẻ đồ ăn / bữa ăn
+  food: [
+    'https://images.unsplash.com/photo-1547592180-85f173990554?w=600&q=75',
+    'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&q=75',
+    'https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=600&q=75',
+    'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=600&q=75',
+    'https://images.unsplash.com/photo-1473093295043-cdd812d0e601?w=600&q=75',
+  ],
+  // Viết thư / sáng tạo / nghệ thuật
+  art: [
+    'https://images.unsplash.com/photo-1455390582262-044cdead277a?w=600&q=75',
+    'https://images.unsplash.com/photo-1513001900722-370f803f498d?w=600&q=75',
+    'https://images.unsplash.com/photo-1452421822248-d4c2b47f0c81?w=600&q=75',
+    'https://images.unsplash.com/photo-1416339442236-8ceb164046f8?w=600&q=75',
+    'https://images.unsplash.com/photo-1484981184820-2e84ea0af397?w=600&q=75',
+  ],
+  // Dọn dẹp / nhà cửa
+  clean: [
+    'https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=600&q=75',
+    'https://images.unsplash.com/photo-1558317374-067fb5f30001?w=600&q=75',
+    'https://images.unsplash.com/photo-1527515637462-cff94eecc1ac?w=600&q=75',
+    'https://images.unsplash.com/photo-1563453392212-326f5e854473?w=600&q=75',
+  ],
+  // Sách / thư viện / tặng sách
+  book: [
+    'https://images.unsplash.com/photo-1532012197267-da84d127e765?w=600&q=75',
+    'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=600&q=75',
+    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&q=75',
+    'https://images.unsplash.com/photo-1516979187457-637abb4f9353?w=600&q=75',
+    'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=600&q=75',
+  ],
+  // Trồng cây / vườn
+  plant: [
+    'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=600&q=75',
+    'https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?w=600&q=75',
+    'https://images.unsplash.com/photo-1501004318641-b39e6451bec6?w=600&q=75',
+    'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=75',
+  ],
+  // Bạn bè / nhóm / lớp học
+  friends: [
+    'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=600&q=75',
+    'https://images.unsplash.com/photo-1523580494863-6f3031224c94?w=600&q=75',
+    'https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=600&q=75',
+    'https://images.unsplash.com/photo-1472162072942-cd5147eb3902?w=600&q=75',
+  ],
+  // Gia đình / mẹ cha
+  family: [
+    'https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=600&q=75',
+    'https://images.unsplash.com/photo-1576669801838-63e43e78afce?w=600&q=75',
+    'https://images.unsplash.com/photo-1609220136736-443140cffec6?w=600&q=75',
+    'https://images.unsplash.com/photo-1543402427-3d2bc53f0faf?w=600&q=75',
+  ],
+};
+
+// Bộ đếm để xoay vòng ảnh trong từng chủ đề
+const imgIdx = {};
+function pickImg(topic) {
+  if (!imgIdx[topic]) imgIdx[topic] = 0;
+  const pool = IMG[topic] || IMG.help;
+  const url = pool[imgIdx[topic] % pool.length];
+  imgIdx[topic]++;
+  return url;
+}
+
+// ══════════════════════════════════════════
+// 150 BÀI ĐĂNG MẪU — 30 ngày × 5 bài/ngày
+// daysAgo: số ngày trước hôm nay (0 = hôm nay)
+// hourOffset: giờ trong ngày (để tạo thứ tự trong ngày)
+// imgTopic: key trong IMG để lấy ảnh phù hợp
+// ══════════════════════════════════════════
+const POSTS_TEMPLATE = [
+  // ═══ NGÀY 0 (HÔM NAY) ═══
+  {u:0, task:'Giúp mẹ nấu cơm', desc:'Hôm nay mình tự đứng bếp nấu cơm cho cả nhà ăn tối. Mẹ bảo cơm chín đều và canh ngon đúng vị. Cảm giác được khen rất vui! 😊', pts:8, daysAgo:0, h:7, img:'cook'},
+  {u:1, task:'Nhặt rác bảo vệ môi trường', desc:'Sau buổi dã ngoại ở công viên Thống Nhất, nhóm mình đã nhặt sạch rác, bỏ vào 3 túi lớn trước khi về. Môi trường xanh hơn một chút rồi 🌿', pts:9, daysAgo:0, h:9, img:'eco'},
+  {u:2, task:'Giúp bạn ôn thi', desc:'Bạn Hùng không hiểu bài toán lượng giác, mình ngồi giải thích từng bước đến khi bạn tự làm được. Thấy bạn vỡ ra kiến thức mới là mình vui nhất 🤝', pts:9, daysAgo:0, h:14, img:'study'},
+  {u:3, task:'Đọc sách 30 phút', desc:'Đọc xong chương 5 cuốn "Tuổi thơ dữ dội". Câu chuyện về các bạn nhỏ thời chiến rất cảm động. Cố gắng đọc mỗi ngày một chút nhé! 📚', pts:7, daysAgo:0, h:16, img:'study'},
+  {u:4, task:'Nhường chỗ trên xe buýt', desc:'Lúc lên xe buýt 86 về nhà, thấy bà cụ đứng mỏi tay vịn. Mình liền đứng dậy nhường ghế ngay. Bà cụ cảm ơn và mỉm cười – đủ làm mình vui cả buổi tối 🚌', pts:8, daysAgo:0, h:18, img:'help'},
+
+  // ═══ NGÀY 1 ═══
+  {u:5, task:'Tập thể dục buổi sáng', desc:'Dậy lúc 5h30 chạy bộ 2km quanh hồ Hoàn Kiếm. Trời còn mát, chim hót rất vui. Khó lắm nhưng làm được rồi, ngày mai tiếp tục! 🏃', pts:6, daysAgo:1, h:6, img:'sport'},
+  {u:6, task:'Dọn dẹp phòng học', desc:'Phòng học bừa bộn mấy tuần nay, hôm nay dọn sạch trong 1 tiếng đồng hồ. Sách vở sắp gọn vào kệ, bàn học thông thoáng – học hiệu quả hơn hẳn 📚', pts:5, daysAgo:1, h:9, img:'clean'},
+  {u:7, task:'Viết thiệp cảm ơn thầy cô', desc:'Sau buổi học thêm, mình đã tặng thầy giáo môn Văn một tấm thiệp tự vẽ tay để cảm ơn thầy đã dạy dỗ cả năm học. Thầy xúc động lắm 🙏', pts:9, daysAgo:1, h:11, img:'art'},
+  {u:8, task:'Chia sẻ đồ ăn với bạn', desc:'Mẹ làm bánh cuộn nhân kem ngon lắm, mình mang một hộp đến lớp chia cho nhóm bạn. Ai cũng thích, lớp vui cả buổi 🍱', pts:7, daysAgo:1, h:15, img:'food'},
+  {u:9, task:'Giúp người già qua đường', desc:'Đang vội đi học thêm nhưng thấy cụ ông loay hoay ở ngã tư, dừng lại dắt cụ sang đường an toàn. Muộn 5 phút nhưng lòng nhẹ tênh ❤️', pts:10, daysAgo:1, h:17, img:'help'},
+
+  // ═══ NGÀY 2 ═══
+  {u:10, task:'Không dùng điện thoại khi ăn', desc:'Đề xuất cả gia đình thử bữa cơm không điện thoại hôm nay. Ba mẹ và em gái đồng ý, cả nhà nói chuyện với nhau vui hẳn ra! ✨', pts:6, daysAgo:2, h:12, img:'family'},
+  {u:11, task:'Trồng cây xanh', desc:'Cùng các bạn trong CLB Xanh của trường trồng 5 cây hoa giấy ở góc sân. Hy vọng mấy tháng nữa sẽ nở đẹp và toả bóng mát 🌻', pts:8, daysAgo:2, h:14, img:'plant'},
+  {u:0, task:'Tặng sách cũ cho thư viện', desc:'Dọn được 15 cuốn sách giáo khoa cũ còn tốt, đem tặng thư viện trường để các bạn có hoàn cảnh khó khăn mượn đọc 📚', pts:9, daysAgo:2, h:8, img:'book'},
+  {u:1, task:'Giúp em học bài', desc:'Em gái lớp 3 không hiểu bài tập cộng trừ phân số, mình kiên nhẫn hướng dẫn từng bước trong một tiếng. Em làm được và nhảy lên vui quá 🥰', pts:8, daysAgo:2, h:19, img:'study'},
+  {u:2, task:'Chào thầy cô đầy đủ mỗi ngày', desc:'Tự hứa sẽ chủ động chào thầy cô mỗi khi gặp trong hành lang, không để đầu nhìn xuống đất nữa. Hôm nay thực hiện được cả ngày 👋', pts:5, daysAgo:2, h:15, img:'friends'},
+
+  // ═══ NGÀY 3 ═══
+  {u:3, task:'Giúp ba sửa xe đạp', desc:'Ba bận công việc không ra tiệm được, mình tự bơm xe, tra dầu xích và lau sạch. Ba về nhìn thấy xe bóng đẹp, gật đầu khen 🔧', pts:7, daysAgo:3, h:7, img:'clean'},
+  {u:4, task:'Nhặt rác bảo vệ môi trường', desc:'Chiều nay đi dạo phố Hàng Đào với bạn Linh, mang theo túi nhỏ nhặt rác dọc vỉa hè. Người đi đường nhìn có vẻ ngạc nhiên nhưng mình cảm thấy đúng lắm 🌍', pts:8, daysAgo:3, h:16, img:'eco'},
+  {u:5, task:'Tiết kiệm điện', desc:'Dán nhắc nhở "Nhớ tắt đèn quạt!" lên cửa phòng và thực hiện đúng suốt cả ngày. Góp phần nhỏ bảo vệ Trái Đất 💡', pts:5, daysAgo:3, h:20, img:'clean'},
+  {u:6, task:'An ủi bạn học bị điểm kém', desc:'Bạn thân bị điểm kiểm tra môn Lý thấp, ngồi một mình buồn. Mình ngồi kế bên lắng nghe và cùng lên kế hoạch ôn lại bài tuần tới 🤗', pts:9, daysAgo:3, h:13, img:'friends'},
+  {u:7, task:'Học bài đầy đủ trước khi ngủ', desc:'Hôm nay ôn đủ 4 môn theo thời khóa biểu trước 22h, không để nước đến chân mới nhảy. Tự thưởng một ly sữa cacao 🍫', pts:6, daysAgo:3, h:21, img:'study'},
+
+  // ═══ NGÀY 4 ═══
+  {u:8, task:'Giúp mẹ đi chợ', desc:'Xách túi đi chợ Đồng Xuân giúp mẹ, mang về 3 túi nặng chịch trên quãng đường 600m. Tay mỏi nhưng thấy mình thật có ích 🛒', pts:7, daysAgo:4, h:7, img:'family'},
+  {u:9, task:'Viết thư tay cho ông bà', desc:'Ông bà ở Thanh Hoá, mình viết một lá thư tay dài kể chuyện học và kỷ niệm hè vừa rồi. Mẹ nói ông bà đọc xong khóc vì xúc động 📝', pts:10, daysAgo:4, h:10, img:'art'},
+  {u:10, task:'Tập thể dục buổi sáng', desc:'Tuần này đặt mục tiêu tập 5 buổi. Hôm nay buổi thứ 4 rồi – bài tập 7 phút plank và squat. Mệt nhưng không bỏ! 💪', pts:7, daysAgo:4, h:6, img:'sport'},
+  {u:11, task:'Không nói tục trước mặt người lớn', desc:'Nhóm bạn hay văng tục nhưng hôm nay mình nhắc khéo các bạn giữ lời khi gặp thầy cô. Mọi người lắng nghe, mình tự hào lắm 😊', pts:6, daysAgo:4, h:14, img:'friends'},
+  {u:0, task:'Bênh vực bạn bị trêu chọc', desc:'Thấy bạn An lớp 6B bị mấy bạn lớn trêu vì mang cặp cũ, mình đứng ra nói chuyện thẳng và bênh vực bạn. An cảm ơn mình mãi 🦸', pts:10, daysAgo:4, h:12, img:'help'},
+
+  // ═══ NGÀY 5 ═══
+  {u:1, task:'Tái chế đồ cũ', desc:'Biến 3 hộp carton bỏ đi thành hộp đựng bút và ngăn kéo nhỏ để bàn học. Không tốn tiền mua mới, vừa tiết kiệm vừa sáng tạo ♻️', pts:7, daysAgo:5, h:15, img:'art'},
+  {u:2, task:'Nấu bữa sáng cho cả nhà', desc:'Dậy 5h45 nấu cháo yến mạch trứng cho cả nhà. Ba mẹ ăn sáng ấm bụng trước khi đi làm sớm. Mình cũng tự hào vì không ngủ thêm 🍲', pts:9, daysAgo:5, h:6, img:'cook'},
+  {u:3, task:'Chăm sóc cây cảnh ban công', desc:'Nhổ cỏ, tưới nước và bón phân cho 5 chậu hoa trên ban công. Mấy cây hoa hồng sắp ra nụ rồi – công sức bỏ ra có kết quả 🌹', pts:6, daysAgo:5, h:16, img:'plant'},
+  {u:4, task:'Giúp dọn vệ sinh lớp học', desc:'Ở lại 15 phút sau giờ tan học cùng 3 bạn lau bảng, sắp xếp bàn ghế và quét sàn. Lớp học sạch đẹp cho buổi học ngày mai 🧹', pts:7, daysAgo:5, h:17, img:'clean'},
+  {u:5, task:'Quyên góp sách vở cho học sinh nghèo', desc:'Vận động được 22 bạn trong lớp quyên góp. Thu được 48 cuốn sách và 6 hộp bút. Thầy chủ nhiệm khen trước toàn trường 📦', pts:10, daysAgo:5, h:11, img:'book'},
+
+  // ═══ NGÀY 6 ═══
+  {u:6, task:'Đọc sách 30 phút', desc:'Đọc "Nhà giả kim" của Paulo Coelho – cuốn sách dạy về việc tin tưởng bản thân và theo đuổi giấc mơ. Đọc xong thấy muốn cố gắng hơn rất nhiều ✨', pts:7, daysAgo:6, h:20, img:'book'},
+  {u:7, task:'Giữ gìn vệ sinh nơi công cộng', desc:'Ngồi ăn bánh mì ở vườn hoa nhỏ, tự dọn sạch rác trước khi về. Còn nhặt thêm mấy tờ giấy của người khác bỏ lại. Công viên phải đẹp chứ! 🌳', pts:7, daysAgo:6, h:16, img:'eco'},
+  {u:8, task:'Tiết kiệm nước sinh hoạt', desc:'Đặt hẹn giờ tắm không quá 8 phút và nhớ tắt vòi khi đánh răng. Tuần này thực hiện đúng 7/7 ngày. Nhỏ thôi nhưng quan trọng lắm 💧', pts:6, daysAgo:6, h:19, img:'clean'},
+  {u:9, task:'Làm thiệp tặng ba nhân ngày của cha', desc:'Sinh nhật ba tuần sau, mình tự vẽ thiệp bằng tay, viết thư cảm ơn ba 10 năm nuôi nấng. Ba chắc sẽ xúc động lắm 🎨', pts:9, daysAgo:6, h:9, img:'art'},
+  {u:10, task:'Giúp bạn mang đồ nặng', desc:'Bạn Hà bị đau tay phải mang cặp sách nặng từ lớp xuống sân trường. Mình xung phong xách giúp một buổi chiều. Việc nhỏ thôi nhưng bạn cảm ơn mãi 💼', pts:6, daysAgo:6, h:12, img:'friends'},
+
+  // ═══ NGÀY 7 ═══
+  {u:11, task:'Tập thể dục buổi sáng', desc:'Tham gia buổi tập aerobic của khu phố lúc 6h. Các cô bác hàng xóm cũng tham gia, vui và năng lượng lắm! Quyết tâm duy trì đều đặn 🏃', pts:6, daysAgo:7, h:6, img:'sport'},
+  {u:0, task:'Giúp mẹ nấu cơm', desc:'Mẹ bị cảm nhẹ, mình tự đứng nấu bữa tối đủ 3 món: canh, rau và thịt. Ba khen ngon, mẹ được nghỉ ngơi một buổi 🍲', pts:9, daysAgo:7, h:17, img:'cook'},
+  {u:1, task:'Nhặt rác bảo vệ môi trường', desc:'Tổ chức mini challenge với 4 bạn: ai nhặt được nhiều rác nhất trong 30 phút sẽ được mời trà sữa. Kết quả thu gom được 2 túi lớn rác 🌍', pts:8, daysAgo:7, h:15, img:'eco'},
+  {u:2, task:'Đọc sách cùng em', desc:'Đọc truyện cổ tích cho em gái 5 tuổi nghe trước khi ngủ. Em bé hỏi đủ thứ câu hỏi ngộ nghĩnh, mình giải thích cho em hiểu. Khoảnh khắc thật dễ thương 📖', pts:7, daysAgo:7, h:21, img:'family'},
+  {u:3, task:'Tặng quà sinh nhật bạn tự làm', desc:'Tự làm hộp quà tái chế và vẽ thiệp sinh nhật cho Hà. Bạn thích hơn quà mua ngoài vì đây là công sức mình bỏ ra. Tình bạn là thế 🎁', pts:8, daysAgo:7, h:14, img:'art'},
+
+  // ═══ NGÀY 8 ═══
+  {u:4, task:'Giúp thầy cô chuẩn bị tiết học', desc:'Đến sớm 15 phút giúp cô giáo Hóa chuẩn bị dụng cụ thí nghiệm cho tiết học. Cô khen và cả lớp được xem thí nghiệm hay hơn 🔬', pts:8, daysAgo:8, h:7, img:'study'},
+  {u:5, task:'Chia sẻ suất ăn với bạn quên tiền', desc:'Bạn Tuấn quên ví không mua được suất cơm, mình chia đôi phần cơm của mình cho bạn ăn cùng. Đói một chút nhưng bạn không bị đói 🍱', pts:8, daysAgo:8, h:12, img:'food'},
+  {u:6, task:'Dọn dẹp hành lang chung cư', desc:'Hành lang tầng 5 bị ai để túi rác và giày dép bừa bộn. Mình tự dọn hết mà không cần ai nhờ. Hàng xóm nhìn thấy cảm ơn 🧹', pts:7, daysAgo:8, h:9, img:'clean'},
+  {u:7, task:'Tập thể dục buổi sáng', desc:'Hoàn thành 100 cái nhảy dây và 20 cái hít đất buổi sáng trước khi đến trường. Mệt nhưng tỉnh táo và tập trung học bài tốt hơn 💪', pts:7, daysAgo:8, h:6, img:'sport'},
+  {u:8, task:'Giúp bạn mới hòa nhập lớp', desc:'Bạn chuyển trường mới từ Đà Nẵng ra, chưa quen ai. Mình chủ động ngồi cạnh, giới thiệu với các bạn và rủ bạn ăn trưa cùng nhóm 😊', pts:9, daysAgo:8, h:11, img:'friends'},
+
+  // ═══ NGÀY 9 ═══
+  {u:9, task:'Nhặt rác bảo vệ môi trường', desc:'Đi chùa với bà, nhìn thấy rác vỏ nhang rải rác trong khuôn viên. Mình và bà cùng nhặt sạch trước khi về. Bà bảo đây là phúc đức 🙏', pts:8, daysAgo:9, h:8, img:'eco'},
+  {u:10, task:'Viết nhật ký biết ơn', desc:'Bắt đầu thói quen viết 3 điều biết ơn mỗi tối trước khi ngủ. Hôm nay: cảm ơn vì có sức khoẻ, có gia đình và có ngày trời đẹp 📓', pts:6, daysAgo:9, h:22, img:'art'},
+  {u:11, task:'Giúp mẹ rửa bát đĩa', desc:'Mẹ nấu bữa tối vất vả, mình tự giác ra rửa bát mà không cần nhắc. Mẹ được ngồi nghỉ xem tivi. Cảm giác tốt bụng này thật dễ chịu 🫧', pts:6, daysAgo:9, h:19, img:'family'},
+  {u:0, task:'Trồng rau tại nhà', desc:'Tận dụng ban công trồng thêm luống rau muống và húng quế trong chậu cũ. Hy vọng 2 tuần nữa có rau ăn không cần ra chợ 🌿', pts:7, daysAgo:9, h:16, img:'plant'},
+  {u:1, task:'An ủi bạn có chuyện buồn gia đình', desc:'Bạn Ngân kể ba mẹ bạn đang có mâu thuẫn, bạn buồn và mất tập trung học. Mình lắng nghe cả tiếng đồng hồ và ở bên cạnh bạn 🤍', pts:10, daysAgo:9, h:13, img:'friends'},
+
+  // ═══ NGÀY 10 ═══
+  {u:2, task:'Học bài đầy đủ', desc:'Làm xong hết bài tập về nhà 4 môn trước 21h. Không mở điện thoại trong lúc học. Thắng lợi nhỏ nhưng rất quan trọng với mình 📚', pts:7, daysAgo:10, h:21, img:'study'},
+  {u:3, task:'Giúp mẹ đi chợ', desc:'Sáng sớm đi chợ cùng mẹ, xách giúp cả túi rau và cá nặng chịch. Mẹ nói con trai mà biết đi chợ là quý lắm 🛒', pts:7, daysAgo:10, h:7, img:'family'},
+  {u:4, task:'Dạy kỹ năng máy tính cho ông nội', desc:'Ông nội muốn học gọi video call nhưng không biết dùng điện thoại. Mình ngồi hướng dẫn từng bước trong 1 tiếng. Giờ ông gọi được cho cô ở xa rồi 📱', pts:10, daysAgo:10, h:15, img:'family'},
+  {u:5, task:'Tập thể dục buổi sáng', desc:'Buổi sáng mát mẻ, chạy 3km vòng quanh hồ Tây. Nhìn mặt hồ lung linh ánh nắng sớm đẹp lắm. Chạy xong cảm thấy tỉnh táo cả ngày 🌅', pts:7, daysAgo:10, h:6, img:'sport'},
+  {u:6, task:'Nhắc bạn đội mũ bảo hiểm', desc:'Thấy hai bạn đi xe đạp điện không đội mũ, mình gọi lại nhắc nhở. Lúc đầu bạn ngại nhưng cuối cùng cũng đội vào. An toàn là trên hết 🪖', pts:6, daysAgo:10, h:12, img:'friends'},
+
+  // ═══ NGÀY 11 ═══
+  {u:7, task:'Nấu cơm cho gia đình', desc:'Ba mẹ đều đi làm muộn, mình tự vo gạo và nấu cơm, rang thêm một món trứng. Bữa tối đơn giản nhưng cả nhà ăn ngon miệng 🍳', pts:8, daysAgo:11, h:18, img:'cook'},
+  {u:8, task:'Tái chế giấy báo cũ', desc:'Gập giấy báo cũ thành các hộp nhỏ đựng hạt giống và đồ linh tinh trên bàn học. Tiết kiệm tiền mua hộp và bảo vệ môi trường ♻️', pts:6, daysAgo:11, h:15, img:'art'},
+  {u:9, task:'Đọc sách 30 phút', desc:'Đọc cuốn "Người giàu nhất thành Babylon" — cuốn sách về quản lý tiền bạc cho người trẻ. Rút ra được nhiều bài học về tiết kiệm và đầu tư 💰', pts:7, daysAgo:11, h:20, img:'book'},
+  {u:10, task:'Giúp bạn yếu học ôn bài', desc:'Lớp có kiểm tra Địa tuần sau. Bạn Nam học yếu môn này, mình lập nhóm học 3 người và ôn bài cùng bạn 2 tiếng đồng hồ 🗺️', pts:9, daysAgo:11, h:16, img:'study'},
+  {u:11, task:'Nhặt rác bảo vệ môi trường', desc:'Ra bờ hồ buổi chiều thấy nhiều rác sau dịp cuối tuần. Mình nhặt một túi đầy trước khi về. Chỉ mình thôi nhưng không sao, phải bắt đầu từ đâu đó 🌊', pts:8, daysAgo:11, h:17, img:'eco'},
+
+  // ═══ NGÀY 12 ═══
+  {u:0, task:'Tập thể dục buổi sáng', desc:'Hôm nay buổi thứ 5 liên tiếp không bỏ buổi tập sáng. Thói quen đang dần hình thành. Cảm thấy khoẻ và tự tin hơn rõ rệt 💪', pts:7, daysAgo:12, h:6, img:'sport'},
+  {u:1, task:'Giúp mẹ dọn nhà cuối tuần', desc:'Dành cả buổi sáng lau nhà, lau kính cửa sổ và sắp xếp đồ đạc ngăn nắp. Mẹ hài lòng lắm, bảo con biết việc như thế này giỏi hơn học nhiều 🏠', pts:8, daysAgo:12, h:9, img:'clean'},
+  {u:2, task:'Chia sẻ bài hay lên nhóm lớp', desc:'Đọc được bài về kỹ năng quản lý thời gian cho học sinh hay lắm. Chia sẻ lên nhóm lớp và tóm tắt 5 điểm chính. Nhiều bạn cảm ơn 📲', pts:6, daysAgo:12, h:14, img:'friends'},
+  {u:3, task:'Nấu bữa sáng cho gia đình', desc:'Nấu nồi xôi lạc cho cả nhà buổi sáng. Lần đầu nấu xôi ngon được! Ba bảo ngon hơn cả ngoài hàng. Tự hào lắm 🎊', pts:8, daysAgo:12, h:6, img:'cook'},
+  {u:4, task:'Quyên góp đồ cũ cho người nghèo', desc:'Dọn tủ quần áo, chọn ra 12 bộ còn tốt đem tặng cho chương trình từ thiện của phường. Người nhận vui, mình cũng vui 👕', pts:9, daysAgo:12, h:11, img:'help'},
+
+  // ═══ NGÀY 13 ═══
+  {u:5, task:'Giúp bạn học bài', desc:'Bạn Phương không hiểu phần hàm số bậc hai, mình vẽ đồ thị và giải thích trực quan đến khi bạn "aha" ra. Dạy người khác mình cũng hiểu sâu hơn 📐', pts:9, daysAgo:13, h:14, img:'study'},
+  {u:6, task:'Trồng cây xanh', desc:'Nhân dịp cuối tuần, mình trồng thêm 2 chậu xương rồng nhỏ và 1 chậu lô hội trên bệ cửa sổ. Cây dễ trồng, không cần tưới nhiều mà lại đẹp 🌵', pts:6, daysAgo:13, h:10, img:'plant'},
+  {u:7, task:'Tặng suất cơm từ thiện', desc:'Cùng câu lạc bộ Tình Nguyện phát 50 suất cơm miễn phí cho công nhân và người lao động nghèo ở khu công nghiệp. Ai cũng ăn ngon miệng 🍱', pts:10, daysAgo:13, h:11, img:'food'},
+  {u:8, task:'Đọc sách 30 phút', desc:'Đọc cuốn "Dám bị ghét" — sách tâm lý về cách sống tự do và không sợ thất bại. Lạ lắm nhưng rất thú vị, sẽ đọc tiếp 📖', pts:7, daysAgo:13, h:21, img:'book'},
+  {u:9, task:'Tập thể dục buổi sáng', desc:'Sáng này mưa nhẹ nhưng vẫn đội áo mưa ra chạy 1.5km. Cảm giác vượt qua lười biếng thật khác lắm. Không có gì là không thể! 🌧️', pts:7, daysAgo:13, h:6, img:'sport'},
+
+  // ═══ NGÀY 14 ═══
+  {u:10, task:'Giúp mẹ nấu cơm', desc:'Mẹ bận tiếp khách, mình vào bếp nấu cơm tối và làm thêm món canh chua cá. Mẹ ra nhìn bếp gọn gàng, mỉm cười và ôm mình một cái 💚', pts:9, daysAgo:14, h:18, img:'cook'},
+  {u:11, task:'Nhường chỗ ngồi trên xe buýt', desc:'Xe buýt giờ cao điểm đông nghẹt, mình nhường ghế cho một chị bầu vừa lên. Chị cảm ơn, người xung quanh gật đầu. Nhỏ nhưng đúng 🚌', pts:8, daysAgo:14, h:16, img:'help'},
+  {u:0, task:'Không dùng túi nilon khi mua hàng', desc:'Mang theo túi vải ra chợ và siêu thị. Từ chối túi nilon của người bán hàng. Thói quen nhỏ nhưng nếu ai cũng làm thì khác lắm 🌿', pts:6, daysAgo:14, h:9, img:'eco'},
+  {u:1, task:'Giúp em học bài', desc:'Em trai lớp 7 không hiểu bài lịch sử về thời Trần. Mình kể lại theo kiểu chuyện kể thú vị thay vì đọc thuộc. Em thích hơn hẳn và nhớ lâu hơn 📚', pts:8, daysAgo:14, h:19, img:'study'},
+  {u:2, task:'Dọn vệ sinh nhà bếp', desc:'Bếp nhà mình bị dầu mỡ bám lâu ngày. Mình lấy chanh và muối cọ rửa sạch bóng. Mẹ nhìn vào ngạc nhiên hỏi ai làm, mình đứng cười 😁', pts:7, daysAgo:14, h:10, img:'clean'},
+
+  // ═══ NGÀY 15 ═══
+  {u:3, task:'Tập thể dục buổi sáng', desc:'Tham gia nhóm chạy bộ của khu phố lúc 6h. Hôm nay được 4km – xa nhất từ trước đến nay! Chân mỏi nhưng lòng tự hào lắm 🏃', pts:8, daysAgo:15, h:6, img:'sport'},
+  {u:4, task:'Viết nhật ký biết ơn', desc:'Hôm nay không có gì đặc biệt nhưng vẫn tìm ra 3 điều biết ơn: cái bàn học tốt, cốc nước mát và tiếng cười của em 📝', pts:5, daysAgo:15, h:22, img:'art'},
+  {u:5, task:'Trồng rau tại nhà', desc:'Rau muống trồng 2 tuần trước đã lên cao 10cm! Mình nhổ bỏ cỏ dại và tưới thêm phân hữu cơ. Sắp được ăn rau tự trồng rồi 🥬', pts:7, daysAgo:15, h:16, img:'plant'},
+  {u:6, task:'Chia sẻ đồ ăn với bạn', desc:'Mang hộp bánh su kem mẹ làm đến lớp. Chia mỗi người một cái, còn chia luôn cho các thầy cô trong văn phòng. Ai cũng cười tươi 🍮', pts:7, daysAgo:15, h:12, img:'food'},
+  {u:7, task:'Giúp bạn khi bị bắt nạt', desc:'Trên đường về thấy một bạn nhỏ lớp dưới bị mấy bạn lớp khác chặn đường. Mình bước vào can thiệp và đi cùng bạn đó đến cổng trường 🦸', pts:10, daysAgo:15, h:17, img:'help'},
+
+  // ═══ NGÀY 16 ═══
+  {u:8, task:'Học bài đầy đủ', desc:'Lịch kiểm tra dày đặc tuần tới. Mình lập bảng ôn tập từng môn và hôm nay hoàn thành đúng kế hoạch. Không bỏ sót bất kỳ bài nào 📋', pts:7, daysAgo:16, h:21, img:'study'},
+  {u:9, task:'Giúp mẹ nấu cơm', desc:'Mẹ bị đau đầu gối, đứng lâu khó. Mình đứng bếp cả buổi tối: luộc rau, kho thịt và bày bàn ăn. Mẹ được ngồi nghỉ ngơi và ăn ngon 💚', pts:9, daysAgo:16, h:18, img:'cook'},
+  {u:10, task:'Nhặt rác bảo vệ môi trường', desc:'Đi siêu thị về thấy bãi cỏ trước cửa nhà bị vứt rác lung tung sau cuối tuần. Mình nhặt sạch một túi lớn. Khu phố mình sẽ đẹp hơn! 🌿', pts:7, daysAgo:16, h:14, img:'eco'},
+  {u:11, task:'Dạy bạn kỹ năng mới', desc:'Bạn Hoa muốn học cách đan móc nhưng không biết bắt đầu từ đâu. Mình hướng dẫn các mũi cơ bản trong 1 tiếng. Bạn đan được 5 mũi đầu tiên rồi 🧶', pts:7, daysAgo:16, h:15, img:'art'},
+  {u:0, task:'Tập thể dục buổi sáng', desc:'Nhảy dây 200 cái và tập yoga 15 phút buổi sáng. Hôm nay cơ thể đau nhẹ vì hôm qua tập nhiều nhưng vẫn cố. Không bỏ bao giờ! 🧘', pts:6, daysAgo:16, h:6, img:'sport'},
+
+  // ═══ NGÀY 17 ═══
+  {u:1, task:'Tặng sách cũ cho thư viện', desc:'Sắp xếp tủ sách và tìm ra 8 cuốn tiểu thuyết hay đã đọc. Đem tặng hết cho thư viện quận để nhiều người cùng đọc thay vì xếp đó 📚', pts:8, daysAgo:17, h:10, img:'book'},
+  {u:2, task:'Chia sẻ bữa ăn', desc:'Mang cơm trưa đến trường, thấy bạn ngồi bàn bên không có gì ăn vì quên tiền. Mình chia đôi suất cơm. Hai người ăn ít hơn nhưng vui hơn 🍚', pts:8, daysAgo:17, h:12, img:'food'},
+  {u:3, task:'Giúp ông bà dọn nhà', desc:'Cuối tuần về quê thăm ông bà. Mình dọn cả buổi sáng: quét sân, lau bàn thờ, nhổ cỏ vườn. Ông bà vui lắm, liên tục khen cháu ngoan 🏡', pts:9, daysAgo:17, h:9, img:'family'},
+  {u:4, task:'Không dùng điện thoại khi học bài', desc:'Đặt điện thoại xa bàn học và mở ứng dụng chặn mạng xã hội trong 2 tiếng ôn thi. Tập trung 100% — hiệu quả hơn hẳn các buổi học trước! 📵', pts:7, daysAgo:17, h:19, img:'study'},
+  {u:5, task:'Trồng cây xanh', desc:'Mang 3 cây con nhỏ đến tặng cho bà hàng xóm thích trồng cây. Bà mừng lắm và cảm ơn hàng xóm nhỏ tuổi tốt bụng 🌸', pts:7, daysAgo:17, h:16, img:'plant'},
+
+  // ═══ NGÀY 18 ═══
+  {u:6, task:'Nấu cơm cho gia đình', desc:'Cả nhà đi chơi về muộn. Mình xung phong nấu cơm tối để ba mẹ nghỉ ngơi. Nấu được nồi cơm ngon và món thịt băm sốt cà chua 🍅', pts:8, daysAgo:18, h:19, img:'cook'},
+  {u:7, task:'Giúp bạn học bài', desc:'Hôm nay ôn Hóa cùng nhóm 4 người. Mình giải thích phần cân bằng phương trình hóa học. Cả nhóm hiểu ra và làm được bài tập khó nhất 🧪', pts:9, daysAgo:18, h:15, img:'study'},
+  {u:8, task:'Tái chế chai nhựa', desc:'Thu gom chai nhựa trong nhà 1 tháng, đem bán ve chai và dùng tiền đó mua cây giống trồng ban công. Biến rác thành cây xanh! ♻️', pts:8, daysAgo:18, h:11, img:'eco'},
+  {u:9, task:'An ủi bạn học sinh buồn', desc:'Bạn không đậu vào trường chuyên như mong muốn, đang rất tự ti. Mình ngồi bên cạnh nói chuyện và kể về những người nổi tiếng cũng từng thất bại 🤝', pts:10, daysAgo:18, h:14, img:'friends'},
+  {u:10, task:'Đọc sách 30 phút', desc:'Đọc cuốn "Đắc Nhân Tâm" — sách kinh điển về cách đối xử tốt với người xung quanh. Học được nhiều cách lắng nghe người khác tốt hơn 📘', pts:7, daysAgo:18, h:21, img:'book'},
+
+  // ═══ NGÀY 19 ═══
+  {u:11, task:'Tập thể dục buổi sáng', desc:'Tham gia buổi tập yoga ngoài công viên cùng mẹ lúc 6h. Lần đầu tập yoga thấy khó nhưng rất thoải mái sau đó. Sẽ tập đều hơn 🧘', pts:6, daysAgo:19, h:6, img:'sport'},
+  {u:0, task:'Nhặt rác bảo vệ môi trường', desc:'Đi học về qua bờ hồ thấy rác nhiều. Mình dừng lại 10 phút nhặt gần 1 túi nhỏ. Một mình làm nhưng không cần ai nhìn thấy 💚', pts:7, daysAgo:19, h:17, img:'eco'},
+  {u:1, task:'Giúp mẹ dọn bếp', desc:'Sau bữa cơm mình tự giác rửa bát và lau bếp sạch bóng mà không chờ mẹ nhắc. Mẹ đi vào nhà bếp thấy sạch, cười và vuốt tóc mình 🧽', pts:6, daysAgo:19, h:20, img:'family'},
+  {u:2, task:'Dạy kỹ năng máy tính cho người cao tuổi', desc:'Bác hàng xóm muốn học gửi ảnh qua Zalo. Mình sang hướng dẫn bác từng bước từ tải ảnh đến gửi. Bác gọi video cho con ở Mỹ được rồi 📱', pts:10, daysAgo:19, h:15, img:'family'},
+  {u:3, task:'Chia sẻ đồ ăn với bạn', desc:'Mang cam và thanh long từ vườn nhà ra trường tặng cả lớp. Quả ngon ngọt, bạn nào cũng ăn thích. Nông sản nhà tự trồng mà! 🍊', pts:7, daysAgo:19, h:11, img:'food'},
+
+  // ═══ NGÀY 20 ═══
+  {u:4, task:'Giúp mẹ nấu cơm', desc:'Thứ 2 bận rộn, mẹ về muộn. Mình nấu cơm sẵn, xào rau và luộc trứng. Khi mẹ về bữa cơm đã bày ra bàn. Mẹ ôm mình và nói cảm ơn con 💚', pts:9, daysAgo:20, h:18, img:'cook'},
+  {u:5, task:'Học bài đầy đủ', desc:'Hôm nay tự thưởng: nếu học xong tất cả trước 21h thì được xem phim 30 phút. Kết quả: học xong lúc 20h45. Phương pháp self-reward hiệu quả thật! 🎯', pts:7, daysAgo:20, h:21, img:'study'},
+  {u:6, task:'Giúp thầy cô dọn phòng học', desc:'Tiết cuối ngày, thầy giáo nhờ dọn lại phòng thí nghiệm. Mình và 3 bạn ở lại 20 phút sắp xếp dụng cụ và lau bàn. Thầy cảm ơn cả nhóm 🧹', pts:7, daysAgo:20, h:16, img:'clean'},
+  {u:7, task:'Viết thiệp cảm ơn bạn thân', desc:'Hôm nay kỷ niệm 3 năm thân nhau với Linh. Mình tự làm thiệp vẽ tay và viết thư dài kể những kỷ niệm đẹp. Linh khóc khi đọc, mình cũng khóc 😭', pts:8, daysAgo:20, h:10, img:'art'},
+  {u:8, task:'Tập thể dục buổi sáng', desc:'Chuỗi 10 ngày tập sáng liên tiếp không bỏ bữa nào! Hôm nay tự thưởng mình ly sinh tố trái cây ngon. Sức khoẻ cải thiện thấy rõ 🥤', pts:8, daysAgo:20, h:6, img:'sport'},
+
+  // ═══ NGÀY 21 ═══
+  {u:9, task:'Trồng rau tại nhà', desc:'Thu hoạch được mẻ rau muống đầu tiên tự trồng! Nhặt rau, rửa sạch và xào cho bữa tối. Ăn rau mình tự trồng ngon hơn rau mua ngoài chợ 🥬', pts:8, daysAgo:21, h:17, img:'plant'},
+  {u:10, task:'Nhặt rác bảo vệ môi trường', desc:'Cuối tuần tham gia chiến dịch dọn rác bãi biển cùng trường. Cả lớp nhặt được 20 túi rác lớn. Bãi biển sạch đẹp trở lại 🏖️', pts:10, daysAgo:21, h:8, img:'eco'},
+  {u:11, task:'Giúp bạn học bài', desc:'Cuối tuần ôn thi học kỳ, lập nhóm 5 người ôn Văn và Sử. Mình làm sơ đồ tư duy tóm tắt mỗi chương cho cả nhóm. Mọi người ôn nhanh hơn hẳn 📊', pts:9, daysAgo:21, h:14, img:'study'},
+  {u:0, task:'Nấu bữa sáng cho gia đình', desc:'Sáng cuối tuần mình dậy sớm làm bánh mì trứng ốp la với salad cho cả nhà. Bữa sáng cuối tuần ngon hơn thường ngày. Ba khen hết lời! 🍳', pts:8, daysAgo:21, h:7, img:'cook'},
+  {u:1, task:'Quyên góp sách vở', desc:'Phát động trong group lớp quyên góp sách cho trường miền núi. Thu được 60 cuốn và 20 hộp bút chỉ trong 2 ngày. Bạn bè hưởng ứng nhiệt tình! 📦', pts:10, daysAgo:21, h:11, img:'book'},
+
+  // ═══ NGÀY 22 ═══
+  {u:2, task:'Dọn dẹp phòng học', desc:'Dành cả buổi sáng dọn phòng học: phân loại sách theo môn, bỏ đồ không cần và sắp xếp lại ngăn nắp. Phòng học gọn, tâm trạng sáng hẳn ra 🌟', pts:6, daysAgo:22, h:9, img:'clean'},
+  {u:3, task:'Tập thể dục buổi sáng', desc:'Chạy 2.5km buổi sáng và tập 15 phút calisthenics. Nhìn lại 3 tuần tập luyện thấy mình khoẻ hơn, không còn mệt leo cầu thang nữa 💪', pts:7, daysAgo:22, h:6, img:'sport'},
+  {u:4, task:'An ủi và lắng nghe bạn', desc:'Bạn Hương có chuyện buồn không nói được với ba mẹ. Mình ngồi lắng nghe không phán xét trong 2 tiếng. Đôi khi chỉ cần ai đó lắng nghe thôi 🤍', pts:9, daysAgo:22, h:16, img:'friends'},
+  {u:5, task:'Chăm sóc cây cảnh ban công', desc:'Tưới nước, cắt tỉa lá vàng và bón thêm phân hữu cơ cho 8 chậu cây. Mấy chậu rau thơm phát triển tốt lắm, sắp hái được rồi 🪴', pts:6, daysAgo:22, h:17, img:'plant'},
+  {u:6, task:'Giúp mẹ đi chợ', desc:'Theo mẹ đi chợ sớm lúc 6h. Mang giỏ đi chợ để không cần túi nilon. Xách giúp mẹ hết túi nặng về nhà. Vừa khoẻ vừa bảo vệ môi trường! 🛒', pts:7, daysAgo:22, h:6, img:'family'},
+
+  // ═══ NGÀY 23 ═══
+  {u:7, task:'Giúp mẹ nấu cơm', desc:'Thứ 4 mẹ bận họp phụ huynh muộn. Mình vào bếp nấu cơm, xào thịt bò với cần tây và canh bí đỏ. Bữa cơm đầy đủ dinh dưỡng 🥩', pts:8, daysAgo:23, h:18, img:'cook'},
+  {u:8, task:'Nhặt rác bảo vệ môi trường', desc:'Đi học qua công viên, nhìn thấy mấy bạn nhỏ bỏ rác xuống đất. Mình nhặt lên và nhắc nhở nhẹ nhàng. Bạn đó ngại và xin lỗi rồi bỏ vào thùng 🌍', pts:7, daysAgo:23, h:8, img:'eco'},
+  {u:9, task:'Đọc sách 30 phút', desc:'Đọc cuốn "Rừng Na Uy" — tác phẩm của Haruki Murakami. Văn phong đẹp, câu chuyện sâu sắc về tuổi trẻ và cô đơn. Sẽ đọc tiếp mỗi tối 📚', pts:7, daysAgo:23, h:21, img:'book'},
+  {u:10, task:'Giúp bạn học bài', desc:'Bạn cùng bàn lo lắng về bài thi Anh văn sắp tới. Mình ôn từ vựng và ngữ pháp cùng bạn trong giờ ra chơi và buổi chiều. Tự tin hơn rồi 📖', pts:8, daysAgo:23, h:14, img:'study'},
+  {u:11, task:'Tập thể dục buổi sáng', desc:'Đăng ký chạy bộ 5km cuối tuần với nhóm bạn. Hôm nay tập chạy xa hơn mọi hôm để chuẩn bị. Cái đích của chúng ta đang gần hơn rồi! 🏅', pts:7, daysAgo:23, h:6, img:'sport'},
+
+  // ═══ NGÀY 24 ═══
+  {u:0, task:'Làm bánh tặng bạn', desc:'Tự học làm bánh bông lan theo video. Mẻ đầu tiên hơi nứt nhưng vẫn ngon. Mang đến lớp tặng nhóm bạn thân. Ai cũng bảo ngon và đòi thêm 🎂', pts:8, daysAgo:24, h:11, img:'food'},
+  {u:1, task:'Giúp bạn học bài', desc:'Ôn Vật lý với bạn Nam — phần điện từ trường khó lắm. Mình vẽ sơ đồ giải thích từng khái niệm. Bạn từ không hiểu gì đến làm được 5 bài tập! ⚡', pts:9, daysAgo:24, h:15, img:'study'},
+  {u:2, task:'Trồng cây xanh', desc:'Nhân giống cây lô hội từ chậu mẹ sang 4 chậu con nhỏ. Định tặng cho mấy bạn cùng lớp làm cây để bàn. Cây dễ sống và không cần chăm nhiều 🌿', pts:6, daysAgo:24, h:16, img:'plant'},
+  {u:3, task:'Dọn dẹp sân trường', desc:'Buổi trực nhật hôm nay, mình cùng tổ trực dọn sạch cả hành lang và sân sau — cả khu vực không phải phần của tổ mình. Thầy hiệu phó đi qua khen', pts:7, daysAgo:24, h:7, img:'clean'},
+  {u:4, task:'Nhắc bạn giữ an toàn giao thông', desc:'Thấy bạn định vượt đèn đỏ vì vội, mình nắm tay bạn lại và giải thích tại sao không được. Bạn dừng lại và cảm ơn sau đó 🚦', pts:7, daysAgo:24, h:17, img:'friends'},
+
+  // ═══ NGÀY 25 ═══
+  {u:5, task:'Nấu cơm cho gia đình', desc:'Ba đi công tác, mình nấu cơm tối cho mẹ và em. Nấu bún bò Huế — lần đầu thử món mới. Nồi nước dùng thơm lắm, mẹ bảo ngon hơn ngoài hàng 🍜', pts:9, daysAgo:25, h:18, img:'cook'},
+  {u:6, task:'Tập thể dục buổi sáng', desc:'Sáng nay tập bơi 500m tại bể bơi trường — môn thể dục mới bắt đầu. Người đau nhưng kỹ năng bơi đang cải thiện từng ngày 🏊', pts:7, daysAgo:25, h:6, img:'sport'},
+  {u:7, task:'Giúp em gái học bài', desc:'Em gái không hiểu bài tập địa lý về khí hậu Việt Nam. Mình lấy bản đồ ra và kể chuyện về từng vùng cho dễ nhớ. Em vừa học vừa cười 🗺️', pts:8, daysAgo:25, h:19, img:'study'},
+  {u:8, task:'Quyên góp ủng hộ bão lũ', desc:'Nghe tin bà con miền Trung bị lũ lụt. Mình kêu gọi cả lớp quyên góp được 1,2 triệu đồng gửi qua quỹ cứu trợ. Nhỏ thôi nhưng từ trái tim 💝', pts:10, daysAgo:25, h:10, img:'help'},
+  {u:9, task:'Chăm sóc thú cưng', desc:'Con mèo nhà mình bị cảm, mình chăm sóc tận tình: pha sữa ấm, lót ổ mềm và ôm mèo ngủ trưa. Mèo khoẻ lại là mình vui rồi 🐱', pts:6, daysAgo:25, h:14, img:'family'},
+
+  // ═══ NGÀY 26 ═══
+  {u:10, task:'Giúp mẹ nấu cơm', desc:'Mẹ bị đau lưng. Mình đảm nhận toàn bộ bữa tối: nấu canh, xào rau, luộc trứng và bày bàn. Mẹ ngồi nghỉ và nói con giỏi quá rồi 💚', pts:9, daysAgo:26, h:18, img:'cook'},
+  {u:11, task:'Nhặt rác bảo vệ môi trường', desc:'Tham gia buổi vệ sinh công viên của phường Hoàn Kiếm. 30 tình nguyện viên thu gom 50 túi rác trong 2 tiếng. Công viên sạch rực rỡ! 🌳', pts:9, daysAgo:26, h:8, img:'eco'},
+  {u:0, task:'Tặng sách cũ cho bạn', desc:'Biết bạn Hà muốn đọc "Một linh hồn" mà không có tiền mua, mình lấy cuốn của mình tặng luôn. Sách đọc xong thì nên truyền đi chứ 📖', pts:7, daysAgo:26, h:12, img:'book'},
+  {u:1, task:'Dọn dẹp phòng học', desc:'Cuối tháng tổng vệ sinh phòng học: lau cửa kính, quét bụi trên kệ sách và giặt rèm cửa. Phòng thơm tho sạch sẽ như mới 🪟', pts:6, daysAgo:26, h:15, img:'clean'},
+  {u:2, task:'Tập thể dục buổi sáng', desc:'Hoàn thành thử thách 30 ngày thể dục buổi sáng! Hôm nay ngày cuối: chạy 3km và hít đất 30 cái. Cảm thấy khỏe mạnh hơn hẳn so với đầu tháng 🏆', pts:10, daysAgo:26, h:6, img:'sport'},
+
+  // ═══ NGÀY 27 ═══
+  {u:3, task:'Giúp bạn học bài', desc:'Nhóm ôn thi học kỳ họp cuối tuần. Mình mang bánh trái đến và dạy phần bài tập Hóa khó. Cả nhóm ôn xong trước 5h chiều 🧪', pts:9, daysAgo:27, h:9, img:'study'},
+  {u:4, task:'Nấu cơm cho gia đình', desc:'Ba mẹ đi đám giỗ về trễ. Mình nấu sẵn bữa tối gồm cơm, canh và thịt kho. Cả nhà về đến nơi đã có bữa ăn đầy đủ chờ sẵn 🍲', pts:8, daysAgo:27, h:19, img:'cook'},
+  {u:5, task:'An ủi bạn học điểm kém', desc:'Kết quả học kỳ ra, bạn Mai bị một môn dưới trung bình và rất hoang mang. Mình ngồi cùng bạn lên kế hoạch học kỳ 2 cụ thể và khích lệ bạn 📈', pts:9, daysAgo:27, h:14, img:'friends'},
+  {u:6, task:'Chăm sóc cây cảnh', desc:'Mấy chậu cây ban công bị rệp. Mình dùng dung dịch tỏi và nước phun lên lá để đuổi sâu bọ tự nhiên không dùng hóa chất. Hiệu quả lắm! 🌿', pts:6, daysAgo:27, h:16, img:'plant'},
+  {u:7, task:'Tiết kiệm điện', desc:'Cả tháng này mình dán nhãn nhắc nhở bên cạnh mọi công tắc điện trong nhà. Hoá đơn điện tháng này giảm 15% so với tháng trước. Ba mẹ ngạc nhiên lắm 💡', pts:7, daysAgo:27, h:20, img:'clean'},
+
+  // ═══ NGÀY 28 ═══
+  {u:8, task:'Đọc sách 30 phút', desc:'Đọc cuốn "Hành trình về phương Đông" — sách triết học về hành trình tìm kiếm ý nghĩa cuộc sống. Khó đọc nhưng mỗi trang đều khiến mình suy nghĩ 🌏', pts:7, daysAgo:28, h:21, img:'book'},
+  {u:9, task:'Giúp mẹ dọn nhà', desc:'Dành cả buổi sáng cuối tuần tổng vệ sinh cùng mẹ. Lau nhà, giặt màn, lau kính cửa và sắp xếp lại đồ đạc. Nhà cửa sáng bóng như đầu năm 🏠', pts:8, daysAgo:28, h:9, img:'clean'},
+  {u:10, task:'Tập thể dục buổi sáng', desc:'Tham gia chạy bộ 5km từ thiện gây quỹ cho trẻ em khuyết tật. Hoàn thành trong 35 phút. Vừa rèn sức khoẻ vừa đóng góp cho cộng đồng 🏃', pts:9, daysAgo:28, h:7, img:'sport'},
+  {u:11, task:'Viết thư cảm ơn mẹ', desc:'Nhân ngày Phụ nữ Việt Nam 20/10 mình viết thư tay dài cho mẹ, kể những điều mình biết ơn mẹ mà chưa bao giờ nói ra. Mẹ ôm mình khóc 💌', pts:10, daysAgo:28, h:8, img:'art'},
+  {u:0, task:'Nhặt rác bảo vệ môi trường', desc:'Cuối tuần đi dạo với gia đình ở bờ hồ Tây. Mang theo túi và nhặt rác dọc đường. Em gái 8 tuổi cũng hứng khởi tham gia cùng anh 🌊', pts:8, daysAgo:28, h:16, img:'eco'},
+
+  // ═══ NGÀY 29 ═══
+  {u:1, task:'Giúp mẹ nấu cơm', desc:'Mẹ bận may áo dài cho khách. Mình vào bếp nấu cơm tối một mình, thử công thức mới: cơm chiên dương châu. Ra lò thơm lừng cả nhà 🍚', pts:8, daysAgo:29, h:17, img:'cook'},
+  {u:2, task:'Tập thể dục buổi sáng', desc:'Buổi sáng mát, chạy 4km — xa nhất từ trước đến nay! Cảm thấy giới hạn của mình đang dần mở rộng. Tháng tới sẽ thử chạy 5km! 🏅', pts:8, daysAgo:29, h:6, img:'sport'},
+  {u:3, task:'Giúp bạn học bài', desc:'Bạn không hiểu bài văn nghị luận, mình hướng dẫn cách lập luận và dẫn chứng hiệu quả. Sau 2 tiếng bạn viết được bài mẫu khá tốt ✍️', pts:8, daysAgo:29, h:15, img:'study'},
+  {u:4, task:'Tặng quà tự làm cho cô giáo', desc:'Ngày 20/11 sắp đến, mình tự đan khăn len tặng cô giáo chủ nhiệm. Mất 1 tuần để đan xong. Cô nhận quà xúc động và đeo ngay vào cổ 🧣', pts:10, daysAgo:29, h:10, img:'art'},
+  {u:5, task:'Quyên góp thực phẩm từ thiện', desc:'Cùng nhóm bạn đi siêu thị mua 40 thùng mì gói và 20 hộp sữa gửi cho mái ấm trẻ em. Mỗi người góp 50k, gom được quà tốt cho các em 🎁', pts:10, daysAgo:29, h:11, img:'help'},
+];
+
+// ══════════════════════════════════════════
+// BÌNH LUẬN
+// ══════════════════════════════════════════
+const COMMENTS_DATA=[
+  'Bạn thật tuyệt vời! 👏',
+  'Cảm ơn bạn đã chia sẻ, mình cũng muốn thử cách này 😊',
+  'Bạn truyền cảm hứng cho mình nhiều lắm! 🌟',
+  'Wow, mình chưa nghĩ đến điều này bao giờ. Cảm ơn bạn!',
+  'Bạn thật tốt bụng! ❤️',
+  'Mình cũng sẽ cố gắng làm điều tốt như bạn nhé!',
+  'Cảm ơn bạn đã truyền năng lượng tích cực! ✨',
+  'Hành động nhỏ, ý nghĩa lớn! 💪',
+  'Bạn làm mình muốn ngay lập tức đi làm việc tốt đây 🏃',
+  'Đây là điều mình cần nghe hôm nay. Cảm ơn bạn! 🙏',
+  'Tuyệt quá bạn ơi! Chia sẻ thêm đi 😍',
+  'Mình cũng đã làm điều tương tự, cảm giác rất vui phải không 😄',
+  'Bạn đang làm thế giới tốt đẹp hơn từng ngày! 🌍',
+  'Giỏi lắm bạn ơi, tiếp tục nhé! 🌻',
+  'Hành động của bạn thật ý nghĩa 💚',
+  'Mình sẽ học theo bạn từ ngày mai luôn!',
+  'Bạn nhắc mình nhớ ra nhiều điều quan trọng 🥹',
+  'Thật đáng ngưỡng mộ! ⭐',
+  'Cố lên bạn nhé, mình luôn ủng hộ! 👍',
+  'Câu chuyện của bạn hay quá 🌈',
+  'Kindup mà có nhiều bạn như bạn thì hay lắm 🌱',
+  'Mình cũng muốn trồng cây như bạn! 🌿',
+  'Ước gì lớp mình cũng có người tốt bụng như bạn 🤍',
+  'Đọc xong ấm lòng ghê! Cảm ơn bạn 🥰',
+  'Bạn giúp mình tin rằng còn nhiều điều tốt đẹp trên đời 💛',
+];
+
+// ══════════════════════════════════════════
+// HÀM TẢI ẢNH
+// ══════════════════════════════════════════
+async function fetchImageBase64(url){
+  try{
+    const res=await fetch(url);
+    if(!res.ok)return '';
+    const blob=await res.blob();
+    return await new Promise(resolve=>{
+      const reader=new FileReader();
+      reader.onloadend=()=>resolve(reader.result);
+      reader.onerror=()=>resolve('');
+      reader.readAsDataURL(blob);
+    });
+  }catch(e){return '';}
+}
+
+// ══════════════════════════════════════════
+// TIỆN ÍCH
+// ══════════════════════════════════════════
+let logEl,pbarEl;
+function log(msg,cls='ok'){
+  const line=document.createElement('div');
+  line.className=cls;line.innerHTML=msg;
+  logEl.appendChild(line);logEl.scrollTop=logEl.scrollHeight;
+}
+function setProgress(pct){pbarEl.style.width=pct+'%';}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+function rand(arr){return arr[Math.floor(Math.random()*arr.length)];}
+function randInt(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+function shuffle(arr){return [...arr].sort(()=>Math.random()-.5);}
+
+// ══════════════════════════════════════════
+// SEED CHÍNH
+// ══════════════════════════════════════════
+async function startSeed(){
+  logEl=document.getElementById('log');
+  pbarEl=document.getElementById('pbar');
+  logEl.innerHTML='';
+  document.getElementById('btnSeed').disabled=true;
+  document.getElementById('btnClear').disabled=true;
+  Object.keys(imgIdx).forEach(k=>delete imgIdx[k]); // reset bộ đếm ảnh
+
+  try{
+    log('<b>🚀 Bắt đầu tạo dữ liệu demo (150 bài × ảnh)...</b>','info');
+    await sleep(300);
+
+    // ─── STEP 1: Tạo users ───
+    log('👤 Tạo 12 người dùng...','info');
+    const uids=[];
+    for(let i=0;i<USERS.length;i++){
+      const u=USERS[i];
+      const uid=makeUID(u.name,u.pin);
+      uids.push(uid);
+      const rank=getRank(u.points);
+      await db.ref(`users/${uid}`).set({
+        uid,name:u.name,emoji:u.emoji,bg:u.bg,
+        pin:hashPin(u.pin),
+        points:u.points,weekDone:u.weekDone,
+        doneToday:[],likedPosts:{},
+        lastActiveDay:new Date().toDateString(),
+        createdAt:Date.now()-randInt(30,60)*86400000,
+        rank:rank.icon+' '+rank.name,
+      });
+      log(`  ✅ ${u.emoji} ${u.name} — ${u.points}đ — ${rank.icon} ${rank.name}`);
+      setProgress(Math.round((i+1)/USERS.length*8));
+      await sleep(60);
+    }
+
+    // ─── STEP 2: Tạo posts với ảnh ───
+    log(`<br>📝 Tạo ${POSTS_TEMPLATE.length} bài đăng — mỗi bài đều có ảnh...`,'info');
+    const feedIds=[];
+    const NOW=Date.now();
+
+    for(let i=0;i<POSTS_TEMPLATE.length;i++){
+      const p=POSTS_TEMPLATE[i];
+      const u=USERS[p.u];
+      const uid=uids[p.u];
+      const rank=getRank(u.points);
+
+      // Tính timestamp: daysAgo ngày trước + h giờ trong ngày + random phút
+      const ts=NOW - p.daysAgo*86400000 - (23-p.h)*3600000 + randInt(0,50)*60000;
+
+      const likes=randInt(2,18);
+      const imgUrl=pickImg(p.img);
+
+      log(`  📷 [${i+1}/${POSTS_TEMPLATE.length}] Đang tải ảnh cho "${p.task}"...`,'info');
+      const imageUrl=await fetchImageBase64(imgUrl);
+      if(imageUrl) log(`  ✅ Ảnh OK (${Math.round(imageUrl.length/1024)}KB)`);
+      else log(`  ⚠️ Không tải được ảnh, bài sẽ không có ảnh`,'warn');
+
+      const ref=await db.ref('feed').push({
+        uid,name:u.name,emoji:u.emoji,bg:u.bg,
+        task:p.task,desc:p.desc,pts:p.pts,
+        rank:rank.icon+' '+rank.name,
+        ts,likes,commentCount:0,imageUrl,
+      });
+      feedIds.push({feedId:ref.key,likes,ts});
+      log(`  ✅ ${u.emoji} ${u.name}: "${p.task}" +${p.pts}đ 📷`,'ok');
+      setProgress(8+Math.round((i+1)/POSTS_TEMPLATE.length*60));
+      await sleep(150);
+    }
+
+    // ─── STEP 3: Tạo likes ───
+    log('<br>❤️ Phân phối lượt thích...','info');
+    for(let i=0;i<feedIds.length;i++){
+      const {feedId,likes}=feedIds[i];
+      const likers=shuffle(uids).slice(0,likes);
+      for(const uid of likers){
+        await db.ref(`users/${uid}/likedPosts/${feedId}`).set(true);
+      }
+      setProgress(68+Math.round((i+1)/feedIds.length*12));
+    }
+    log(`  ✅ Đã tạo lượt thích cho ${feedIds.length} bài`);
+
+    // ─── STEP 4: Tạo comments ───
+    log('<br>💬 Tạo bình luận...','info');
+    let totalCmts=0;
+    for(let i=0;i<feedIds.length;i++){
+      const {feedId,ts}=feedIds[i];
+      const numCmts=randInt(1,5);
+      const commenters=shuffle(uids).slice(0,numCmts);
+      for(const uid of commenters){
+        const u=USERS[uids.indexOf(uid)];
+        const text=rand(COMMENTS_DATA);
+        await db.ref(`comments/${feedId}`).push({
+          uid,name:u.name,text,
+          ts:ts+randInt(600000,86400000),
+        });
+        totalCmts++;
+        await db.ref(`feed/${feedId}/commentCount`).transaction(n=>(n||0)+1);
+      }
+      setProgress(80+Math.round((i+1)/feedIds.length*18));
+      await sleep(30);
+    }
+    log(`  ✅ Đã tạo ${totalCmts} bình luận`);
+
+    // ─── DONE ───
+    setProgress(100);
+    log('<br>🎉 <b>Hoàn tất! Dữ liệu demo đã sẵn sàng.</b>','ok');
+    log(`📊 Tổng kết: 12 users • ${POSTS_TEMPLATE.length} bài đăng (tất cả có ảnh) • ${totalCmts} bình luận • trải dài 30 ngày`,'info');
+    log('👉 Đăng nhập thử:<br>  • <b>Minh Tuấn</b> — PIN: <b>1234</b><br>  • <b>Kim Ngân</b> — PIN: <b>0000</b> 👑','warn');
+
+  }catch(err){
+    log('❌ Lỗi: '+err.message,'err');
+    console.error(err);
+  }
+
+  document.getElementById('btnSeed').disabled=false;
+  document.getElementById('btnClear').disabled=false;
+}
+
+// ══════════════════════════════════════════
+// XOÁ DỮ LIỆU
+// ══════════════════════════════════════════
+async function clearData(){
+  if(!confirm('Xoá toàn bộ dữ liệu feed, comments, weeklyStories và users?\n(Bao gồm cả dữ liệu thật!)'))return;
+  logEl=document.getElementById('log');
+  pbarEl=document.getElementById('pbar');
+  logEl.innerHTML='';
+  document.getElementById('btnSeed').disabled=true;
+  document.getElementById('btnClear').disabled=true;
+  log('🗑️ Đang xoá dữ liệu...','warn');
+  try{
+    await db.ref('feed').remove();       log('  ✅ Đã xoá feed');
+    await db.ref('comments').remove();   log('  ✅ Đã xoá comments');
+    await db.ref('users').remove();      log('  ✅ Đã xoá users');
+    await db.ref('weeklyStories').remove(); log('  ✅ Đã xoá weeklyStories');
+    setProgress(100);
+    log('<b>✅ Đã xoá sạch toàn bộ dữ liệu.</b>','ok');
+  }catch(err){
+    log('❌ Lỗi: '+err.message,'err');
+  }
+  document.getElementById('btnSeed').disabled=false;
+  document.getElementById('btnClear').disabled=false;
+}
+</script>
+</body>
+</html>
     <div class="stat"><div class="stat-n">10</div><div class="stat-l">👤 Người dùng</div></div>
     <div class="stat"><div class="stat-n">35</div><div class="stat-l">📝 Bài đăng</div></div>
     <div class="stat"><div class="stat-n">15</div><div class="stat-l">📷 Bài có ảnh</div></div>

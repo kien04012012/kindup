@@ -1731,17 +1731,13 @@ window.submitTask=async function(){
   const praiseBox=document.getElementById('praiseBox');
   const praiseTxt=document.getElementById('praiseTxt');
 
-  // Hàm kiểm tra mô tả có ý nghĩa không
   function isDescMeaningless(text){
     const t=text.trim();
-    if(t.length<8)return true; // quá ngắn
+    if(t.length<8)return true;
     const words=t.split(/\s+/).filter(w=>w.length>1);
-    if(words.length<3)return true; // dưới 3 từ thực sự
-    // Phát hiện spam ký tự lặp: "aaaa", "abababab", "hahaha"
+    if(words.length<3)return true;
     if(/^(.{1,3})\1{3,}$/i.test(t))return true;
-    // Toàn ký tự không phải chữ/số có nghĩa: "asdf", "qwerty", "zxcv"
     if(/^[a-z]{1,8}$/i.test(t)&&!/[aeiouăâêôơưđ]/i.test(t))return true;
-    // Toàn số hoặc ký tự đặc biệt
     if(/^[\d\s!@#$%^&*()_+=\-.,?]+$/.test(t))return true;
     return false;
   }
@@ -1823,6 +1819,8 @@ Ví dụ chấp nhận: {"score":8,"praise":"Bạn thật tuyệt vời khi giú
   addPoints(earnedPts);
   await postToFeed(finalName,desc,imageUrl,earnedPts);
   loadHomeShowcase();
+  // Kích hoạt tạo câu chuyện tuần sau mỗi lần ghi việc tốt (chạy nền, không block UI)
+  checkAndGenerateStories().catch(err=>console.warn('[Story] Post-submit generate failed:',err));
   showToast(`🎉 +${earnedPts} điểm! "${finalName}" đã được ghi lại!`);
   showPointPopup(earnedPts,btn);
   confetti();
@@ -2196,9 +2194,19 @@ function buildStoryDataset(posts,existingKeys){
   const maxTs=validPosts.length?validPosts[validPosts.length-1].ts:null;
   const weeksInRange=listWeeksBetween(minTs,maxTs);
   const currentWeekKey=getWeekKey(Date.now());
+
+  // Bổ sung tuần hiện tại nếu có dữ liệu nhưng chưa nằm trong range
+  if((byWeek[currentWeekKey]?.length||0)>0 && !weeksInRange.includes(currentWeekKey)){
+    weeksInRange.push(currentWeekKey);
+  }
+
   const completedWeeks=weeksInRange.filter(wk=>wk<currentWeekKey);
-  const pendingWeeks=weeksInRange.filter(wk=>wk>=currentWeekKey&&(byWeek[wk]?.length||0)>0);
-  const missingWeeks=completedWeeks.filter(wk=>!existingKeys.has(wk)&&(byWeek[wk]?.length||0)>0);
+  const pendingWeeks=weeksInRange.filter(wk=>wk>currentWeekKey&&(byWeek[wk]?.length||0)>0);
+
+  // Tất cả tuần có dữ liệu (kể cả tuần hiện tại) mà chưa có story => cần tạo
+  const weeksWithData=weeksInRange.filter(wk=>(byWeek[wk]?.length||0)>0);
+  const missingWeeks=weeksWithData.filter(wk=>!existingKeys.has(wk));
+
   return{validPosts,byWeek,minTs,maxTs,weeksInRange,currentWeekKey,completedWeeks,pendingWeeks,missingWeeks};
 }
 
@@ -2234,14 +2242,18 @@ async function renderStories(){
     .sort((a,b)=>b.key.localeCompare(a.key));
   if(!stories.length){
     const info=await getStoryGenerationStatus();
-    if(info.readyWeeks.length){
-      const labels=info.readyWeeks.slice(0,3).map(weekLabel).join(', ');
-      el.innerHTML=`<div style="text-align:center;padding:32px 16px;color:var(--muted)">Hiện chưa tạo được câu chuyện tuần cho ${escHtml(labels)}. Bạn thử kiểm tra proxy/AI hoặc mở lại sau nhé. ⚠️</div>`;
+    // Có tuần cần tạo nhưng generate vẫn thất bại (AI lỗi, proxy lỗi...)
+    if(info.missingWeeks.length){
+      const labels=info.missingWeeks.slice(0,3).map(weekLabel).join(', ');
+      el.innerHTML=`<div style="text-align:center;padding:32px 16px;color:var(--muted)">
+        Chưa tạo được câu chuyện tuần cho ${escHtml(labels)}.<br>
+        <span style="font-size:.78rem">Bạn thử mở lại tab này sau ít phút nhé. ⚠️</span>
+      </div>`;
     }else if(info.pendingWeeks.length){
       const labels=info.pendingWeeks.slice(0,2).map(weekLabel).join(', ');
-      el.innerHTML=`<div style="text-align:center;padding:32px 16px;color:var(--muted)">Câu chuyện cho ${escHtml(labels)} sẽ được tạo khi sang thứ 2 của tuần kế tiếp nhé. 🌱</div>`;
+      el.innerHTML=`<div style="text-align:center;padding:32px 16px;color:var(--muted)">Câu chuyện cho ${escHtml(labels)} sẽ được tạo khi sang tuần kế tiếp nhé. 🌱</div>`;
     }else{
-      el.innerHTML=`<div style="text-align:center;padding:32px 16px;color:var(--muted)">Chưa có dữ liệu việc tốt để tạo câu chuyện tuần. Khi có ít nhất 1 việc tốt trong một tuần, hệ thống sẽ tự tạo và lưu lại nhé! 🌱</div>`;
+      el.innerHTML=`<div style="text-align:center;padding:32px 16px;color:var(--muted)">Chưa có dữ liệu việc tốt để tạo câu chuyện tuần. Khi có ít nhất 1 việc tốt, hệ thống sẽ tự tạo và lưu lại nhé! 🌱</div>`;
     }
     return;
   }
@@ -2269,40 +2281,57 @@ async function getStoryGenerationStatus(){
     if(post)posts.push({id:c.key,...post});
   });
   const existingKeys=new Set();
-  storySnap.forEach(c=>existingKeys.add(c.key));
+  storySnap.forEach(c=>{
+    const val=c.val();
+    // Chỉ tính là "đã có" nếu story thực sự có nội dung
+    if(val&&typeof val.content==='string'&&val.content.trim()){
+      existingKeys.add(c.key);
+    }
+  });
   const dataset=buildStoryDataset(posts,existingKeys);
   return{
     ...dataset,
     existingKeys,
-    readyWeeks:[...dataset.missingWeeks].sort((a,b)=>b.localeCompare(a))
   };
 }
 
 async function checkAndGenerateStories(){
+  // Nếu đang chạy thì đợi promise hiện tại, không chạy song song
   if(_storyGeneratingPromise)return _storyGeneratingPromise;
   _storyGenerating=true;
   _storyGeneratingPromise=(async()=>{
-    const status=await getStoryGenerationStatus();
-    if(!status.validPosts.length||!status.missingWeeks.length)return;
+    try{
+      const status=await getStoryGenerationStatus();
+      if(!status.validPosts.length||!status.missingWeeks.length)return;
 
-    const missing=status.missingWeeks
-      .map(weekKey=>[weekKey,status.byWeek[weekKey]||[]])
-      .filter(([,posts])=>posts.length>0)
-      .sort((a,b)=>a[0].localeCompare(b[0]));
+      // Sắp xếp: tuần cũ trước, tuần hiện tại cuối (ưu tiên hoàn thành lịch sử)
+      const missing=status.missingWeeks
+        .map(weekKey=>[weekKey,status.byWeek[weekKey]||[]])
+        .filter(([,posts])=>posts.length>0)
+        .sort((a,b)=>a[0].localeCompare(b[0]));
 
-    if(!missing.length)return;
-    console.log(`[Story] Tạo ${missing.length} câu chuyện tuần...`);
-    for(const [weekKey,posts] of missing){
-      await generateWeekStory(weekKey,posts);
-      await new Promise(r=>setTimeout(r,300));
+      if(!missing.length)return;
+      console.log(`[Story] Cần tạo ${missing.length} câu chuyện:`,missing.map(([k])=>k));
+
+      for(const [weekKey,posts] of missing){
+        // Kiểm tra lần nữa ngay trước khi generate, tránh race condition
+        const snap=await db.ref(`weeklyStories/${weekKey}`).get();
+        if(snap.exists()&&snap.val()?.content?.trim()){
+          console.log(`[Story] ⏭️ Đã có, bỏ qua: ${weekKey}`);
+          continue;
+        }
+        await generateWeekStory(weekKey,posts);
+        // Delay nhỏ tránh spam API
+        await new Promise(r=>setTimeout(r,400));
+      }
+    }catch(err){
+      console.error('[Story] checkAndGenerateStories error:',err);
+    }finally{
+      _storyGenerating=false;
+      _storyGeneratingPromise=null;
     }
   })();
-  try{
-    await _storyGeneratingPromise;
-  }finally{
-    _storyGenerating=false;
-    _storyGeneratingPromise=null;
-  }
+  return _storyGeneratingPromise;
 }
 
 async function generateWeekStory(weekKey,posts){

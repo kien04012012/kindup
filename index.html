@@ -1727,30 +1727,59 @@ window.submitTask=async function(){
 
   const imageUrl=_photoBase64;
 
-  // ─── AI đánh giá + cho điểm 1-10 ───
+  // ─── Kiểm tra client-side trước (nhanh, không tốn API call) ───
   const praiseBox=document.getElementById('praiseBox');
   const praiseTxt=document.getElementById('praiseTxt');
+
+  // Hàm kiểm tra mô tả có ý nghĩa không
+  function isDescMeaningless(text){
+    const t=text.trim();
+    if(t.length<8)return true; // quá ngắn
+    const words=t.split(/\s+/).filter(w=>w.length>1);
+    if(words.length<3)return true; // dưới 3 từ thực sự
+    // Phát hiện spam ký tự lặp: "aaaa", "abababab", "hahaha"
+    if(/^(.{1,3})\1{3,}$/i.test(t))return true;
+    // Toàn ký tự không phải chữ/số có nghĩa: "asdf", "qwerty", "zxcv"
+    if(/^[a-z]{1,8}$/i.test(t)&&!/[aeiouăâêôơưđ]/i.test(t))return true;
+    // Toàn số hoặc ký tự đặc biệt
+    if(/^[\d\s!@#$%^&*()_+=\-.,?]+$/.test(t))return true;
+    return false;
+  }
+
+  if(isDescMeaningless(desc)){
+    praiseBox.classList.add('show');
+    praiseTxt.innerHTML=`<div style="margin-bottom:8px;font-size:1.1rem">⚠️ Mô tả chưa đủ</div>Bạn hãy kể cụ thể hơn về việc tốt đã làm nhé! Ví dụ: ai được giúp, bạn đã làm gì, kết quả thế nào. 🙏`;
+    btn.disabled=false;btn.textContent='🎉 Ghi lại & nhận điểm';
+    return;
+  }
+
+  // ─── AI đánh giá + cho điểm 1-10 ───
   praiseBox.classList.add('show');
   praiseTxt.innerHTML='<div class="dots-wrap">AI đang đánh giá... <div class="dots"><span></span><span></span><span></span></div></div>';
 
   const aiRaw=await callGroq(
-    `Tên việc tốt: "${finalName}"\nMô tả: "${desc}"`,
-    `Bạn là AI kiểm duyệt nội dung cho ứng dụng Kindup dành cho học sinh.
-Nhiệm vụ: đánh giá xem nội dung trên có phải là một việc tốt thực sự không.
+    `Tên việc tốt (do hệ thống gợi ý, chỉ dùng để tham khảo ngữ cảnh): "${finalName}"\nMô tả của học sinh tự viết (đây là nội dung CẦN ĐÁNH GIÁ): "${desc}"`,
+    `Bạn là AI kiểm duyệt nội dung cho ứng dụng Kindup dành cho học sinh Việt Nam.
+Nhiệm vụ: đánh giá MÔ TẢ của học sinh — không phải tên việc tốt.
+
+⚠️ QUAN TRỌNG: Tên việc tốt do hệ thống gợi ý sẵn, học sinh chỉ tự viết MÔ TẢ.
+Vì vậy hãy đánh giá dựa trên MÔ TẢ là chính. Dù tên việc tốt có hợp lý,
+nếu mô tả vô nghĩa hoặc không liên quan → score=0.
 
 Tiêu chí TỪ CHỐI (score=0):
-- Nội dung vô nghĩa, ngẫu nhiên, spam (vd: "asdf", "123", "aaaa", "test")
-- Không phải việc tốt (vd: "ăn chơi", "xem phim cả ngày", "đánh bạn")
-- Quá ngắn hoặc không rõ ràng không thể đánh giá
-- Tiêu cực, có hại
+- Mô tả vô nghĩa, spam, ký tự ngẫu nhiên (vd: "asdf", "haha", "không biết", "oki")
+- Mô tả không liên quan đến tên việc tốt được chọn
+- Mô tả không đủ thông tin để xác nhận việc tốt đã thực sự xảy ra
+- Nội dung tiêu cực, có hại
 
 Tiêu chí CHẤP NHẬN (score 1-10):
+- Mô tả cụ thể, rõ ràng, mô tả đúng việc tốt đã làm
 - Có ích cho bản thân, gia đình, bạn bè hoặc cộng đồng
-- Rèn luyện thói quen tốt, học tập, giúp đỡ người khác
+- score càng cao nếu mô tả chi tiết, chân thực, cảm xúc tốt
 
 Quy tắc bắt buộc: CHỈ trả về JSON, không thêm bất kỳ chữ nào khác.
 Format bắt buộc: {"score":NUMBER,"praise":"STRING"}
-Ví dụ từ chối: {"score":0,"praise":"Nội dung này chưa phải việc tốt, bạn thử ghi một việc có ích hơn nhé! 🙏"}
+Ví dụ từ chối: {"score":0,"praise":"Mô tả chưa rõ ràng, bạn kể cụ thể hơn nhé — ai được giúp, bạn đã làm gì? 🙏"}
 Ví dụ chấp nhận: {"score":8,"praise":"Bạn thật tuyệt vời khi giúp mẹ nấu cơm!"}`
   );
 

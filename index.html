@@ -1734,35 +1734,53 @@ window.submitTask=async function(){
   praiseTxt.innerHTML='<div class="dots-wrap">AI đang đánh giá... <div class="dots"><span></span><span></span><span></span></div></div>';
 
   const aiRaw=await callGroq(
-    `Học sinh vừa hoàn thành việc tốt: "${finalName}"\nMô tả của học sinh: "${desc}"`,
-    `Bạn là AI đánh giá Kindup. Hãy:
-1. Xác định xem đây có phải là một việc tốt thực sự có ý nghĩa không.
-   - Nếu KHÔNG phải việc tốt (nội dung vô nghĩa, spam, không liên quan, tiêu cực): trả {"score":0,"praise":"lý do từ chối ngắn gọn, nhẹ nhàng"}
-   - Nếu LÀ việc tốt: cho điểm 1-10 dựa trên mức độ ý nghĩa, nỗ lực và tác động tích cực.
-2. Viết lời khen ngắn ấm áp (nếu là việc tốt), hoặc lý do từ chối nhẹ nhàng (nếu không phải).
-Trả về JSON hợp lệ, chỉ JSON: {"score":8,"praise":"lời khen..."}`
+    `Tên việc tốt: "${finalName}"\nMô tả: "${desc}"`,
+    `Bạn là AI kiểm duyệt nội dung cho ứng dụng Kindup dành cho học sinh.
+Nhiệm vụ: đánh giá xem nội dung trên có phải là một việc tốt thực sự không.
+
+Tiêu chí TỪ CHỐI (score=0):
+- Nội dung vô nghĩa, ngẫu nhiên, spam (vd: "asdf", "123", "aaaa", "test")
+- Không phải việc tốt (vd: "ăn chơi", "xem phim cả ngày", "đánh bạn")
+- Quá ngắn hoặc không rõ ràng không thể đánh giá
+- Tiêu cực, có hại
+
+Tiêu chí CHẤP NHẬN (score 1-10):
+- Có ích cho bản thân, gia đình, bạn bè hoặc cộng đồng
+- Rèn luyện thói quen tốt, học tập, giúp đỡ người khác
+
+Quy tắc bắt buộc: CHỈ trả về JSON, không thêm bất kỳ chữ nào khác.
+Format bắt buộc: {"score":NUMBER,"praise":"STRING"}
+Ví dụ từ chối: {"score":0,"praise":"Nội dung này chưa phải việc tốt, bạn thử ghi một việc có ích hơn nhé! 🙏"}
+Ví dụ chấp nhận: {"score":8,"praise":"Bạn thật tuyệt vời khi giúp mẹ nấu cơm!"}`
   );
 
-  let earnedPts=5; // fallback
+  let earnedPts=5;
   let praiseText=FALLBACKS.praise;
-  let isValid=true;
+  let isValid=false; // mặc định KHÔNG hợp lệ, phải AI xác nhận mới lưu
   try{
     if(aiRaw){
-      const clean=aiRaw.replace(/```json|```/g,'').trim();
+      // Thử tìm JSON trong response kể cả khi có text thừa
+      const jsonMatch=aiRaw.match(/\{[\s\S]*"score"[\s\S]*"praise"[\s\S]*\}/);
+      const clean=jsonMatch?jsonMatch[0]:aiRaw.replace(/```json|```/g,'').trim();
       const parsed=JSON.parse(clean);
-      if(parsed.score===0){
-        // Không phải việc tốt — hiện thông báo, không lưu
-        isValid=false;
-        praiseText=parsed.praise||'Nội dung chưa phù hợp, bạn thử lại nhé! 🙏';
-      } else {
-        if(parsed.score>=1&&parsed.score<=10)earnedPts=parsed.score;
-        if(parsed.praise)praiseText=parsed.praise;
+      if(typeof parsed.score==='number'){
+        if(parsed.score===0){
+          // Từ chối rõ ràng
+          isValid=false;
+          praiseText=parsed.praise||'Nội dung chưa phù hợp, bạn thử lại nhé! 🙏';
+        } else if(parsed.score>=1&&parsed.score<=10){
+          // Hợp lệ
+          isValid=true;
+          earnedPts=parsed.score;
+          if(parsed.praise)praiseText=parsed.praise;
+        }
       }
     }
   }catch(e){
-    const m=aiRaw&&aiRaw.match(/\b([1-9]|10)\s*(\/\s*10|điểm)/i);
-    if(m)earnedPts=parseInt(m[1]);
-    praiseText=aiRaw||FALLBACKS.praise;
+    // Parse thất bại → không lưu, yêu cầu thử lại
+    console.warn('AI score parse error:',e,aiRaw);
+    isValid=false;
+    praiseText='AI đang bận, bạn thử ghi lại sau ít phút nhé! 🙏';
   }
 
   if(!isValid){

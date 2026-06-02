@@ -3,103 +3,152 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Block Blast - Smooth Edition</title>
+    <title>Block Blast - Ultimate Cyber Premium</title>
     <style>
         :root {
-            --bg-color: #0b0f19;
-            --grid-bg: #151f32;
-            --cell-empty: #24324d;
+            --bg-dark: #060913;
+            --panel-bg: rgba(30, 41, 59, 0.5);
+            --cell-empty: #1e293b;
+            --accent-glow: rgba(59, 130, 246, 0.3);
         }
         body {
             margin: 0; padding: 0;
-            background-color: var(--bg-color);
-            color: white;
-            font-family: system-ui, -apple-system, sans-serif;
+            background: radial-gradient(circle at center, #111827 0%, var(--bg-dark) 100%);
+            color: #f8fafc;
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             min-height: 100vh; overflow: hidden; touch-action: none; user-select: none;
         }
+        
         #game-container {
             display: flex; flex-direction: column; align-items: center;
-            width: 100%; max-width: 400px; padding: 10px; box-sizing: border-box;
-        }
-        .header {
-            display: flex; justify-content: space-between; align-items: center;
-            width: 100%; margin-bottom: 20px;
-        }
-        .score-box {
-            background: rgba(255, 255, 255, 0.06);
-            padding: 10px 20px; border-radius: 16px; text-align: center; min-width: 90px;
-            border: 1px solid rgba(255,255,255,0.05);
-        }
-        .score-label { font-size: 11px; color: #64748b; text-transform: uppercase; font-weight: bold; letter-spacing: 1px;}
-        .score-val { font-size: 26px; font-weight: 800; color: #f59e0b; }
-        
-        #streak-banner {
-            font-size: 22px; font-weight: 900; color: #f43f5e;
-            text-transform: uppercase; text-shadow: 0 0 15px rgba(244,63,94,0.6);
-            opacity: 0; transform: scale(0.8); transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        #streak-banner.show { opacity: 1; transform: scale(1); }
-        
-        /* Bàn cờ */
-        #grid {
-            display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr);
-            gap: 5px; width: 100%; aspect-ratio: 1;
-            background-color: var(--grid-bg); padding: 8px; border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.6); box-sizing: border-box;
+            width: 100%; max-width: 420px; padding: 15px; box-sizing: border-box;
             position: relative;
         }
-        .cell {
-            background-color: var(--cell-empty); border-radius: 6px;
-            transition: background-color 0.1s; position: relative;
+
+        /* Hiệu ứng Rung màn hình khi ăn combo lớn */
+        .shake {
+            animation: shakeAnim 0.2s ease-in-out;
         }
-        /* Hiển thị vị trí khối sẽ rơi vào */
-        .cell.preview {
-            opacity: 0.5;
-            box-shadow: inset 0 0 0 3px #ffffff;
-        }
-        .cell.clear-anim {
-            animation: popOut 0.2s ease forwards;
-        }
-        @keyframes popOut {
-            0% { transform: scale(1); background-color: #fff; }
-            100% { transform: scale(0.5); opacity: 0; }
+        @keyframes shakeAnim {
+            0%, 100% { transform: translate(0, 0); }
+            20%, 60% { transform: translate(-4px, 4px); }
+            40%, 80% { transform: translate(4px, -4px); }
         }
 
-        /* Khay chứa khối */
+        /* Header phong cách Glassmorphism */
+        .header {
+            display: flex; justify-content: space-between; align-items: center;
+            width: 100%; margin-bottom: 25px;
+        }
+        .score-box {
+            background: var(--panel-bg);
+            backdrop-filter: blur(10px);
+            padding: 10px 22px; border-radius: 20px; text-align: center; min-width: 95px;
+            border: 1px solid rgba(255,255,255,0.08);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+        .score-label { font-size: 10px; color: #94a3b8; text-transform: uppercase; font-weight: 700; letter-spacing: 1.5px;}
+        .score-val { font-size: 28px; font-weight: 900; color: #f59e0b; text-shadow: 0 0 10px rgba(245,158,11,0.3); }
+        
+        #streak-banner {
+            font-size: 24px; font-weight: 900; color: #ff007f;
+            text-transform: uppercase; font-style: italic;
+            text-shadow: 0 0 20px #ff007f, 0 0 40px #ff007f;
+            opacity: 0; transform: scale(0.5) rotate(-5deg); 
+            transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        #streak-banner.show { opacity: 1; transform: scale(1.1) rotate(-3deg); }
+        
+        /* Lưới Bàn Cờ Cực Đẹp */
+        #grid-wrapper {
+            position: relative; width: 100%; aspect-ratio: 1;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            padding: 10px; border-radius: 28px; box-sizing: border-box;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.7), inset 0 0 2px rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        #grid {
+            display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr);
+            gap: 6px; width: 100%; height: 100%;
+        }
+        .cell {
+            background-color: var(--cell-empty); border-radius: 8px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.4);
+            transition: background-color 0.15s cubic-bezier(0.4, 0, 0.2, 1), transform 0.1s; 
+            position: relative; overflow: hidden;
+        }
+        /* Phát sáng khối màu lấp đầy */
+        .cell.filled {
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3), inset 0 2px 4px rgba(255,255,255,0.4);
+        }
+        /* Hiển thị vị trí chuẩn bị thả cực đẹp */
+        .cell.preview {
+            opacity: 0.4;
+            background-color: #64748b !important;
+            box-shadow: inset 0 0 0 3px #ffffff, 0 0 15px #fff;
+        }
+        /* Animation khi hàng bị triệt tiêu */
+        .cell.clear-anim {
+            animation: blastEffect 0.3s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+        }
+        @keyframes blastEffect {
+            0% { transform: scale(1); background-color: #ffffff; filter: brightness(2); box-shadow: 0 0 30px #fff; }
+            100% { transform: scale(0); opacity: 0; }
+        }
+
+        /* Khay chứa khối bên dưới */
         #dock {
             display: flex; justify-content: space-around; align-items: center;
-            width: 100%; height: 130px; margin-top: 25px;
-            background: rgba(255, 255, 255, 0.02); border-radius: 20px; padding: 5px 10px; box-sizing: border-box;
+            width: 100%; height: 140px; margin-top: 30px;
+            background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(5px);
+            border-radius: 24px; padding: 10px; box-sizing: border-box;
+            border: 1px solid rgba(255,255,255,0.03);
+            box-shadow: inset 0 1px 3px rgba(255,255,255,0.05);
         }
         .dock-slot {
-            width: 100px; height: 100px; display: flex; align-items: center; justify-content: center;
+            width: 110px; height: 110px; display: flex; align-items: center; justify-content: center;
         }
         .piece {
-            display: grid; gap: 3px; cursor: grab;
-            transition: transform 0.1s ease; transform-origin: center center;
+            display: grid; gap: 4px; cursor: grab;
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            transform-origin: center center;
         }
-        /* Khi nhấc khối lên: Phóng to bằng size lưới và đẩy lên trên ngón tay */
+        /* Khi nhấc khối: Tự phóng lớn, đẩy lên trên ngón tay và đổ bóng NEON phát quang tỏa rộng */
         .piece.dragging {
-            cursor: grabbing;
-            opacity: 0.95; z-index: 1000; pointer-events: none; position: fixed !important;
-            transform: scale(1.3) translateY(-45px) !important; 
+            cursor: grabbing; opacity: 0.95; z-index: 1000; pointer-events: none; position: fixed !important;
+            transform: scale(1.32) translateY(-55px) !important;
+            filter: drop-shadow(0 15px 25px var(--glow-color, #fff));
         }
-        .p-cell { border-radius: 4px; }
+        .p-cell { 
+            border-radius: 6px; 
+            box-shadow: inset 0 1.5px 3px rgba(255,255,255,0.4), 0 2px 4px rgba(0,0,0,0.3);
+        }
 
-        /* Game Over Screen */
+        /* Canvas sinh hiệu ứng hạt nổ linh hồn */
+        #particle-canvas {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 500;
+        }
+
+        /* Màn hình Game Over Đẳng Cấp */
         #game-over-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(7, 10, 19, 0.95); display: none;
-            flex-direction: column; align-items: center; justify-content: center; z-index: 2000;
+            background: rgba(4, 6, 12, 0.96); backdrop-filter: blur(15px);
+            display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 2000;
         }
-        #game-over-screen h1 { font-size: 42px; color: #f43f5e; margin-bottom: 5px; font-weight: 900; }
+        #game-over-screen h1 { 
+            font-size: 46px; font-weight: 900; letter-spacing: -1px;
+            background: linear-gradient(45deg, #ff0055, #ff5500); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            margin-bottom: 5px; 
+        }
         #restart-btn {
-            background: #3b82f6; color: white; border: none; padding: 14px 40px;
-            font-size: 18px; font-weight: bold; border-radius: 12px; cursor: pointer; margin-top: 25px;
-            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4); transition: all 0.2s;
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white; border: none; padding: 16px 45px;
+            font-size: 18px; font-weight: 800; border-radius: 16px; cursor: pointer; margin-top: 30px;
+            box-shadow: 0 10px 25px rgba(29, 78, 216, 0.5); transition: all 0.2s;
         }
-        #restart-btn:hover { background: #2563eb; transform: translateY(-2px); }
+        #restart-btn:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(29, 78, 216, 0.7); }
     </style>
 </head>
 <body>
@@ -117,41 +166,55 @@
         </div>
     </div>
 
-    <div id="grid"></div>
+    <div id="grid-wrapper">
+        <div id="grid"></div>
+        <canvas id="particle-canvas"></canvas>
+    </div>
+    
     <div id="dock"></div>
 </div>
 
 <div id="game-over-screen">
     <h1>GAME OVER</h1>
-    <p style="font-size: 18px; color: #94a3b8;">Điểm số của bạn</p>
-    <div id="final-score" style="font-size: 48px; font-weight: 900; color: #f59e0b;">0</div>
-    <button id="restart-btn" onclick="resetGame()">Chơi Lại</button>
+    <p style="font-size: 16px; color: #64748b; font-weight: 500; letter-spacing: 0.5px;">YOUR SCORE</p>
+    <div id="final-score" style="font-size: 56px; font-weight: 900; color: #f59e0b;">0</div>
+    <button id="restart-btn" onclick="resetGame()">CHƠI LẠI NGAY</button>
 </div>
 
 <script>
     const GRID_SIZE = 8;
     let gridData = Array(GRID_SIZE).fill().map(() => Array(GRID_SIZE).fill(null));
     let score = 0;
-    let bestScore = localStorage.getItem('bb_smooth_best') || 0;
+    let bestScore = localStorage.getItem('bb_cyber_best') || 0;
     let streak = 0;
 
-    const COLORS = ['#ff4757', '#2ed573', '#1e90ff', '#ffa502', '#9b59b6', '#00d2d3'];
-    // Danh sách khối thân thiện, dễ chơi hơn
+    // Bảng màu rực rỡ chuẩn Neon Cyber
+    const COLORS = ['#ff2a6d', '#05d9e8', '#01012b', '#f5a623', '#b15eff', '#00ff66'];
     const SHAPES = [
         [[1]], 
         [[1, 1]], [[1], [1]], 
         [[1, 1, 1]], [[1], [1], [1]], 
         [[1, 1], [1, 1]], 
         [[1, 1, 1], [0, 1, 0]], 
-        [[1, 1], [1, 0]], 
-        [[1, 0], [1, 1]]
+        [[1, 1], [1, 0]], [[1, 0], [1, 1]]
     ];
 
+    const gridWrapper = document.getElementById('grid-wrapper');
     const gridEl = document.getElementById('grid');
     const dockEl = document.getElementById('dock');
     const scoreEl = document.getElementById('score');
     const bestScoreEl = document.getElementById('best-score');
     const streakEl = document.getElementById('streak-banner');
+    
+    // Khởi tạo hệ thống Hạt (Particle) bằng Canvas
+    const canvas = document.getElementById('particle-canvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+
+    function resizeCanvas() {
+        canvas.width = gridWrapper.clientWidth;
+        canvas.height = gridWrapper.clientHeight;
+    }
 
     function initGrid() {
         gridEl.innerHTML = '';
@@ -164,12 +227,19 @@
             }
         }
         bestScoreEl.innerText = bestScore;
+        resizeCanvas();
     }
 
     function drawGrid() {
         document.querySelectorAll('.cell').forEach(cell => {
             const r = cell.dataset.row; const c = cell.dataset.col;
-            cell.style.backgroundColor = gridData[r][c] || 'var(--cell-empty)';
+            if (gridData[r][c]) {
+                cell.style.backgroundColor = gridData[r][c];
+                cell.classList.add('filled');
+            } else {
+                cell.style.backgroundColor = 'var(--cell-empty)';
+                cell.classList.remove('filled');
+            }
             cell.classList.remove('preview');
         });
     }
@@ -195,10 +265,9 @@
         piece.style.gridTemplateColumns = `repeat(${shape[0].length}, 1fr)`;
         piece.dataset.shape = JSON.stringify(shape);
         piece.dataset.color = color;
+        piece.style.setProperty('--glow-color', color); // Gắn biến phát sáng màu neon
 
-        // Kích thước thu nhỏ khi nằm trong khay dock (nhìn cho gọn)
-        const miniSize = 18; 
-        
+        const miniSize = 20; 
         shape.forEach(row => {
             row.forEach(val => {
                 const pCell = document.createElement('div');
@@ -221,8 +290,7 @@
             active = true;
             piece.classList.add('dragging');
             
-            // Ép kích thước các ô bên trong to bằng kích thước ô lưới thật khi kéo
-            const realCellSize = (gridEl.clientWidth / 8) - 6;
+            const realCellSize = (gridEl.clientWidth / 8) - 7;
             piece.querySelectorAll('.p-cell').forEach(cell => {
                 cell.style.width = realCellSize + 'px';
                 cell.style.height = realCellSize + 'px';
@@ -246,9 +314,8 @@
             active = false;
             piece.classList.remove('dragging');
             
-            // Trả lại kích thước mini phòng trường hợp thả hụt
             piece.querySelectorAll('.p-cell').forEach(cell => {
-                cell.style.width = '18px'; cell.style.height = '18px';
+                cell.style.width = '20px'; cell.style.height = '20px';
             });
 
             const clientX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
@@ -258,9 +325,9 @@
         };
 
         function movePiece(cx, cy) {
-            // Đặt tâm khối nằm đúng vị trí chuột/tay, dịch lên trên 45px để tránh bị che
+            // Nâng tâm khối cao lên 55px giúp không bao giờ bị ngón tay che khuất khối hình
             piece.style.left = (cx - piece.clientWidth / 2) + 'px';
-            piece.style.top = (cy - piece.clientHeight / 2 - 45) + 'px';
+            piece.style.top = (cy - piece.clientHeight / 2 - 55) + 'px';
         }
 
         piece.addEventListener('mousedown', handleStart);
@@ -272,11 +339,9 @@
         window.addEventListener('touchend', handleEnd);
     }
 
-    // Lấy thông tin ô lưới nằm dưới tọa độ kéo thả (Tính thêm phần offset nhấc cao khối)
     function getTargetGridCoords(piece, cx, cy) {
         const shape = JSON.parse(piece.dataset.shape);
-        // Bù trừ 45px theo CSS dịch chuyển khay kéo lên
-        const testY = cy - 45; 
+        const testY = cy - 55; // Đồng bộ vị trí lệch tâm
         
         let targetCell = null;
         document.querySelectorAll('.cell').forEach(cell => {
@@ -288,16 +353,14 @@
 
         if (!targetCell) return null;
 
-        // Căn lề trái trên của khối vào ô đích
         const baseR = parseInt(targetCell.dataset.row) - Math.floor(shape.length / 2);
         const baseC = parseInt(targetCell.dataset.col) - Math.floor(shape[0].length / 2);
         
         return { r: baseR, c: baseC };
     }
 
-    // Hiển thị bóng ma (Preview) vị trí khối chuẩn bị đáp xuống
     function updatePreview(piece, cx, cy) {
-        drawGrid(); // Reset preview cũ
+        drawGrid();
         const coords = getTargetGridCoords(piece, cx, cy);
         if (!coords) return;
 
@@ -351,10 +414,11 @@
                 checkGameOver();
             }
         } else {
-            drawGrid(); // Xóa preview khi thả trượt
+            drawGrid();
         }
     }
 
+    // Logic kiểm tra vụ nổ và kích hoạt Hiệu ứng Rung màn hình + Hạt nổ rực rỡ
     function checkLines() {
         let rowsToClear = []; let colsToClear = [];
 
@@ -369,13 +433,25 @@
 
         if (totalLines > 0) {
             streak++;
-            score += totalLines * 100 * streak;
+            score += totalLines * 150 * streak;
             
+            // Kích hoạt Rung lắc màn hình (Screen Shake) tăng phấn khích
+            document.getElementById('game-container').classList.add('shake');
+            setTimeout(() => document.getElementById('game-container').classList.remove('shake'), 200);
+
             rowsToClear.forEach(r => {
-                for(let c=0; c<GRID_SIZE; c++) { getGridCell(r, c).classList.add('clear-anim'); gridData[r][c] = null; }
+                for(let c=0; c<GRID_SIZE; c++) { 
+                    createParticlesForCell(r, c, gridData[r][c]);
+                    getGridCell(r, c).classList.add('clear-anim'); 
+                    gridData[r][c] = null; 
+                }
             });
             colsToClear.forEach(c => {
-                for(let r=0; r<GRID_SIZE; r++) { getGridCell(r, c).classList.add('clear-anim'); gridData[r][c] = null; }
+                for(let r=0; r<GRID_SIZE; r++) { 
+                    createParticlesForCell(r, c, gridData[r][c]);
+                    getGridCell(r, c).classList.add('clear-anim'); 
+                    gridData[r][c] = null; 
+                }
             });
 
             streakEl.innerText = `Combo X${streak}!`;
@@ -384,7 +460,7 @@
             setTimeout(() => {
                 document.querySelectorAll('.cell').forEach(el => el.classList.remove('clear-anim'));
                 drawGrid();
-            }, 200);
+            }, 300);
         } else {
             streak = 0; streakEl.classList.remove('show');
         }
@@ -392,11 +468,63 @@
         scoreEl.innerText = score;
         if (score > bestScore) {
             bestScore = score; bestScoreEl.innerText = bestScore;
-            localStorage.setItem('bb_smooth_best', bestScore);
+            localStorage.setItem('bb_cyber_best', bestScore);
         }
     }
 
     function getGridCell(r, c) { return document.querySelector(`.cell[data-row='${r}'][data-col='${c}']`); }
+
+    // Tạo các hạt ánh sáng từ ô cờ bị nổ tung
+    function createParticlesForCell(r, c, color) {
+        if (!color) return;
+        const cell = getGridCell(r, c);
+        const rect = cell.getBoundingClientRect();
+        const wrapperRect = gridWrapper.getBoundingClientRect();
+
+        // Tìm tâm của ô bị nổ so với khung canvas wrapper
+        const x = rect.left - wrapperRect.left + rect.width / 2;
+        const y = rect.top - wrapperRect.top + rect.height / 2;
+
+        for (let i = 0; i < 8; i++) {
+            particles.push({
+                x: x, y: y,
+                vx: (Math.random() - 0.5) * 8,
+                vy: (Math.random() - 0.5) * 8,
+                radius: Math.random() * 3 + 2,
+                color: color,
+                alpha: 1,
+                decay: Math.random() * 0.03 + 0.02
+            });
+        }
+    }
+
+    // Vòng lặp vẽ hạt ánh sáng (Particle Loop) chạy độc lập bằng requestAnimationFrame mượt mà
+    function updateParticles() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        for (let i = particles.length - 1; i >= 0; i--) {
+            let p = particles[i];
+            p.x += p.vx;
+            p.y += p.vy;
+            p.alpha -= p.decay;
+
+            if (p.alpha <= 0) {
+                particles.splice(i, 1);
+                continue;
+            }
+
+            ctx.save();
+            ctx.globalAlpha = p.alpha;
+            ctx.fillStyle = p.color;
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = p.color;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+        }
+        requestAnimationFrame(updateParticles);
+    }
 
     function checkGameOver() {
         const remainingPieces = document.querySelectorAll('.piece');
@@ -412,14 +540,14 @@
                 }
                 if (pieceCanFit) break;
             }
-            piece.style.opacity = pieceCanFit ? '1' : '0.25'; // Khối không vừa sẽ tự mờ hẳn đi
+            piece.style.opacity = pieceCanFit ? '1' : '0.2';
         });
 
         if (!anyPieceCanFit) {
             setTimeout(() => {
                 document.getElementById('final-score').innerText = score;
                 document.getElementById('game-over-screen').style.display = 'flex';
-            }, 500);
+            }, 600);
         }
     }
 
@@ -430,8 +558,11 @@
         initGrid(); drawGrid(); generateDockPieces();
     }
 
+    // Chạy động cơ game
     initGrid();
     generateDockPieces();
+    updateParticles(); // Kích hoạt engine hạt ánh sáng
+    window.addEventListener('resize', resizeCanvas);
 </script>
 </body>
 </html>

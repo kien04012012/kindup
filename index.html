@@ -3,18 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Block Blast - Ultimate Cyber Premium</title>
+    <title>Block Blast - Light Blue Vibrant Edition</title>
     <style>
         :root {
-            --bg-dark: #060913;
-            --panel-bg: rgba(30, 41, 59, 0.5);
-            --cell-empty: #1e293b;
-            --accent-glow: rgba(59, 130, 246, 0.3);
+            --bg-light-blue: #e0f2fe; /* Xanh dương nhạt dịu mát */
+            --panel-bg: rgba(255, 255, 255, 0.7);
+            --grid-bg: #7dd3fc; /* Bàn cờ xanh dương sáng */
+            --cell-empty: #f0f9ff; /* Ô trống màu trắng xanh nhã nhặn */
+            --text-main: #0369a1;
         }
         body {
             margin: 0; padding: 0;
-            background: radial-gradient(circle at center, #111827 0%, var(--bg-dark) 100%);
-            color: #f8fafc;
+            background: linear-gradient(135deg, var(--bg-light-blue) 0%, #bae6fd 100%);
+            color: var(--text-main);
             font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             min-height: 100vh; overflow: hidden; touch-action: none; user-select: none;
@@ -26,17 +27,17 @@
             position: relative;
         }
 
-        /* Hiệu ứng Rung màn hình khi ăn combo lớn */
+        /* Hiệu ứng Rung màn hình khi ăn combo */
         .shake {
             animation: shakeAnim 0.2s ease-in-out;
         }
         @keyframes shakeAnim {
             0%, 100% { transform: translate(0, 0); }
-            20%, 60% { transform: translate(-4px, 4px); }
-            40%, 80% { transform: translate(4px, -4px); }
+            20%, 60% { transform: translate(-3px, 3px); }
+            40%, 80% { transform: translate(3px, -3px); }
         }
 
-        /* Header phong cách Glassmorphism */
+        /* Header */
         .header {
             display: flex; justify-content: space-between; align-items: center;
             width: 100%; margin-bottom: 25px;
@@ -45,28 +46,28 @@
             background: var(--panel-bg);
             backdrop-filter: blur(10px);
             padding: 10px 22px; border-radius: 20px; text-align: center; min-width: 95px;
-            border: 1px solid rgba(255,255,255,0.08);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.6);
+            box-shadow: 0 8px 24px rgba(3, 105, 161, 0.15);
         }
-        .score-label { font-size: 10px; color: #94a3b8; text-transform: uppercase; font-weight: 700; letter-spacing: 1.5px;}
-        .score-val { font-size: 28px; font-weight: 900; color: #f59e0b; text-shadow: 0 0 10px rgba(245,158,11,0.3); }
+        .score-label { font-size: 10px; color: #0284c7; text-transform: uppercase; font-weight: 700; letter-spacing: 1.5px;}
+        .score-val { font-size: 28px; font-weight: 900; color: #0369a1; }
         
         #streak-banner {
-            font-size: 24px; font-weight: 900; color: #ff007f;
+            font-size: 24px; font-weight: 900; color: #ef4444;
             text-transform: uppercase; font-style: italic;
-            text-shadow: 0 0 20px #ff007f, 0 0 40px #ff007f;
+            text-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);
             opacity: 0; transform: scale(0.5) rotate(-5deg); 
             transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         #streak-banner.show { opacity: 1; transform: scale(1.1) rotate(-3deg); }
         
-        /* Lưới Bàn Cờ Cực Đẹp */
+        /* Bàn Cờ Xanh Dương Nhạt Nhìn Rõ Khối */
         #grid-wrapper {
             position: relative; width: 100%; aspect-ratio: 1;
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-            padding: 10px; border-radius: 28px; box-sizing: border-box;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.7), inset 0 0 2px rgba(255,255,255,0.2);
-            border: 1px solid rgba(255,255,255,0.05);
+            background: var(--grid-bg);
+            padding: 12px; border-radius: 30px; box-sizing: border-box;
+            box-shadow: 0 20px 40px rgba(3, 105, 161, 0.2), inset 0 2px 4px rgba(255,255,255,1);
+            border: 2px solid #0284c7;
         }
         #grid {
             display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr);
@@ -74,37 +75,37 @@
         }
         .cell {
             background-color: var(--cell-empty); border-radius: 8px;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.4);
-            transition: background-color 0.15s cubic-bezier(0.4, 0, 0.2, 1), transform 0.1s; 
+            box-shadow: inset 0 2px 3px rgba(3, 105, 161, 0.1);
+            transition: background-color 0.1s ease, transform 0.1s; 
             position: relative; overflow: hidden;
         }
-        /* Phát sáng khối màu lấp đầy */
+        /* Khối màu rực rỡ đổ bóng đậm sắc nét trên nền sáng */
         .cell.filled {
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3), inset 0 2px 4px rgba(255,255,255,0.4);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15), inset 0 2px 3px rgba(255,255,255,0.5);
         }
-        /* Hiển thị vị trí chuẩn bị thả cực đẹp */
+        /* Vị trí bóng ma chuẩn bị thả xuống tương phản cao */
         .cell.preview {
-            opacity: 0.4;
-            background-color: #64748b !important;
-            box-shadow: inset 0 0 0 3px #ffffff, 0 0 15px #fff;
+            opacity: 0.6;
+            background-color: #38bdf8 !important;
+            box-shadow: inset 0 0 0 3px #0369a1;
         }
-        /* Animation khi hàng bị triệt tiêu */
+        /* Animation nổ khối */
         .cell.clear-anim {
             animation: blastEffect 0.3s cubic-bezier(0.19, 1, 0.22, 1) forwards;
         }
         @keyframes blastEffect {
-            0% { transform: scale(1); background-color: #ffffff; filter: brightness(2); box-shadow: 0 0 30px #fff; }
+            0% { transform: scale(1); background-color: #ffffff; filter: brightness(1.5); box-shadow: 0 0 25px #fff; }
             100% { transform: scale(0); opacity: 0; }
         }
 
-        /* Khay chứa khối bên dưới */
+        /* Khay chứa khối dưới */
         #dock {
             display: flex; justify-content: space-around; align-items: center;
             width: 100%; height: 140px; margin-top: 30px;
-            background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(5px);
-            border-radius: 24px; padding: 10px; box-sizing: border-box;
-            border: 1px solid rgba(255,255,255,0.03);
-            box-shadow: inset 0 1px 3px rgba(255,255,255,0.05);
+            background: var(--panel-bg); backdrop-filter: blur(5px);
+            border-radius: 26px; padding: 10px; box-sizing: border-box;
+            border: 1px solid rgba(255,255,255,0.6);
+            box-shadow: 0 10px 30px rgba(3, 105, 161, 0.1);
         }
         .dock-slot {
             width: 110px; height: 110px; display: flex; align-items: center; justify-content: center;
@@ -114,41 +115,40 @@
             transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
             transform-origin: center center;
         }
-        /* Khi nhấc khối: Tự phóng lớn, đẩy lên trên ngón tay và đổ bóng NEON phát quang tỏa rộng */
+        /* Khi nhấc khối: đẩy cao tránh ngón tay, tạo bóng mờ đổ xuống nền sáng */
         .piece.dragging {
             cursor: grabbing; opacity: 0.95; z-index: 1000; pointer-events: none; position: fixed !important;
             transform: scale(1.32) translateY(-55px) !important;
-            filter: drop-shadow(0 15px 25px var(--glow-color, #fff));
+            filter: drop-shadow(0 15px 15px rgba(0, 0, 0, 0.25));
         }
         .p-cell { 
             border-radius: 6px; 
-            box-shadow: inset 0 1.5px 3px rgba(255,255,255,0.4), 0 2px 4px rgba(0,0,0,0.3);
+            box-shadow: inset 0 2px 3px rgba(255,255,255,0.6), 0 2px 4px rgba(0,0,0,0.15);
         }
 
-        /* Canvas sinh hiệu ứng hạt nổ linh hồn */
+        /* Canvas hiệu ứng nổ hạt sắc màu */
         #particle-canvas {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none; z-index: 500;
         }
 
-        /* Màn hình Game Over Đẳng Cấp */
+        /* Màn hình Game Over */
         #game-over-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(4, 6, 12, 0.96); backdrop-filter: blur(15px);
+            background: rgba(224, 242, 254, 0.96); backdrop-filter: blur(15px);
             display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 2000;
         }
         #game-over-screen h1 { 
             font-size: 46px; font-weight: 900; letter-spacing: -1px;
-            background: linear-gradient(45deg, #ff0055, #ff5500); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            margin-bottom: 5px; 
+            color: #ef4444; margin-bottom: 5px; 
         }
         #restart-btn {
-            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
             color: white; border: none; padding: 16px 45px;
             font-size: 18px; font-weight: 800; border-radius: 16px; cursor: pointer; margin-top: 30px;
-            box-shadow: 0 10px 25px rgba(29, 78, 216, 0.5); transition: all 0.2s;
+            box-shadow: 0 10px 25px rgba(2, 132, 199, 0.4); transition: all 0.2s;
         }
-        #restart-btn:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(29, 78, 216, 0.7); }
+        #restart-btn:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(2, 132, 199, 0.6); }
     </style>
 </head>
 <body>
@@ -176,8 +176,8 @@
 
 <div id="game-over-screen">
     <h1>GAME OVER</h1>
-    <p style="font-size: 16px; color: #64748b; font-weight: 500; letter-spacing: 0.5px;">YOUR SCORE</p>
-    <div id="final-score" style="font-size: 56px; font-weight: 900; color: #f59e0b;">0</div>
+    <p style="font-size: 16px; color: #0369a1; font-weight: 500; letter-spacing: 0.5px;">YOUR SCORE</p>
+    <div id="final-score" style="font-size: 56px; font-weight: 900; color: #ef4444;">0</div>
     <button id="restart-btn" onclick="resetGame()">CHƠI LẠI NGAY</button>
 </div>
 
@@ -185,11 +185,19 @@
     const GRID_SIZE = 8;
     let gridData = Array(GRID_SIZE).fill().map(() => Array(GRID_SIZE).fill(null));
     let score = 0;
-    let bestScore = localStorage.getItem('bb_cyber_best') || 0;
+    let bestScore = localStorage.getItem('bb_vibrant_best') || 0;
     let streak = 0;
 
-    // Bảng màu rực rỡ chuẩn Neon Cyber
-    const COLORS = ['#ff2a6d', '#05d9e8', '#01012b', '#f5a623', '#b15eff', '#00ff66'];
+    // Hệ màu Cực Kỳ Rực Rỡ & Nổi Bật (Vibrant Solid Bold Colors)
+    const COLORS = [
+        '#ff1744', // Đỏ Ruby siêu sáng
+        '#00e676', // Xanh Lá Neon bắt mắt
+        '#2979ff', // Xanh Dương Điện rực rỡ
+        '#ffea00', // Vàng Chanh nguyên bản
+        '#ff9100', // Cam Mặt Trời đậm đà
+        '#f50057'  // Hồng Hot-Pink tương phản cực mạnh
+    ];
+    
     const SHAPES = [
         [[1]], 
         [[1, 1]], [[1], [1]], 
@@ -206,7 +214,6 @@
     const bestScoreEl = document.getElementById('best-score');
     const streakEl = document.getElementById('streak-banner');
     
-    // Khởi tạo hệ thống Hạt (Particle) bằng Canvas
     const canvas = document.getElementById('particle-canvas');
     const ctx = canvas.getContext('2d');
     let particles = [];
@@ -265,7 +272,6 @@
         piece.style.gridTemplateColumns = `repeat(${shape[0].length}, 1fr)`;
         piece.dataset.shape = JSON.stringify(shape);
         piece.dataset.color = color;
-        piece.style.setProperty('--glow-color', color); // Gắn biến phát sáng màu neon
 
         const miniSize = 20; 
         shape.forEach(row => {
@@ -325,7 +331,6 @@
         };
 
         function movePiece(cx, cy) {
-            // Nâng tâm khối cao lên 55px giúp không bao giờ bị ngón tay che khuất khối hình
             piece.style.left = (cx - piece.clientWidth / 2) + 'px';
             piece.style.top = (cy - piece.clientHeight / 2 - 55) + 'px';
         }
@@ -341,7 +346,7 @@
 
     function getTargetGridCoords(piece, cx, cy) {
         const shape = JSON.parse(piece.dataset.shape);
-        const testY = cy - 55; // Đồng bộ vị trí lệch tâm
+        const testY = cy - 55;
         
         let targetCell = null;
         document.querySelectorAll('.cell').forEach(cell => {
@@ -418,7 +423,6 @@
         }
     }
 
-    // Logic kiểm tra vụ nổ và kích hoạt Hiệu ứng Rung màn hình + Hạt nổ rực rỡ
     function checkLines() {
         let rowsToClear = []; let colsToClear = [];
 
@@ -435,7 +439,6 @@
             streak++;
             score += totalLines * 150 * streak;
             
-            // Kích hoạt Rung lắc màn hình (Screen Shake) tăng phấn khích
             document.getElementById('game-container').classList.add('shake');
             setTimeout(() => document.getElementById('game-container').classList.remove('shake'), 200);
 
@@ -468,28 +471,26 @@
         scoreEl.innerText = score;
         if (score > bestScore) {
             bestScore = score; bestScoreEl.innerText = bestScore;
-            localStorage.setItem('bb_cyber_best', bestScore);
+            localStorage.setItem('bb_vibrant_best', bestScore);
         }
     }
 
     function getGridCell(r, c) { return document.querySelector(`.cell[data-row='${r}'][data-col='${c}']`); }
 
-    // Tạo các hạt ánh sáng từ ô cờ bị nổ tung
     function createParticlesForCell(r, c, color) {
         if (!color) return;
-        const cell = getGridCell(r, c);
+        const cell = getGridCell(r, r);
         const rect = cell.getBoundingClientRect();
         const wrapperRect = gridWrapper.getBoundingClientRect();
 
-        // Tìm tâm của ô bị nổ so với khung canvas wrapper
         const x = rect.left - wrapperRect.left + rect.width / 2;
         const y = rect.top - wrapperRect.top + rect.height / 2;
 
-        for (let i = 0; i < 8; i++) {
+        for (let i = 0; i < 10; i++) {
             particles.push({
                 x: x, y: y,
-                vx: (Math.random() - 0.5) * 8,
-                vy: (Math.random() - 0.5) * 8,
+                vx: (Math.random() - 0.5) * 7,
+                vy: (Math.random() - 0.5) * 7,
                 radius: Math.random() * 3 + 2,
                 color: color,
                 alpha: 1,
@@ -498,7 +499,6 @@
         }
     }
 
-    // Vòng lặp vẽ hạt ánh sáng (Particle Loop) chạy độc lập bằng requestAnimationFrame mượt mà
     function updateParticles() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
@@ -516,8 +516,6 @@
             ctx.save();
             ctx.globalAlpha = p.alpha;
             ctx.fillStyle = p.color;
-            ctx.shadowBlur = 10;
-            ctx.shadowColor = p.color;
             ctx.beginPath();
             ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
             ctx.fill();
@@ -558,10 +556,9 @@
         initGrid(); drawGrid(); generateDockPieces();
     }
 
-    // Chạy động cơ game
     initGrid();
     generateDockPieces();
-    updateParticles(); // Kích hoạt engine hạt ánh sáng
+    updateParticles();
     window.addEventListener('resize', resizeCanvas);
 </script>
 </body>

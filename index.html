@@ -1,2678 +1,514 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Kindup – Việc Tốt Mỗi Ngày 🌱</title>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
-<style>
-:root{
-  --green:#22c55e;--green-dark:#15803d;--green-light:#bbf7d0;--green-bg:#dff5e5;
-  --yellow:#fbbf24;--orange:#f97316;--purple:#a855f7;--purple-light:#f3e8ff;
-  --text:#1c2b1c;--muted:#5d6f62;--border:#bfe6c9;
-  --radius:18px;--shadow:0 14px 34px rgba(21,128,61,.12);--nav-h:60px;--bottom-h:64px;
-}
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;overflow:hidden}
-body{
-  font-family:'Nunito',sans-serif;
-  background:
-    radial-gradient(circle at top left,rgba(255,255,255,.7) 0 14%,transparent 15%),
-    radial-gradient(circle at 85% 12%,rgba(235,255,240,.78) 0 12%,transparent 13%),
-    linear-gradient(180deg,#d6f0de 0%,#ccebd5 42%,#dff6e6 100%);
-  color:var(--text);
-  display:flex;
-  flex-direction:column
-}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Block Blast Pro Ultimate</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --grid-bg: #1e293b;
+            --cell-empty: #334155;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+            user-select: none;
+        }
+        #game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 420px;
+            padding: 10px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+        .score-box {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 16px;
+            border-radius: 12px;
+            text-align: center;
+            min-width: 100px;
+        }
+        .score-label { font-size: 12px; color: #94a3b8; text-transform: uppercase; font-weight: bold;}
+        .score-val { font-size: 24px; font-weight: 900; color: #fbbf24; }
+        
+        #streak-banner {
+            font-size: 20px;
+            font-weight: bold;
+            color: #f43f5e;
+            height: 30px;
+            text-transform: uppercase;
+            text-shadow: 0 0 10px rgba(244,63,94,0.6);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        
+        /* Bàn cờ 8x8 */
+        #grid {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            grid-template-rows: repeat(8, 1fr);
+            gap: 4px;
+            width: 100%;
+            aspect-ratio: 1;
+            background-color: var(--grid-bg);
+            padding: 6px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+        .cell {
+            background-color: var(--cell-empty);
+            border-radius: 6px;
+            transition: background-color 0.15s, transform 0.1s;
+        }
+        .cell.clear-anim {
+            transform: scale(0);
+            background-color: #ffffff !important;
+        }
 
-/* SETUP */
-#setupScreen{position:fixed;inset:0;z-index:1000;background:linear-gradient(160deg,#166534,#15803d 40%,#22c55e);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;color:white;text-align:center}
-#setupScreen h1{font-family:'Baloo 2',cursive;font-size:2.4rem;margin-bottom:8px}
-#setupScreen p{opacity:.85;font-size:1rem;margin-bottom:24px;line-height:1.6}
-.setup-card{background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.25);border-radius:var(--radius);padding:24px;width:100%;max-width:360px;backdrop-filter:blur(10px)}
-.setup-label{font-weight:800;font-size:.88rem;text-align:left;margin-bottom:8px;opacity:.9}
-.setup-input{width:100%;background:rgba(255,255,255,.18);border:1.5px solid rgba(255,255,255,.3);border-radius:12px;padding:12px 16px;color:white;font-family:'Nunito',sans-serif;font-size:.95rem;outline:none;margin-bottom:16px}
-.setup-input::placeholder{color:rgba(255,255,255,.55)}
-.setup-input:focus{border-color:var(--yellow)}
-.btn-setup{width:100%;padding:14px;background:var(--yellow);border:none;border-radius:50px;font-family:'Nunito',sans-serif;font-weight:900;font-size:1.05rem;color:#1c2b1c;cursor:pointer}
-.setup-note{font-size:.78rem;opacity:.65;margin-top:16px;line-height:1.5}
+        /* Khay chứa 3 khối */
+        #dock {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            width: 100%;
+            height: 140px;
+            margin-top: 25px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 16px;
+            padding: 10px 0;
+        }
+        .dock-slot {
+            width: 110px;
+            height: 110px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .piece {
+            display: grid;
+            gap: 2px;
+            cursor: grab;
+            transition: transform 0.1s;
+            transform-origin: center center;
+        }
+        .piece.dragging {
+            cursor: grabbing;
+            transform: scale(1.15);
+            opacity: 0.9;
+            position: absolute;
+            z-index: 1000;
+            pointer-events: none; /* Tránh cản lỗi khi nhấc */
+        }
+        .p-cell {
+            border-radius: 4px;
+        }
 
-/* TOPBAR */
-.topbar{height:var(--nav-h);background:white;border-bottom:2px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 16px;flex-shrink:0;box-shadow:0 2px 10px rgba(34,197,94,.07);position:relative;z-index:10}
-.topbar-logo{font-family:'Baloo 2',cursive;font-size:1.5rem;color:var(--green-dark);text-shadow:0 2px 0 rgba(255,255,255,.8),0 6px 14px rgba(34,197,94,.14)}
-.topbar-right{display:flex;align-items:center;gap:10px}
-.pts-chip{background:linear-gradient(135deg,var(--yellow),var(--orange));color:white;font-weight:800;font-size:.82rem;padding:5px 12px;border-radius:50px}
-.user-ava{
-  width:36px;height:36px;border-radius:50%;
-  background:linear-gradient(180deg,#f4fff6 0%,#c7f2d1 46%,#7fd892 100%);
-  display:flex;align-items:center;justify-content:center;
-  font-size:1.1rem;cursor:pointer;flex-shrink:0;
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.88),0 8px 14px rgba(34,197,94,.18),0 2px 0 rgba(17,94,39,.12);
-  border:1px solid rgba(255,255,255,.9);
-}
-
-/* LAYOUT */
-.main{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
-.page{
-  display:none;
-  padding:18px 16px 88px;
-  max-width:480px;
-  margin:0 auto;
-}
-.page.active{display:block}
-
-/* BOTTOM NAV — fix highlight */
-.bottomnav{height:var(--bottom-h);background:white;border-top:2px solid var(--border);display:flex;align-items:stretch;flex-shrink:0;box-shadow:0 -2px 16px rgba(34,197,94,.12)}
-.bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:none;background:transparent;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;font-size:.68rem;color:var(--muted);transition:color .15s,background .15s;padding:0;border-top:3px solid transparent}
-.bnav-btn span.ic{
-  font-size:1.15rem;line-height:1;
-  width:30px;height:30px;border-radius:12px;
-  display:flex;align-items:center;justify-content:center;
-  background:linear-gradient(180deg,#ffffff 0%,#eefbf2 48%,#d5f4dd 100%);
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.9),0 5px 10px rgba(34,197,94,.1),0 1px 0 rgba(22,101,52,.1);
-  border:1px solid rgba(220,252,231,.95);
-  transform:translateY(0);
-  transition:transform .18s ease,box-shadow .18s ease,background .18s ease;
-}
-.bnav-btn.active{color:var(--green-dark);border-top-color:var(--green);background:#f0fdf4}
-.bnav-btn.active span.ic{
-  background:linear-gradient(180deg,#f7fff8 0%,#c9f4d4 52%,#76d58d 100%);
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.9),0 9px 16px rgba(34,197,94,.18),0 2px 0 rgba(22,101,52,.12);
-  transform:translateY(-1px);
-}
-
-/* COMMON */
-.sec{font-family:'Baloo 2',cursive;font-size:1.15rem;color:var(--green-dark);margin-bottom:12px;display:flex;align-items:center;gap:6px}
-.btn{padding:13px 24px;border-radius:50px;border:none;font-family:'Nunito',sans-serif;font-weight:800;font-size:.95rem;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}
-.btn:active{transform:scale(.97)}
-.btn-green{background:linear-gradient(135deg,var(--green),var(--green-dark));color:white;width:100%;box-shadow:0 4px 14px rgba(34,197,94,.3)}
-.btn-purple{background:linear-gradient(135deg,#6d28d9,#a855f7);color:white;width:100%;margin-bottom:14px;box-shadow:0 4px 14px rgba(168,85,247,.3)}
-.btn-outline{background:var(--green-light);color:var(--green-dark);padding:9px 18px;font-size:.85rem}
-.lbl{font-weight:800;font-size:.88rem;margin-bottom:7px;display:block;color:var(--text)}
-.inp,.sel,.ta{width:100%;border:2px solid var(--border);border-radius:12px;padding:11px 14px;font-family:'Nunito',sans-serif;font-size:.93rem;margin-bottom:14px;outline:none;transition:border-color .2s;background:#fafafa;color:var(--text)}
-.inp:focus,.sel:focus,.ta:focus{border-color:var(--green);background:white}
-.ta{min-height:90px;resize:vertical}
-
-/* HOME */
-.home-scene{
-  position:relative;
-  margin:-16px -16px 0;
-  padding:18px 16px 96px;
-  background:
-    radial-gradient(circle at 20% 10%,rgba(255,255,255,.92) 0 8%,transparent 9%),
-    radial-gradient(circle at 82% 12%,rgba(255,255,255,.88) 0 10%,transparent 11%),
-    radial-gradient(circle at 12% 42%,rgba(187,247,208,.7) 0 12%,transparent 13%),
-    radial-gradient(circle at 88% 78%,rgba(134,239,172,.36) 0 14%,transparent 15%),
-    linear-gradient(180deg,#afe2bf 0%,#d4f1dc 26%,#eefbf2 58%,#e1f5e7 100%);
-  overflow:hidden;
-}
-.home-scene::before,
-.home-scene::after{
-  content:'';
-  position:absolute;
-  inset:auto;
-  border-radius:999px;
-  filter:blur(2px);
-  opacity:.75;
-  pointer-events:none;
-}
-.home-scene::before{
-  width:170px;height:170px;left:-50px;top:150px;
-  background:radial-gradient(circle,#d9f7c2 0%,#8bd38b 48%,transparent 70%);
-}
-.home-scene::after{
-  width:190px;height:190px;right:-55px;top:260px;
-  background:radial-gradient(circle,#d8f6d9 0%,#9ddd9f 46%,transparent 70%);
-}
-.home-cloud{
-  position:absolute;
-  background:rgba(255,255,255,.82);
-  border-radius:999px;
-  box-shadow:28px 8px 0 rgba(255,255,255,.82),58px -4px 0 rgba(255,255,255,.82);
-  pointer-events:none;
-}
-.home-cloud.c1{width:58px;height:22px;left:18px;top:84px}
-.home-cloud.c2{width:64px;height:24px;right:54px;top:72px}
-.home-cloud.c3{width:46px;height:18px;left:120px;top:132px;opacity:.66}
-.home-brand{
-  position:relative;
-  z-index:1;
-  text-align:center;
-  margin:2px 0 12px;
-}
-.home-logo{
-  font-family:'Baloo 2',cursive;
-  font-size:3rem;
-  line-height:1;
-  color:#fffefc;
-  text-shadow:0 8px 24px rgba(32,118,61,.18),0 2px 0 rgba(255,255,255,.55);
-}
-.home-logo .accent{color:#22c55e}
-.greeting{
-  font-family:'Baloo 2',cursive;
-  font-size:1.5rem;
-  color:#17603a;
-  text-align:center;
-  margin-bottom:2px;
-  position:relative;
-  z-index:1;
-}
-.greeting-sub{
-  font-size:.88rem;
-  color:#4d7a58;
-  text-align:center;
-  margin-bottom:14px;
-  position:relative;
-  z-index:1;
-}
-.home-hero{
-  position:relative;
-  z-index:1;
-  padding-top:0;
-  margin-bottom:20px;
-}
-.feature-shell{
-  background:rgba(226,247,231,.92);
-  border:1px solid rgba(255,255,255,.88);
-  box-shadow:0 18px 36px rgba(36,118,65,.16);
-  border-radius:28px;
-  padding:14px;
-  backdrop-filter:blur(10px);
-}
-.feature-card{
-  background:linear-gradient(180deg,#ffffff,#f5fff7);
-  border-radius:24px;
-  padding:16px;
-  box-shadow:0 14px 28px rgba(36,118,65,.14);
-  border:1px solid #d9f2df;
-}
-.section-hd{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  font-family:'Baloo 2',cursive;
-  font-size:1.15rem;
-  color:#18723f;
-  margin-bottom:12px;
-}
-.section-hd.centered{
-  justify-content:center;
-  color:#18723f;
-  text-align:center;
-  margin-bottom:14px;
-}
-.section-hd.centered::before,
-.section-hd.centered::after{
-  content:'';
-  height:3px;
-  width:72px;
-  border-radius:999px;
-  background:linear-gradient(90deg,#7ed957,#b7e4c7);
-}
-.section-hd.centered::after{background:linear-gradient(90deg,#b7e4c7,#7ed957)}
-.feature-story-week{
-  margin:2px 0 8px;
-  font-size:.82rem;
-  font-weight:800;
-  color:#4d7a58;
-}
-.feature-story-title{
-  font-family:'Baloo 2',cursive;
-  font-size:1.32rem;
-  line-height:1.2;
-  color:#166534;
-  margin-bottom:8px;
-}
-.feature-story-text{
-  font-size:.97rem;
-  line-height:1.65;
-  color:#284738;
-  white-space:pre-line;
-}
-.home-cta-row{display:flex;justify-content:center;margin-top:16px}
-.home-pill-btn{
-  border:none;
-  border-radius:999px;
-  padding:14px 26px;
-  font-family:'Baloo 2',cursive;
-  font-size:1.1rem;
-  color:white;
-  cursor:pointer;
-  background:linear-gradient(135deg,#22c55e,#15803d);
-  box-shadow:0 12px 24px rgba(21,128,61,.22),inset 0 2px 0 rgba(255,255,255,.24);
-}
-.home-pill-btn.orange{
-  width:100%;
-  justify-content:center;
-  display:flex;
-  align-items:center;
-  gap:10px;
-  background:linear-gradient(135deg,#22c55e,#16a34a);
-  box-shadow:0 14px 26px rgba(22,163,74,.24),inset 0 2px 0 rgba(255,255,255,.28);
-}
-.home-summary{
-  position:relative;
-  z-index:1;
-  margin-bottom:20px;
-}
-.stats-row{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:12px;
-}
-.stat-box{
-  position:relative;
-  overflow:hidden;
-  background:linear-gradient(180deg,rgba(255,255,255,.98),rgba(247,255,249,.94));
-  border-radius:22px;
-  padding:18px 16px 16px;
-  box-shadow:0 16px 30px rgba(34,139,84,.14);
-  border:1px solid #d9f2df;
-  min-height:128px;
-}
-.stat-box::before{
-  content:'';
-  position:absolute;
-  inset:auto -12px -24px auto;
-  width:110px;height:110px;border-radius:50%;
-  background:radial-gradient(circle,rgba(255,214,119,.45) 0%,transparent 70%);
-}
-.stat-box.heart::before{background:radial-gradient(circle,rgba(255,150,174,.34) 0%,transparent 70%)}
-.stat-art{
-  font-size:2.15rem;
-  line-height:1;
-  margin-bottom:10px;
-  width:54px;height:54px;border-radius:18px;
-  display:flex;align-items:center;justify-content:center;
-  background:linear-gradient(180deg,#fffef7 0%,#ecfdf3 42%,#c8f1d3 100%);
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.95),0 10px 16px rgba(34,197,94,.12);
-}
-.stat-num{
-  font-family:'Baloo 2',cursive;
-  font-size:2.15rem;
-  line-height:1;
-  color:#15803d;
-}
-.stat-box.heart .stat-num{color:#16a34a}
-.stat-lbl{
-  font-size:.88rem;
-  color:#47634b;
-  font-weight:800;
-  margin-top:6px;
-  line-height:1.35;
-}
-.home-action{
-  position:relative;
-  z-index:1;
-  margin-bottom:18px;
-}
-.impact-grid{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:10px;
-  margin-bottom:18px;
-  position:relative;
-  z-index:1;
-}
-.impact-mini{
-  background:linear-gradient(180deg,rgba(255,255,255,.98),rgba(244,255,247,.92));
-  border-radius:18px;
-  padding:14px 10px 12px;
-  text-align:center;
-  border:1px solid #d9f2df;
-  box-shadow:0 12px 24px rgba(34,139,84,.1);
-}
-.impact-mini-num{
-  font-family:'Baloo 2',cursive;
-  font-size:1.35rem;
-  line-height:1;
-  color:#166534;
-}
-.impact-mini-lbl{
-  margin-top:5px;
-  font-size:.73rem;
-  line-height:1.35;
-  color:#577060;
-  font-weight:800;
-}
-.challenge-card{
-  position:relative;
-  z-index:1;
-  margin-bottom:18px;
-  padding:18px 16px;
-  border-radius:26px;
-  color:white;
-  background:linear-gradient(135deg,#0f766e,#14b8a6,#34d399);
-  box-shadow:0 18px 30px rgba(20,184,166,.24);
-  overflow:hidden;
-}
-.challenge-card::after{
-  content:'';
-  position:absolute;
-  right:-30px;
-  top:-34px;
-  width:120px;
-  height:120px;
-  border-radius:50%;
-  background:radial-gradient(circle,rgba(255,255,255,.3) 0%,transparent 68%);
-}
-.challenge-top{
-  display:flex;
-  align-items:flex-start;
-  justify-content:space-between;
-  gap:10px;
-  margin-bottom:10px;
-}
-.challenge-kicker{
-  font-size:.76rem;
-  font-weight:900;
-  letter-spacing:.04em;
-  text-transform:uppercase;
-  opacity:.9;
-  margin-bottom:4px;
-}
-.challenge-title{
-  font-family:'Baloo 2',cursive;
-  font-size:1.28rem;
-  line-height:1.15;
-}
-.challenge-desc{
-  font-size:.86rem;
-  line-height:1.55;
-  opacity:.92;
-  margin-bottom:12px;
-}
-.challenge-badge{
-  flex-shrink:0;
-  min-width:78px;
-  border-radius:18px;
-  padding:10px 8px;
-  text-align:center;
-  background:rgba(255,255,255,.16);
-  border:1px solid rgba(255,255,255,.22);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.18);
-}
-.challenge-badge strong{
-  display:block;
-  font-family:'Baloo 2',cursive;
-  font-size:1.2rem;
-  line-height:1;
-}
-.challenge-badge span{
-  display:block;
-  margin-top:4px;
-  font-size:.72rem;
-  opacity:.92;
-}
-.challenge-meta{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  font-size:.78rem;
-  font-weight:800;
-  opacity:.95;
-  margin-top:8px;
-}
-.challenge-note{
-  margin-top:10px;
-  font-size:.76rem;
-  line-height:1.45;
-  opacity:.88;
-}
-.home-values{
-  position:relative;
-  z-index:1;
-  margin-bottom:18px;
-}
-.value-chip-row{
-  display:flex;
-  flex-wrap:wrap;
-  gap:8px;
-}
-.value-chip{
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
-  padding:8px 12px;
-  border-radius:999px;
-  background:rgba(255,255,255,.88);
-  border:1px solid #d9f2df;
-  color:#22543d;
-  font-size:.8rem;
-  font-weight:800;
-  box-shadow:0 10px 18px rgba(34,139,84,.08);
-}
-.home-action-card{
-  background:linear-gradient(180deg,rgba(255,255,255,.9),rgba(245,255,247,.8));
-  border-radius:26px;
-  padding:18px 14px 14px;
-  box-shadow:0 18px 34px rgba(34,139,84,.14);
-  border:1px solid rgba(255,255,255,.88);
-}
-.home-rank-mini{
-  margin:0 auto 12px;
-  padding:12px 14px;
-  border-radius:18px;
-  background:linear-gradient(135deg,#5aaf6c,#228a5b);
-  color:white;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.2);
-}
-.rank-hero-name{font-family:'Baloo 2',cursive;font-size:1.08rem;margin-bottom:4px}
-.rank-hero-pts{font-size:.82rem;opacity:.92;margin-bottom:10px}
-.pbar{background:rgba(255,255,255,.25);border-radius:50px;height:10px;overflow:hidden}
-.pbar-fill{background:linear-gradient(90deg,#ffe480,#ffd34d);height:100%;border-radius:50px;transition:width 1s ease}
-.pbar-lbl{font-size:.74rem;opacity:.88;margin-top:6px}
-.home-question{
-  font-family:'Baloo 2',cursive;
-  font-size:1.5rem;
-  color:#4c489c;
-  text-align:center;
-  margin-bottom:12px;
-}
-.tasks-list{
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-  margin:14px 0 18px;
-}
-.task-item{
-  background:rgba(255,255,255,.92);
-  border:1px solid rgba(255,255,255,.8);
-  border-radius:18px;
-  padding:14px;
-  display:flex;
-  align-items:center;
-  gap:12px;
-  box-shadow:0 10px 22px rgba(86,164,108,.10);
-}
-.task-item.done{background:linear-gradient(135deg,#f0fdf4,#dcfce7);border-color:var(--green)}
-.task-ic{
-  width:42px;height:42px;border-radius:14px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:1.5rem;flex-shrink:0;
-  background:linear-gradient(180deg,#ffffff 0%,#eafbf0 42%,#c6efd1 100%);
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.92),0 10px 14px rgba(34,197,94,.1),0 1px 0 rgba(22,101,52,.08);
-}
-.task-info{flex:1}
-.task-name{font-weight:800;font-size:.93rem;color:#22543d}
-.task-pts{font-size:.78rem;color:#5f7c63;font-weight:700}
-.task-check{font-size:1rem;flex-shrink:0;color:#15803d}
-.ai-promo{
-  background:linear-gradient(135deg,#15803d,#22c55e,#4ade80);
-  border-radius:24px;
-  padding:16px;
-  color:white;
-  display:flex;
-  align-items:center;
-  gap:14px;
-  cursor:pointer;
-  transition:transform .2s;
-  box-shadow:0 16px 26px rgba(34,197,94,.22);
-}
-.ai-promo:active{transform:scale(.98)}
-.ai-promo-ic{
-  width:52px;height:52px;border-radius:18px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:2rem;flex-shrink:0;
-  background:linear-gradient(180deg,rgba(255,255,255,.45),rgba(255,255,255,.16));
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.55),0 10px 16px rgba(12,87,34,.16);
-}
-.ai-promo h3{font-family:'Baloo 2',cursive;font-size:1.1rem;margin-bottom:2px}
-.ai-promo p{font-size:.8rem;opacity:.9;line-height:1.45}
-
-.robot-ai{
-  position:relative;
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  flex-shrink:0;
-}
-.robot-ai-head{
-  position:relative;
-  display:block;
-  border-radius:22px;
-  background:linear-gradient(180deg,#ffffff 0%,#dcfce7 48%,#86efac 100%);
-  box-shadow:inset 0 3px 0 rgba(255,255,255,.95),0 10px 18px rgba(34,197,94,.18),0 2px 0 rgba(21,128,61,.12),0 0 0 3px rgba(255,255,255,.95);
-}
-.robot-ai-head::before,
-.robot-ai-head::after{
-  content:'';
-  position:absolute;
-  top:50%;
-  width:12px;
-  height:20px;
-  border-radius:8px;
-  background:linear-gradient(180deg,#ffffff,#86efac);
-  box-shadow:0 6px 10px rgba(34,197,94,.16);
-  transform:translateY(-50%);
-}
-.robot-ai-head::before{left:-8px}
-.robot-ai-head::after{right:-8px}
-.robot-ai-visor{
-  position:absolute;
-  left:50%;
-  transform:translateX(-50%);
-  border-radius:12px;
-  background:linear-gradient(180deg,#1f2937,#334155);
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.18);
-}
-.robot-ai-eyes{
-  position:absolute;
-  left:50%;
-  transform:translateX(-50%);
-  display:flex;
-  gap:20px;
-}
-.robot-ai-eyes span{
-  width:8px;
-  height:8px;
-  border-radius:50%;
-  background:#86efac;
-  box-shadow:0 0 10px rgba(134,239,172,.75);
-}
-.robot-ai-mouth{
-  position:absolute;
-  left:50%;
-  transform:translateX(-50%);
-  border-bottom:3px solid #15803d;
-  border-radius:0 0 18px 18px;
-}
-.robot-ai-spark{
-  position:absolute;
-  font-size:.9rem;
-  filter:drop-shadow(0 4px 8px rgba(21,128,61,.18));
-  animation:twinkle 1.8s ease-in-out infinite;
-}
-.robot-ai.lg{width:56px;height:56px}
-.robot-ai.lg .robot-ai-head{width:50px;height:42px}
-.robot-ai.lg .robot-ai-visor{top:11px;width:31px;height:12px}
-.robot-ai.lg .robot-ai-eyes{top:14px}
-.robot-ai.lg .robot-ai-mouth{bottom:9px;width:18px;height:8px}
-.robot-ai.lg .robot-ai-spark{right:-2px;top:-3px}
-.robot-ai.md{width:42px;height:42px}
-.robot-ai.md .robot-ai-head{width:38px;height:32px}
-.robot-ai.md .robot-ai-visor{top:8px;width:23px;height:9px}
-.robot-ai.md .robot-ai-eyes{top:11px;gap:14px}
-.robot-ai.md .robot-ai-eyes span{width:7px;height:7px}
-.robot-ai.md .robot-ai-mouth{bottom:7px;width:14px;height:6px}
-.robot-ai.md .robot-ai-spark{right:-1px;top:-3px;font-size:.72rem}
-.robot-ai.sm{width:28px;height:28px}
-.robot-ai.sm .robot-ai-head{width:28px;height:24px;border-radius:12px;box-shadow:inset 0 2px 0 rgba(255,255,255,.95),0 6px 12px rgba(34,197,94,.16),0 1px 0 rgba(21,128,61,.12),0 0 0 2px rgba(255,255,255,.95)}
-.robot-ai.sm .robot-ai-head::before,.robot-ai.sm .robot-ai-head::after{width:6px;height:12px;border-radius:5px}
-.robot-ai.sm .robot-ai-head::before{left:-4px}
-.robot-ai.sm .robot-ai-head::after{right:-4px}
-.robot-ai.sm .robot-ai-visor{top:6px;width:17px;height:7px;border-radius:8px}
-.robot-ai.sm .robot-ai-eyes{top:8px;gap:10px}
-.robot-ai.sm .robot-ai-eyes span{width:5px;height:5px}
-.robot-ai.sm .robot-ai-mouth{bottom:5px;width:10px;height:5px;border-bottom-width:2px}
-.robot-ai.sm .robot-ai-spark{right:-2px;top:-4px;font-size:.56rem}
-
-/* LOG */
-.form-card,.board,.chat-wrap,.story-card,.ach-stat,.ach-cat{
-  background:#ffffff;
-  border-radius:var(--radius);
-  box-shadow:0 14px 30px rgba(21,128,61,.11);
-}
-.form-card{padding:18px;border:1px solid #d8f2df}
-.ai-box{background:#f0fdf4;border:2px solid #bbf7d0;border-radius:14px;padding:14px;margin-bottom:14px;display:none}
-.ai-box.show{display:block}
-.ai-box-hd{display:flex;align-items:center;gap:7px;font-weight:800;color:var(--green-dark);font-size:.85rem;margin-bottom:8px}
-.ai-box-txt{font-size:.9rem;color:var(--text);line-height:1.6}
-.dots-wrap{display:flex;align-items:center;gap:6px;color:var(--green-dark);font-weight:700;font-size:.85rem}
-.dots span{display:inline-block;width:5px;height:5px;background:var(--green);border-radius:50%;animation:bop .8s infinite}
-.dots span:nth-child(2){animation-delay:.15s}.dots span:nth-child(3){animation-delay:.3s}
-@keyframes bop{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
-.img-upload-wrap{border:2px dashed var(--border);border-radius:14px;padding:14px;margin-bottom:14px;transition:border-color .2s;background:#fafafa}
-.img-upload-wrap:hover{border-color:var(--green)}
-.img-upload-wrap input{display:none}
-.img-preview{width:100%;max-height:200px;object-fit:cover;border-radius:10px;margin-top:10px;display:none}
-.img-btn-row{display:flex;gap:8px;margin-bottom:6px}
-.img-btn{flex:1;padding:10px 6px;border:1.5px solid var(--border);border-radius:10px;background:white;font-family:'Nunito',sans-serif;font-weight:700;font-size:.82rem;cursor:pointer;color:var(--green-dark);transition:border-color .2s}
-.img-btn:active{border-color:var(--green);background:var(--green-bg)}
-
-/* COMMUNITY */
-.feed{display:flex;flex-direction:column;gap:12px}
-.fcard{
-  background:#ffffff;
-  border:2px solid var(--border);
-  border-radius:16px;
-  padding:16px;
-  cursor:pointer;
-  transition:box-shadow .15s,transform .15s;
-  box-shadow:0 12px 24px rgba(21,128,61,.08);
-}
-.fcard:hover{box-shadow:var(--shadow)}
-.fhd{display:flex;align-items:center;gap:10px;margin-bottom:8px}
-.fava{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
-.fava,.bava{
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.72),0 8px 14px rgba(34,197,94,.12),0 1px 0 rgba(21,128,61,.1);
-  border:1px solid rgba(255,255,255,.88);
-}
-.fname{font-weight:800;font-size:.9rem}
-.ftime{font-size:.74rem;color:var(--muted)}
-.ftag{background:var(--green-light);color:var(--green-dark);font-size:.76rem;font-weight:700;padding:3px 10px;border-radius:50px;display:inline-block;margin-bottom:7px}
-.fdesc{font-size:.88rem;color:#374151;line-height:1.5}
-.fimg{width:100%;max-height:180px;object-fit:cover;border-radius:10px;margin:8px 0}
-.fbtns{display:flex;gap:10px;margin-top:10px}
-.fbtn{border:none;background:var(--green-bg);border-radius:50px;padding:6px 16px;font-family:'Nunito',sans-serif;font-weight:700;font-size:.78rem;cursor:pointer;color:var(--muted);transition:all .18s}
-.fbtn.liked{background:#fef9c3;color:var(--orange)}
-.fbtn:active{transform:scale(.95)}
-
-/* MODAL CHI TIẾT BÀI ĐĂNG */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:800;display:none;align-items:flex-end;justify-content:center}
-.modal-overlay.open{display:flex}
-.modal-sheet{background:white;border-radius:20px 20px 0 0;width:100%;max-width:480px;height:88vh;display:flex;flex-direction:column;overflow:hidden;animation:slideUp .3s ease}
-@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
-.modal-hd{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border);flex-shrink:0}
-.modal-hd-title{font-family:'Baloo 2',cursive;font-size:1.1rem;color:var(--green-dark)}
-.modal-close{
-  width:34px;height:34px;border:none;border-radius:12px;
-  font-size:1.15rem;cursor:pointer;color:var(--green-dark);
-  background:linear-gradient(180deg,#ffffff 0%,#ecfdf3 48%,#c9f4d4 100%);
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.94),0 8px 14px rgba(34,197,94,.1);
-}
-/* Phần info bài đăng — không scroll */
-.modal-info{padding:14px 18px 10px;flex-shrink:0;border-bottom:1px solid var(--border)}
-.modal-img{width:100%;max-height:180px;object-fit:cover;border-radius:12px;margin-bottom:10px}
-/* Phần comments — scroll riêng, chiếm hết không gian còn lại */
-.modal-cmts-wrap{flex:1;overflow-y:auto;padding:12px 18px;display:flex;flex-direction:column;gap:8px}
-.modal-cmts-title{font-family:'Baloo 2',cursive;font-size:1rem;color:var(--green-dark);margin-bottom:8px;display:flex;align-items:center;gap:6px;flex-shrink:0}
-/* Comments in modal */
-.cmts-list{display:flex;flex-direction:column;gap:10px}
-.cmt-item{display:flex;gap:8px}
-.cmt-ava{width:28px;height:28px;border-radius:50%;background:var(--green-light);display:flex;align-items:center;justify-content:center;font-size:.82rem;flex-shrink:0;font-weight:800;color:var(--green-dark)}
-.cmt-body{flex:1;background:#f8fafb;border-radius:10px;padding:8px 10px}
-.cmt-name{font-weight:800;font-size:.78rem;color:var(--green-dark)}
-.cmt-text{font-size:.84rem;color:var(--text);line-height:1.45;margin-top:2px}
-.cmt-inp-row{display:flex;gap:8px;border-top:2px solid var(--border);flex-shrink:0;padding:12px 18px;background:white}
-.cmt-inp{flex:1;border:2px solid var(--border);border-radius:50px;padding:9px 16px;font-family:'Nunito',sans-serif;font-size:.88rem;outline:none}
-.cmt-inp:focus{border-color:var(--green)}
-.cmt-send{background:var(--green);border:none;border-radius:50px;padding:9px 18px;color:white;font-family:'Nunito',sans-serif;font-weight:700;font-size:.82rem;cursor:pointer;flex-shrink:0}
-
-/* AI CHAT */
-.chat-wrap{overflow:hidden;display:flex;flex-direction:column;height:calc(100vh - var(--nav-h) - var(--bottom-h) - 100px);min-height:340px;border:1px solid #dcfce7}
-.chat-hd{background:linear-gradient(135deg,#166534,#22c55e);padding:14px 16px;color:white;display:flex;align-items:center;gap:10px;flex-shrink:0}
-.chat-hd-ic{
-  width:42px;height:42px;border-radius:16px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:1.45rem;
-  background:linear-gradient(180deg,rgba(255,255,255,.38),rgba(255,255,255,.12));
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.46),0 8px 14px rgba(12,87,34,.16);
-}
-.chat-hd h3{font-family:'Baloo 2',cursive;font-size:1.1rem}
-.chat-hd p{font-size:.76rem;opacity:.85}
-.chat-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
-.msg{max-width:82%;padding:11px 14px;border-radius:16px;font-size:.88rem;line-height:1.55}
-.msg.ai{background:#edfdf1;color:var(--text);align-self:flex-start;border-bottom-left-radius:4px}
-.msg.user{background:linear-gradient(135deg,var(--green),var(--green-dark));color:white;align-self:flex-end;border-bottom-right-radius:4px}
-.chat-inp-wrap{padding:12px;border-top:2px solid var(--border);display:flex;gap:8px;flex-shrink:0}
-.chat-inp{flex:1;border:2px solid var(--border);border-radius:50px;padding:9px 16px;font-family:'Nunito',sans-serif;font-size:.9rem;outline:none}
-.chat-inp:focus{border-color:var(--green)}
-.chat-send{width:40px;height:40px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,#16a34a,#15803d);border:none;color:white;font-size:1.1rem;cursor:pointer}
-.quick-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
-
-/* RANKS — bỏ số sao */
-.ranks-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-.rcard{background:white;border:2px solid var(--border);border-radius:14px;padding:14px;text-align:center}
-.rcard.unlocked{border-color:var(--green);background:linear-gradient(135deg,#f0fdf4,#dcfce7)}
-.rcard.locked{opacity:.45;filter:grayscale(.5)}
-.rcard-ic{
-  font-size:2.1rem;margin:0 auto 8px;
-  width:58px;height:58px;border-radius:18px;
-  display:flex;align-items:center;justify-content:center;
-  background:linear-gradient(180deg,#ffffff 0%,#eefcf2 46%,#ccf1d4 100%);
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.95),0 10px 16px rgba(34,197,94,.1);
-}
-.rcard-name{font-weight:800;font-size:.82rem;margin-bottom:3px}
-.rcard-req{font-size:.73rem;color:var(--muted)}
-
-/* LEADERBOARD — trang riêng */
-.board{padding:0;overflow:hidden;border:1px solid #d3efdb}
-.brow{display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid var(--border)}
-.brow:last-child{border-bottom:none}
-.brow.me{background:#f0fdf4}
-.brank{
-  font-family:'Baloo 2',cursive;font-size:1.1rem;width:34px;height:34px;
-  text-align:center;flex-shrink:0;display:flex;align-items:center;justify-content:center;
-  border-radius:12px;
-  background:linear-gradient(180deg,#ffffff 0%,#edfdf1 48%,#d3f4db 100%);
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.95),0 8px 14px rgba(34,197,94,.1);
-}
-.bava{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
-.bname-wrap{flex:1}
-.bname{font-weight:800;font-size:.9rem}
-.btitle{font-size:.74rem;color:var(--green-dark);font-weight:700}
-.bstat{font-size:.72rem;color:var(--muted)}
-.bpts{font-family:'Baloo 2',cursive;font-size:1rem;color:var(--orange)}
-
-/* ACHIEVEMENT PAGE */
-.ach-overview{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:4px}
-.ach-stat{padding:14px 12px;text-align:center;border:2px solid var(--border)}
-.ach-stat-num{font-family:'Baloo 2',cursive;font-size:1.8rem;line-height:1;color:var(--green-dark)}
-.ach-stat-lbl{font-size:.72rem;color:var(--muted);font-weight:700;margin-top:2px}
-.ach-streak-card{background:linear-gradient(135deg,var(--orange),#f97316);border-radius:16px;padding:16px;color:white;display:flex;align-items:center;gap:14px;margin-bottom:4px;box-shadow:0 4px 16px rgba(249,115,22,.3)}
-.ach-streak-num{font-family:'Baloo 2',cursive;font-size:3rem;line-height:1;flex-shrink:0}
-.ach-streak-info h3{font-size:1rem;font-weight:800;margin-bottom:2px}
-.ach-streak-info p{font-size:.8rem;opacity:.85}
-.values-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-.value-card{
-  background:white;
-  border:2px solid var(--border);
-  border-radius:16px;
-  padding:14px 12px;
-  box-shadow:0 12px 24px rgba(21,128,61,.08);
-}
-.value-card-top{display:flex;align-items:center;gap:10px;margin-bottom:8px}
-.value-card-ic{
-  width:42px;height:42px;border-radius:14px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:1.3rem;
-  background:linear-gradient(180deg,#ffffff 0%,#eefcf2 46%,#ccf1d4 100%);
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.95),0 10px 16px rgba(34,197,94,.1);
-}
-.value-card-name{font-weight:800;font-size:.84rem;color:var(--text)}
-.value-card-count{font-size:.74rem;color:var(--muted);font-weight:700}
-.value-card-desc{font-size:.76rem;line-height:1.45;color:#53705a;margin-bottom:8px}
-.value-card-bar{height:7px;border-radius:999px;overflow:hidden;background:#dcfce7}
-.value-card-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#16a34a,#15803d)}
-.ach-cats{display:flex;flex-direction:column;gap:8px}
-.ach-cat{background:white;border-radius:12px;padding:12px 14px;box-shadow:var(--shadow);border:2px solid var(--border)}
-.ach-cat-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
-.ach-cat-name{font-weight:800;font-size:.88rem}
-.ach-cat-count{font-size:.78rem;color:var(--muted);font-weight:700}
-.ach-cat-bar{height:6px;background:var(--green-light);border-radius:50px;overflow:hidden}
-.ach-cat-fill{height:100%;border-radius:50px;background:linear-gradient(90deg,var(--green),var(--green-dark));transition:width .6s ease}
-/* History list */
-.hist-item{
-  background:#ffffff;
-  border-radius:14px;
-  padding:12px 14px;
-  margin-bottom:8px;
-  box-shadow:0 12px 24px rgba(21,128,61,.08);
-  border-left:4px solid var(--green);
-  border-top:1px solid #e2f6e7;
-  border-right:1px solid #e2f6e7;
-  border-bottom:1px solid #e2f6e7;
-  display:flex;
-  gap:12px;
-  align-items:flex-start
-}
-.hist-date{font-size:.7rem;color:var(--muted);font-weight:700;flex-shrink:0;text-align:center;min-width:36px;padding-top:2px}
-.hist-date-day{font-family:'Baloo 2',cursive;font-size:1.2rem;color:var(--green-dark);line-height:1}
-.hist-body{flex:1}
-.hist-task{font-weight:800;font-size:.9rem;margin-bottom:2px}
-.hist-desc{font-size:.8rem;color:var(--muted);line-height:1.4;margin-bottom:4px}
-.hist-meta{display:flex;align-items:center;gap:8px}
-.hist-pts{background:var(--green-light);color:var(--green-dark);font-size:.72rem;font-weight:800;padding:2px 8px;border-radius:50px}
-.hist-cat{font-size:.7rem;color:var(--muted)}
-.pt-popup{position:fixed;pointer-events:none;z-index:600;font-family:'Baloo 2',cursive;font-size:1.5rem;font-weight:800;color:var(--yellow);text-shadow:0 2px 8px rgba(0,0,0,.25);animation:ptFloat 1.6s ease-out forwards}
-@keyframes ptFloat{0%{transform:translateY(0) scale(1);opacity:1}60%{transform:translateY(-60px) scale(1.2);opacity:1}100%{transform:translateY(-100px) scale(.8);opacity:0}}
-.toast{position:fixed;bottom:calc(var(--bottom-h) + 12px);left:50%;transform:translateX(-50%) translateY(20px);background:linear-gradient(135deg,var(--green),var(--green-dark));color:white;padding:12px 22px;border-radius:50px;font-weight:800;font-size:.9rem;z-index:900;opacity:0;transition:transform .35s cubic-bezier(.34,1.56,.64,1),opacity .35s ease;white-space:nowrap;max-width:90vw;text-align:center;box-shadow:0 6px 20px rgba(0,0,0,.2);pointer-events:none}
-.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
-.confetti-piece{position:fixed;width:10px;height:10px;border-radius:2px;animation:fall 1.2s ease-in forwards;pointer-events:none;z-index:999}
-@keyframes fall{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
-
-/* COMMUNITY TABS */
-.comm-tabs{display:flex;gap:6px;margin-bottom:12px}
-.comm-tab{flex:1;padding:10px 10px;border-radius:50px;border:2px solid var(--border);font-family:'Nunito',sans-serif;font-weight:800;font-size:.82rem;color:var(--muted);background:white;cursor:pointer;transition:all .18s}
-.comm-tab.active{background:var(--green-dark);border-color:var(--green-dark);color:white}
-
-/* STORY CARDS */
-.story-card{
-  margin-bottom:16px;
-  overflow:hidden;
-  border:2px solid var(--border);
-  box-shadow:0 14px 28px rgba(21,128,61,.1)
-}
-.story-header{background:linear-gradient(135deg,#166534,#22c55e);padding:16px;color:white}
-.story-week{font-size:.75rem;opacity:.8;font-weight:700;margin-bottom:4px}
-.story-title{font-family:'Baloo 2',cursive;font-size:1.15rem;line-height:1.3}
-.story-body{padding:16px;font-size:.9rem;line-height:1.8;color:var(--text)}
-.story-footer{padding:10px 16px 14px;border-top:2px solid var(--border);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.story-tag{background:var(--green-light);color:var(--green-dark);font-size:.72rem;font-weight:800;padding:3px 10px;border-radius:50px}
-
-.scroll-top-btn{
-  position:fixed;
-  right:16px;
-  bottom:calc(var(--bottom-h) + 18px);
-  width:46px;
-  height:46px;
-  border:none;
-  border-radius:50%;
-  background:linear-gradient(135deg,#16a34a,#15803d);
-  color:white;
-  font-size:1.15rem;
-  box-shadow:0 12px 20px rgba(21,128,61,.26);
-  cursor:pointer;
-  z-index:850;
-  opacity:0;
-  pointer-events:none;
-  transform:translateY(12px);
-  transition:opacity .2s ease,transform .2s ease;
-}
-.scroll-top-btn.show{
-  opacity:1;
-  pointer-events:auto;
-  transform:translateY(0);
-}
-
-@keyframes iconBob{
-  0%,100%{transform:translateY(0)}
-  50%{transform:translateY(-2px)}
-}
-.bnav-btn.active span.ic,
-.user-ava,
-.ai-promo-ic,
-.chat-hd-ic{
-  animation:iconBob 2.6s ease-in-out infinite;
-}
-@media (max-width:380px){
-  .impact-grid,.values-grid{grid-template-columns:1fr}
-}
-</style>
+        /* Màn hình Game Over */
+        #game-over-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.9);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+        #game-over-screen h1 { font-size: 40px; color: #f43f5e; margin-bottom: 10px; }
+        #restart-btn {
+            background: #2563eb; color: white; border: none;
+            padding: 12px 30px; font-size: 18px; font-weight: bold;
+            border-radius: 8px; cursor: pointer; margin-top: 20px;
+            transition: background 0.2s;
+        }
+        #restart-btn:hover { background: #1d4ed8; }
+    </style>
 </head>
 <body>
 
-<!-- SETUP -->
-<div id="setupScreen">
-  <div style="font-size:3.5rem;margin-bottom:10px">🌱</div>
-  <h1>Kindup</h1>
-  <p>Việc tốt mỗi ngày ✨</p>
-  <div style="display:flex;background:rgba(255,255,255,.15);border-radius:50px;padding:4px;margin-bottom:20px;width:100%;max-width:320px">
-    <button id="tabLogin" onclick="switchTab('login')" style="flex:1;padding:9px;border:none;border-radius:50px;font-family:'Nunito',sans-serif;font-weight:800;font-size:.9rem;cursor:pointer;background:white;color:var(--green-dark);transition:.2s">Đăng nhập</button>
-    <button id="tabReg" onclick="switchTab('reg')" style="flex:1;padding:9px;border:none;border-radius:50px;font-family:'Nunito',sans-serif;font-weight:800;font-size:.9rem;cursor:pointer;background:transparent;color:rgba(255,255,255,.8);transition:.2s">Đăng ký</button>  </div>
-  <div class="setup-card">
-    <div id="formLogin">
-      <div class="setup-label">Tên của bạn</div>
-      <input class="setup-input" id="loginName" placeholder="Minh Tuấn..." maxlength="30"/>
-      <div class="setup-label">Mã PIN 4 số</div>
-      <input class="setup-input" id="loginPin" type="password" inputmode="numeric" maxlength="4" placeholder="••••" onkeydown="if(event.key==='Enter')doLogin()"/>
-      <button class="btn-setup" onclick="doLogin()" id="btnLogin">Đăng nhập 🚀</button>
-      <div class="setup-note" id="loginMsg">Nhập tên và PIN bạn đã đăng ký.</div>
+<div id="game-container">
+    <div class="header">
+        <div class="score-box">
+            <div class="score-label">Score</div>
+            <div id="score" class="score-val">0</div>
+        </div>
+        <div id="streak-banner">Combo X1</div>
+        <div class="score-box">
+            <div class="score-label">Best</div>
+            <div id="best-score" class="score-val">0</div>
+        </div>
     </div>
-    <div id="formReg" style="display:none">
-      <div class="setup-label">Tên hiển thị</div>
-      <input class="setup-input" id="regName" placeholder="Ví dụ: Minh Tuấn..." maxlength="30"/>
-      <div class="setup-label">Chọn mã PIN 4 số</div>
-      <input class="setup-input" id="regPin" type="password" inputmode="numeric" maxlength="4" placeholder="••••"/>
-      <div class="setup-label">Nhập lại PIN</div>
-      <input class="setup-input" id="regPin2" type="password" inputmode="numeric" maxlength="4" placeholder="••••" onkeydown="if(event.key==='Enter')doRegister()"/>
-      <button class="btn-setup" onclick="doRegister()" id="btnReg">Tạo tài khoản ✨</button>
-      <div class="setup-note" id="regMsg">PIN dùng để đăng nhập lại trên thiết bị khác.</div>
-    </div>
-  </div>
+
+    <div id="grid"></div>
+    <div id="dock"></div>
 </div>
 
-<!-- LOGOUT MENU -->
-<div id="logoutMenu" style="display:none;position:fixed;top:68px;right:12px;z-index:300;background:white;border:2px solid var(--border);border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.12);overflow:hidden;min-width:160px">
-  <div style="padding:12px 16px;font-size:.82rem;color:var(--muted);border-bottom:1px solid var(--border)" id="menuUserName">👤 Bạn</div>
-  <button onclick="logout()" style="width:100%;padding:12px 16px;border:none;background:white;font-family:'Nunito',sans-serif;font-weight:800;font-size:.9rem;color:#ef4444;cursor:pointer;text-align:left;display:flex;align-items:center;gap:8px">🚪 Đăng xuất</button>
+<div id="game-over-screen">
+    <h1>GAME OVER</h1>
+    <p>Số điểm của bạn: <span id="final-score" style="color:#fbbf24; font-weight:bold;">0</span></p>
+    <button id="restart-btn" onclick="resetGame()">Chơi Lại</button>
 </div>
 
-<!-- TOPBAR -->
-<div class="topbar">
-  <div class="topbar-logo">🌱 Kindup</div>
-  <div class="topbar-right">
-    <div class="pts-chip" id="ptsChip">⭐ 0 điểm</div>
-    <div class="user-ava" id="userAva" onclick="toggleMenu()">😊</div>
-  </div>
-</div>
-
-<!-- MAIN -->
-<div class="main">
-
-  <!-- HOME -->
-  <div class="page active" id="page-home">
-    <div class="home-scene">
-      <div class="home-cloud c1"></div>
-      <div class="home-cloud c2"></div>
-      <div class="home-cloud c3"></div>
-
-      <div class="home-brand">
-        <div class="home-logo">Kind<span class="accent">Up</span></div>
-      </div>
-      <div class="greeting" id="greeting">Chào buổi sáng! ☀️</div>
-      <div class="greeting-sub" id="subDate">Đang tải...</div>
-
-      <div class="home-hero">
-        <div class="feature-shell">
-          <div class="feature-card">
-            <div class="section-hd">🌟 Việc tốt nổi bật tuần này</div>
-            <div class="feature-story-week" id="homeStoryWeek">Đang cập nhật câu chuyện tuần...</div>
-            <div class="feature-story-title" id="homeStoryTitle">Những điều tử tế đang được lan tỏa</div>
-            <div class="feature-story-text" id="homeStoryText">Mỗi việc tốt nhỏ đều có thể trở thành điều ấm áp lớn. KindUp sẽ chọn ra câu chuyện nổi bật nhất để kể lại tại đây.</div>
-            <div class="home-cta-row">
-              <button class="home-pill-btn" onclick="openFeaturedStory()">Xem tất cả ›</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="home-summary">
-        <div class="section-hd centered">Tuần này chúng mình đã ghi nhận</div>
-        <div class="stats-row">
-          <div class="stat-box">
-            <div class="stat-art">⭐</div>
-            <div class="stat-num" id="statDone">0</div>
-            <div class="stat-lbl" id="statDoneLabel">Việc tốt của bạn</div>
-          </div>
-          <div class="stat-box heart">
-            <div class="stat-art">💖</div>
-            <div class="stat-num" id="statPts">0</div>
-            <div class="stat-lbl" id="statPtsLabel">Điểm tích lũy</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="challenge-card" id="challengeCard">
-        <div class="challenge-top">
-          <div>
-            <div class="challenge-kicker">Thử thách thành phố</div>
-            <div class="challenge-title" id="challengeTitle">Đang tạo thử thách tuần...</div>
-          </div>
-          <div class="challenge-badge">
-            <strong id="challengeProgressNum">0/0</strong>
-            <span>Tiến độ</span>
-          </div>
-        </div>
-        <div class="challenge-desc" id="challengeDesc">KindUp sẽ gợi ý một mục tiêu đẹp để bạn cùng cộng đồng thực hiện trong tuần này.</div>
-        <div class="pbar"><div class="pbar-fill" id="challengeFill" style="width:0%"></div></div>
-        <div class="challenge-meta">
-          <span id="challengeMetaLeft">Mục tiêu tuần</span>
-          <span id="challengeMetaRight">Chưa bắt đầu</span>
-        </div>
-        <div class="challenge-note" id="challengeNote">Hoàn thành thử thách giúp phần demo có chiều sâu hơn khi trình bày với ban giám khảo.</div>
-      </div>
-
-      <div class="home-values">
-        <div class="section-hd centered">Giá trị bạn đang lan tỏa</div>
-        <div class="value-chip-row" id="homeValues"></div>
-      </div>
-
-      <div class="section-hd centered">Tác động cộng đồng tuần này</div>
-      <div class="impact-grid">
-        <div class="impact-mini">
-          <div class="impact-mini-num" id="impactTasks">0</div>
-          <div class="impact-mini-lbl">Việc tốt trong tuần</div>
-        </div>
-        <div class="impact-mini">
-          <div class="impact-mini-num" id="impactUsers">0</div>
-          <div class="impact-mini-lbl">Bạn tham gia</div>
-        </div>
-        <div class="impact-mini">
-          <div class="impact-mini-num" id="impactLikes">0</div>
-          <div class="impact-mini-lbl">Lượt lan tỏa</div>
-        </div>
-      </div>
-
-      <div class="home-action">
-        <div class="section-hd centered">Bạn đã làm việc tốt gì hôm nay?</div>
-        <div class="home-action-card">
-          <div class="home-rank-mini">
-            <div class="rank-hero-name" id="rankName">🌱 Tân Binh Việc Tốt</div>
-            <div class="rank-hero-pts" id="rankPts">0 / 50 điểm</div>
-            <div class="pbar"><div class="pbar-fill" id="pbarFill" style="width:0%"></div></div>
-            <div class="pbar-lbl" id="pbarLbl">Còn 50 điểm nữa thăng cấp! 💪</div>
-          </div>
-          <button class="home-pill-btn orange" onclick="showPage('log')">＋ Ghi nhận việc tốt <span>›</span></button>
-        </div>
-      </div>
-
-      <div class="section-hd centered">Gợi ý việc tốt hôm nay</div>
-      <div id="homeAiLoading" style="color:#5f6f94;font-size:.88rem;padding:8px 4px 4px;display:flex;align-items:center;justify-content:center;gap:8px">
-        <div class="dots"><span></span><span></span><span></span></div> AI đang gợi ý...
-      </div>
-      <div class="tasks-list" id="tasksList"></div>
-      <div class="ai-promo" onclick="showPage('ai')">
-        <div class="ai-promo-ic">
-          <span class="robot-ai md" aria-hidden="true">
-            <span class="robot-ai-head">
-              <span class="robot-ai-visor"></span>
-              <span class="robot-ai-eyes"><span></span><span></span></span>
-              <span class="robot-ai-mouth"></span>
-            </span>
-            <span class="robot-ai-spark">✨</span>
-          </span>
-        </div>
-        <div><h3>Trợ lý AI Kindup</h3><p>Hỏi AI để được gợi ý và động viên riêng cho bạn!</p></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- LOG -->
-  <div class="page" id="page-log">
-    <div class="sec" style="margin-bottom:14px">✏️ Ghi lại việc tốt</div>
-    <div class="form-card">
-      <label class="lbl">Chọn việc tốt đã làm</label>
-      <div id="logTaskLoading" style="color:var(--muted);font-size:.85rem;padding:8px 4px 12px;display:flex;align-items:center;gap:8px">
-        <div class="dots"><span></span><span></span><span></span></div> Đang tải gợi ý từ AI...
-      </div>
-      <select class="sel" id="taskSel" onchange="onSelChange()" style="display:none">
-        <option value="">-- Chọn việc tốt --</option>
-        <option value="__other__">➕ Việc tốt khác (tự nhập)</option>
-      </select>
-      <div id="customWrap" style="display:none">
-        <label class="lbl">Tên việc tốt của bạn</label>
-        <input class="inp" id="customTask" placeholder="Ví dụ: Nhường chỗ cho người lớn tuổi..."/>
-      </div>
-      <label class="lbl">Kể ngắn gọn bạn đã làm gì</label>
-      <textarea class="ta" id="taskDesc" placeholder="Ví dụ: Hôm nay mình đã giúp mẹ rửa bát sau bữa cơm tối..."></textarea>
-      <label class="lbl">📷 Thêm ảnh (không bắt buộc)</label>
-      <div class="img-upload-wrap">
-        <div class="img-btn-row">
-          <button type="button" class="img-btn" onclick="document.getElementById('photoGallery').click()">🖼️ Chọn từ thư viện</button>
-          <button type="button" class="img-btn" onclick="document.getElementById('photoCamera').click()">📸 Chụp ảnh</button>
-        </div>
-        <input type="file" id="photoGallery" accept="image/*" onchange="onPhotoChange(event)"/>
-        <input type="file" id="photoCamera" accept="image/*" capture="environment" onchange="onPhotoChange(event)"/>
-        <div id="photoPlaceholder" style="color:var(--muted);font-size:.82rem;text-align:center">Chưa có ảnh</div>
-        <img id="photoPreview" class="img-preview"/>
-        <div id="photoRemove" style="display:none;text-align:center;margin-top:6px">
-          <button type="button" onclick="removePhoto()" style="background:none;border:none;color:#ef4444;font-size:.8rem;font-weight:700;cursor:pointer">✕ Xoá ảnh</button>
-        </div>
-      </div>
-      <button class="btn btn-green" id="btnSubmit" onclick="submitTask()">🎉 Ghi lại & nhận điểm</button>
-      <div class="ai-box" id="praiseBox" style="margin-top:14px">
-        <div class="ai-box-hd"><span class="robot-ai sm" aria-hidden="true"><span class="robot-ai-head"><span class="robot-ai-visor"></span><span class="robot-ai-eyes"><span></span><span></span></span><span class="robot-ai-mouth"></span></span><span class="robot-ai-spark">✨</span></span> Lời khen từ AI Kindup</div>
-        <div class="ai-box-txt" id="praiseTxt"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- COMMUNITY -->
-  <div class="page" id="page-community">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-      <div class="sec" style="margin-bottom:0">🌍 Cộng đồng việc tốt</div>
-      <button onclick="forceRefreshFeed()" style="background:var(--green-light);border:none;border-radius:50px;padding:6px 14px;font-family:'Nunito',sans-serif;font-weight:700;font-size:.78rem;color:var(--green-dark);cursor:pointer">🔄 Làm mới</button>
-    </div>
-    <!-- Sub-tabs -->
-    <div class="comm-tabs">
-      <button class="comm-tab active" id="ctab-feed" onclick="switchCommTab('feed')">📢 Bảng tin</button>
-      <button class="comm-tab" id="ctab-story" onclick="switchCommTab('story')">✨ Câu chuyện tuần</button>
-    </div>
-    <!-- Feed panel -->
-    <div id="panel-feed">
-      <div id="feedCount" style="font-size:.78rem;color:var(--muted);margin-bottom:10px"></div>
-      <div class="feed" id="feed"></div>
-    </div>
-    <!-- Story panel -->
-    <div id="panel-story" style="display:none">
-      <div id="storyList"></div>
-    </div>
-  </div>
-
-  <!-- AI CHAT -->
-  <div class="page" id="page-ai">
-    <div class="sec" style="margin-bottom:12px"><span class="robot-ai sm" aria-hidden="true"><span class="robot-ai-head"><span class="robot-ai-visor"></span><span class="robot-ai-eyes"><span></span><span></span></span><span class="robot-ai-mouth"></span></span><span class="robot-ai-spark">✨</span></span> Trợ lý AI Kindup</div>
-    <div class="chat-wrap">
-      <div class="chat-hd">
-        <div class="chat-hd-ic">
-          <span class="robot-ai md" aria-hidden="true">
-            <span class="robot-ai-head">
-              <span class="robot-ai-visor"></span>
-              <span class="robot-ai-eyes"><span></span><span></span></span>
-              <span class="robot-ai-mouth"></span>
-            </span>
-            <span class="robot-ai-spark">✨</span>
-          </span>
-        </div>
-        <div><h3>AI Kindup</h3><p>Gợi ý nhiệm vụ • Khen ngợi • Động viên</p></div>
-      </div>
-      <div class="chat-msgs" id="chatMsgs">
-        <div class="msg ai">Xin chào! 👋 Mình là AI Kindup.<br>Mình có thể giúp bạn:<br>• 💡 Gợi ý việc tốt hôm nay<br>• ⭐ Khen ngợi và động viên<br>• ❓ Vì sao thói quen tốt quan trọng<br><br>Hãy hỏi mình bất cứ điều gì!</div>
-      </div>
-      <div class="chat-inp-wrap">
-        <input class="chat-inp" id="chatInp" placeholder="Nhắn tin với AI..." onkeydown="if(event.key==='Enter')sendChat()"/>
-        <button class="chat-send" onclick="sendChat()">➤</button>
-      </div>
-    </div>
-    <div class="quick-chips">
-      <button class="btn btn-outline" onclick="quickMsg('Gợi ý việc tốt cho tôi hôm nay')">💡 Gợi ý hôm nay</button>
-      <button class="btn btn-outline" onclick="quickMsg('Động viên tôi đi, tôi hơi lười!')">💪 Động viên tôi</button>
-      <button class="btn btn-outline" onclick="quickMsg('Tại sao cần rèn luyện thói quen tốt?')">❓ Tại sao?</button>
-    </div>
-  </div>
-
-  <!-- THÀNH TÍCH CÁ NHÂN -->
-  <div class="page" id="page-ranks">
-    <div class="sec" style="margin-bottom:14px">🏆 Thành tích của tôi</div>
-
-    <!-- Tổng quan -->
-    <div class="ach-overview" id="achOverview"></div>
-
-    <div class="ach-streak-card" id="achStreakCard">
-      <div class="ach-streak-num" id="streakNum">0</div>
-      <div class="ach-streak-info">
-        <h3 id="streakTitle">Chuỗi tử tế đang chờ bạn</h3>
-        <p id="streakDesc">Mỗi ngày một việc tốt nhỏ sẽ tạo nên thay đổi lớn.</p>
-      </div>
-    </div>
-
-    <!-- Thống kê theo chủ đề -->
-    <div class="sec" style="margin-top:16px;margin-bottom:10px;font-size:1rem">📊 Thống kê theo chủ đề</div>
-    <div class="ach-cats" id="achCats"></div>
-
-    <div class="sec" style="margin-top:16px;margin-bottom:10px;font-size:1rem">💎 Huy hiệu giá trị sống</div>
-    <div class="values-grid" id="valuesGrid"></div>
-
-    <!-- Danh hiệu -->
-    <div class="sec" style="margin-top:16px;margin-bottom:10px;font-size:1rem">🎖️ Danh hiệu</div>
-    <div class="ranks-grid" id="ranksGrid"></div>
-
-    <!-- Lịch sử việc tốt -->
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:16px;margin-bottom:10px">
-      <div class="sec" style="margin-bottom:0;font-size:1rem">📅 Lịch sử việc tốt</div>
-      <span id="historyCount" style="font-size:.78rem;color:var(--muted)"></span>
-    </div>
-    <div id="historyList"></div>
-  </div>
-
-  <!-- BẢNG XẾP HẠNG — trang riêng -->
-  <div class="page" id="page-board">
-    <div class="sec" style="margin-bottom:14px">📊 Bảng xếp hạng</div>
-    <div class="board" id="board"></div>
-  </div>
-
-</div><!-- /main -->
-
-<!-- BOTTOM NAV — 6 tab -->
-<div class="bottomnav">
-  <button class="bnav-btn active" onclick="showPage('home')" id="bn-home"><span class="ic">🏠</span><span>Trang chủ</span></button>
-  <button class="bnav-btn" onclick="showPage('log')" id="bn-log"><span class="ic">✏️</span><span>Ghi việc tốt</span></button>
-  <button class="bnav-btn" onclick="showPage('community')" id="bn-community"><span class="ic">🌍</span><span>Cộng đồng</span></button>
-  <button class="bnav-btn" onclick="showPage('ai')" id="bn-ai"><span class="ic"><span class="robot-ai sm" aria-hidden="true"><span class="robot-ai-head"><span class="robot-ai-visor"></span><span class="robot-ai-eyes"><span></span><span></span></span><span class="robot-ai-mouth"></span></span><span class="robot-ai-spark">✨</span></span></span><span>AI</span></button>
-  <button class="bnav-btn" onclick="showPage('ranks')" id="bn-ranks"><span class="ic">🏆</span><span>Thành tích</span></button>
-  <button class="bnav-btn" onclick="showPage('board')" id="bn-board"><span class="ic">📊</span><span>Xếp hạng</span></button>
-</div>
-
-<button id="scrollTopBtn" class="scroll-top-btn" onclick="scrollMainToTop()" aria-label="Lên đầu trang">↑</button>
-
-<!-- MODAL CHI TIẾT BÀI ĐĂNG -->
-<div class="modal-overlay" id="postModal" onclick="closeModal(event)">
-  <div class="modal-sheet" id="modalSheet">
-    <div class="modal-hd">
-      <div class="modal-hd-title">Chi tiết việc tốt</div>
-      <button class="modal-close" onclick="closeModalDirect()">✕</button>
-    </div>
-    <!-- Phần info: cố định, không scroll -->
-    <div class="modal-info" id="modalInfo"></div>
-    <!-- Phần comments: scroll riêng -->
-    <div class="modal-cmts-wrap" id="modalCmtsWrap">
-      <div class="modal-cmts-title">💬 Bình luận</div>
-      <div class="cmts-list" id="modalCmtsList"><div style="font-size:.84rem;color:var(--muted)">Đang tải...</div></div>
-    </div>
-    <div class="cmt-inp-row">
-      <input class="cmt-inp" id="modalCmtInp" placeholder="Viết bình luận..." onkeydown="if(event.key==='Enter')modalPostComment()"/>
-      <button class="cmt-send" onclick="modalPostComment()">Gửi</button>
-    </div>
-  </div>
-</div>
-
-<div class="toast" id="toast"></div>
-
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <script>
-// ═══ CONFIG ═══
-const FB_CFG={
-  apiKey:"AIzaSyB_YlQ99oal3RrfN8wX9oN5GjuW1QH4g-E",
-  authDomain:"kindup-22cea.firebaseapp.com",
-  databaseURL:"https://kindup-22cea-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId:"kindup-22cea",
-  storageBucket:"kindup-22cea.firebasestorage.app",
-  messagingSenderId:"776886224726",
-  appId:"1:776886224726:web:b30634ca93d58d6d1238f7"
-};
+    const GRID_SIZE = 8;
+    let gridData = Array(GRID_SIZE).fill().map(() => Array(GRID_SIZE).fill(null));
+    let score = 0;
+    let bestScore = localStorage.getItem('block_blast_best') || 0;
+    let streak = 0;
 
-// ═══ CỜ ĐIỀU KHIỂN ═══
-// Đặt true để cho phép đăng ký thành viên mới, false để tắt (dùng khi demo)
-const ALLOW_REGISTER = true;
-firebase.initializeApp(FB_CFG);
-const db=firebase.database();
+    const COLORS = ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4'];
+    const SHAPES = [
+        [[1]], // 1 ô
+        [[1, 1]], // 2 ô ngang
+        [[1], [1]], // 2 ô dọc
+        [[1, 1, 1]], // 3 ô ngang
+        [[1], [1], [1]], // 3 ô dọc
+        [[1, 1], [1, 1]], // Vuông 2x2
+        [[1, 1, 1], [0, 1, 0]], // Chữ T
+        [[1, 0], [1, 0], [1, 1]], // Chữ L gọn
+        [[0, 1], [0, 1], [1, 1]], // Chữ L ngược
+    ];
 
-// Ẩn tab đăng ký nếu tắt cờ
-// Ẩn/hiện tab đăng ký theo cờ — chạy ngay sau khi DOM sẵn sàng
-window.addEventListener('load',()=>{
-  const tabReg=document.getElementById('tabReg');
-  if(tabReg) tabReg.style.display=ALLOW_REGISTER?'':'none';
-});
+    const gridEl = document.getElementById('grid');
+    const dockEl = document.getElementById('dock');
+    const scoreEl = document.getElementById('score');
+    const bestScoreEl = document.getElementById('best-score');
+    const streakEl = document.getElementById('streak-banner');
 
-let G={uid:null,name:'',points:0,weekDone:0,doneToday:[],emoji:'😊',bg:'#bbf7d0',chatHistory:[],likedPosts:{}};
-let _currentPage='home';
-let _modalFeedId=null,_modalCmtsUnsub=null;
-let _storyGenerating=false;
-let _storyGeneratingPromise=null;
-
-const RANKS=[
-  {name:'Tân Binh Việc Tốt',       icon:'🌱',req:0},
-  {name:'Người Gieo Hạt',           icon:'🌿',req:50},
-  {name:'Chiến Binh Tích Cực',      icon:'⚡',req:200},
-  {name:'Người Lan Toả Yêu Thương', icon:'❤️',req:500},
-  {name:'Đại Sứ Nhân Ái',          icon:'🌟',req:1000},
-  {name:'Huyền Thoại Tử Tế',       icon:'👑',req:2000},
-];
-// Gợi ý AI lưu tạm để dùng chung home + log
-let _aiSuggestions=[]; // [{name,icon,reason}]
-let _aiSuggestLoading=false;
-const BG_COLORS=['#bbf7d0','#fce7f3','#dbeafe','#fef9c3','#ede9fe','#ffedd5'];
-const EMOJIS=['😄','🌸','🦁','🌺','⭐','🐬','🌻','🦋'];
-
-function makeUID(n,p){return(n.trim().toLowerCase().replace(/\s+/g,'-')+'-'+p).replace(/[^a-z0-9\-]/g,'')}
-function getRankFor(pts){let r=RANKS[0];for(let i=RANKS.length-1;i>=0;i--){if(pts>=RANKS[i].req){r=RANKS[i];break;}}return r;}
-function hashPin(p){return btoa('kindup-'+p);}
-function escHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-function timeAgo(ts){const s=Math.floor((Date.now()-ts)/1000);if(s<60)return'Vừa xong';if(s<3600)return Math.floor(s/60)+' phút trước';if(s<86400)return Math.floor(s/3600)+' giờ trước';return Math.floor(s/86400)+' ngày trước';}
-
-// ═══ AUTH ═══
-window.switchTab=function(tab){
-  if(tab==='reg'&&!ALLOW_REGISTER){
-    showToast('⚠️ Đăng ký tạm thời bị tắt.');return;
-  }
-  const L=tab==='login';
-  document.getElementById('formLogin').style.display=L?'block':'none';
-  document.getElementById('formReg').style.display=L?'none':'block';
-  const tL=document.getElementById('tabLogin'),tR=document.getElementById('tabReg');
-  // Đảm bảo tabReg hiện nếu ALLOW_REGISTER=true
-  if(ALLOW_REGISTER&&tR) tR.style.display='';
-  tL.style.background=L?'white':'transparent';
-  tL.style.color=L?'var(--green-dark)':'rgba(255,255,255,.8)';
-  tR.style.background=L?'transparent':'white';
-  tR.style.color=L?'rgba(255,255,255,.8)':'var(--green-dark)';
-};
-
-window.doRegister=async function(){
-  if(!ALLOW_REGISTER){showToast('⚠️ Đăng ký tạm thời bị tắt.');return;}
-  const name=document.getElementById('regName').value.trim();
-  const pin=document.getElementById('regPin').value.trim();
-  const pin2=document.getElementById('regPin2').value.trim();
-  const msg=document.getElementById('regMsg');
-  if(!name){msg.textContent='⚠️ Nhập tên đi bạn!';return;}
-  if(pin.length!==4||!/^\d{4}$/.test(pin)){msg.textContent='⚠️ PIN phải đúng 4 chữ số!';return;}
-  if(pin!==pin2){msg.textContent='⚠️ Hai PIN không khớp!';return;}
-  const uid=makeUID(name,pin);
-  setBtn('btnReg',true,'⏳ Đang kiểm tra...');
-  const snap=await db.ref(`users/${uid}`).get();
-  if(snap.exists()){msg.textContent='⚠️ Tên + PIN này đã tồn tại!';setBtn('btnReg',false,'Tạo tài khoản ✨');return;}
-  const ud={name,pin:hashPin(pin),uid,points:0,weekDone:0,doneToday:[],likedPosts:{},
-    createdAt:Date.now(),emoji:EMOJIS[Math.floor(Math.random()*EMOJIS.length)],bg:BG_COLORS[Math.floor(Math.random()*BG_COLORS.length)]};
-  await db.ref(`users/${uid}`).set(ud);
-  msg.textContent='✅ Đã tạo tài khoản!';
-  setBtn('btnReg',false,'Tạo tài khoản ✨');
-  enterApp(ud);
-};
-
-window.doLogin=async function(){
-  const name=document.getElementById('loginName').value.trim();
-  const pin=document.getElementById('loginPin').value.trim();
-  const msg=document.getElementById('loginMsg');
-  if(!name||!pin){msg.textContent='⚠️ Nhập đủ tên và PIN nhé!';return;}
-  const uid=makeUID(name,pin);
-  setBtn('btnLogin',true,'⏳ Đang xác nhận...');
-  const snap=await db.ref(`users/${uid}`).get();
-  if(!snap.exists()){msg.textContent='❌ Không tìm thấy tài khoản!';setBtn('btnLogin',false,'Đăng nhập 🚀');return;}
-  const data=snap.val();
-  if(data.pin!==hashPin(pin)){msg.textContent='❌ PIN không đúng!';setBtn('btnLogin',false,'Đăng nhập 🚀');return;}
-  setBtn('btnLogin',false,'Đăng nhập 🚀');
-  enterApp(data);
-};
-
-function setBtn(id,dis,txt){const b=document.getElementById(id);b.disabled=dis;b.textContent=txt;b.style.opacity=dis?'.7':'1';}
-
-function enterApp(data){
-  G.uid=data.uid; G.name=data.name;
-  G.points=data.points||0; G.weekDone=data.weekDone||0;
-  G.doneToday=Array.isArray(data.doneToday)?data.doneToday:[];
-  G.emoji=data.emoji||'😊'; G.bg=data.bg||'#bbf7d0';
-  G.likedPosts=data.likedPosts||{};
-  G.chatHistory=[];
-  const today=new Date().toDateString();
-  if((data.lastActiveDay||'')!==today){
-    G.doneToday=[];
-    db.ref(`users/${G.uid}`).update({doneToday:[],lastActiveDay:today});
-  }
-  document.getElementById('setupScreen').style.display='none';
-  document.getElementById('userAva').textContent=G.name.charAt(0).toUpperCase();
-  document.getElementById('menuUserName').textContent='👤 '+G.name;
-  initApp();
-  // Subscribe realtime listeners
-  subscribeToFeed();
-  subscribeToLeaderboard();
-  // Kiểm tra và tạo câu chuyện tuần còn thiếu (chạy nền)
-  checkAndGenerateStories().catch(err=>console.error('[Story] Background generate failed:',err));
-  // Go to home
-  showPage('home');
-}
-
-window.logout=function(){
-  // Unsubscribe all listeners và reset flags
-  db.ref('feed').off();
-  db.ref('users').off();
-  _feedListening=false;
-  _boardListening=false;
-  if(_modalCmtsUnsub&&_modalFeedId){
-    try{db.ref(`comments/${_modalFeedId}`).off('value',_modalCmtsUnsub);}catch(e){}
-    _modalCmtsUnsub=null;
-  }
-  G={uid:null,name:'',points:0,weekDone:0,doneToday:[],emoji:'😊',bg:'#bbf7d0',chatHistory:[],likedPosts:{}};
-  document.getElementById('logoutMenu').style.display='none';
-  document.getElementById('loginName').value='';
-  document.getElementById('loginPin').value='';
-  document.getElementById('loginMsg').textContent='Nhập tên và PIN bạn đã đăng ký.';
-  // Reset chat
-  document.getElementById('chatMsgs').innerHTML='<div class="msg ai">Xin chào! 👋 Mình là AI Kindup.<br>Mình có thể giúp bạn:<br>• 💡 Gợi ý việc tốt hôm nay<br>• ⭐ Khen ngợi và động viên<br>• ❓ Vì sao thói quen tốt quan trọng<br><br>Hãy hỏi mình bất cứ điều gì!</div>';
-  // Clear feed & board
-  document.getElementById('feed').innerHTML='';
-  document.getElementById('board').innerHTML='';
-  switchTab('login');
-  document.getElementById('setupScreen').style.display='flex';
-};
-
-// ═══ FIREBASE ═══
-function saveUser(){
-  if(!G.uid)return;
-  db.ref(`users/${G.uid}`).update({
-    points:G.points,weekDone:G.weekDone,
-    doneToday:G.doneToday,lastActiveDay:new Date().toDateString(),
-    likedPosts:G.likedPosts,
-  });
-}
-
-async function postToFeed(task,desc,imageUrl='',pts=0){
-  if(!G.uid)return;
-  const rank=getRankFor(G.points);
-  await db.ref('feed').push({
-    uid:G.uid,name:G.name,emoji:G.emoji,bg:G.bg,
-    task,desc,imageUrl,rank:rank.icon+' '+rank.name,
-    ts:Date.now(),likes:0,commentCount:0,pts,
-  });
-}
-
-// ═══ REALTIME — subscribe 1 lần duy nhất lúc login ═══
-let _feedListening=false,_boardListening=false;
-function subscribeToFeed(){
-  if(_feedListening)return;
-  _feedListening=true;
-  // Không dùng orderByChild (cần index Firebase) — lấy hết rồi sort ở client
-  db.ref('feed').on('value',snap=>{
-    const items=[];
-    snap.forEach(c=>{
-      const v=c.val();
-      if(v&&v.ts)items.push({id:c.key,...v});
-    });
-    console.log('[Feed] Tổng bài nhận được từ Firebase:',items.length);
-    // Sort mới nhất lên trên
-    items.sort((a,b)=>b.ts-a.ts);
-    renderFeed(items);
-  },err=>{
-    console.error('[Feed] Lỗi đọc Firebase:',err.code, err.message);
-    document.getElementById('feed').innerHTML=`<div style="text-align:center;color:#ef4444;padding:24px;background:white;border-radius:14px;font-size:.88rem"><b>⚠️ Lỗi tải dữ liệu</b><br>${err.message}<br><small>Kiểm tra Firebase Rules</small></div>`;
-  });
-}
-
-function subscribeToLeaderboard(){
-  if(_boardListening)return;
-  _boardListening=true;
-  db.ref('users').on('value',snap=>{
-    const rows=[];
-    snap.forEach(c=>{
-      const d=c.val();
-      const r=getRankFor(d.points||0);
-      rows.push({uid:d.uid,name:d.name,emoji:d.emoji||'😊',bg:d.bg||'#bbf7d0',
-        pts:d.points||0,weekDone:d.weekDone||0,title:r.icon+' '+r.name});
-    });
-    rows.sort((a,b)=>b.pts-a.pts);
-    renderBoard(rows);
-  });
-}
-
-// ═══ ẢNH — base64 resize, không cần Firebase Storage ═══
-let _photoBase64='';
-window.onPhotoChange=function(e){
-  const file=e.target.files[0];if(!file)return;
-  // Reset input để có thể chọn lại cùng file
-  e.target.value='';
-  const reader=new FileReader();
-  reader.onload=ev=>{
-    // Resize ảnh xuống tối đa 800px để tránh quá lớn
-    const img=new Image();
-    img.onload=()=>{
-      const MAX=800;
-      let w=img.width,h=img.height;
-      if(w>MAX){h=Math.round(h*MAX/w);w=MAX;}
-      if(h>MAX){w=Math.round(w*MAX/h);h=MAX;}
-      const canvas=document.createElement('canvas');
-      canvas.width=w;canvas.height=h;
-      canvas.getContext('2d').drawImage(img,0,0,w,h);
-      _photoBase64=canvas.toDataURL('image/jpeg',0.75);
-      const prev=document.getElementById('photoPreview');
-      prev.src=_photoBase64;prev.style.display='block';
-      document.getElementById('photoPlaceholder').style.display='none';
-      document.getElementById('photoRemove').style.display='block';
-    };
-    img.src=ev.target.result;
-  };
-  reader.readAsDataURL(file);
-};
-window.removePhoto=function(){
-  _photoBase64='';
-  document.getElementById('photoPreview').style.display='none';
-  document.getElementById('photoPlaceholder').style.display='block';
-  document.getElementById('photoRemove').style.display='none';
-  document.getElementById('photoGallery').value='';
-  document.getElementById('photoCamera').value='';
-};
-
-// ═══ INIT ═══
-function initApp(){
-  const h=new Date().getHours();
-  document.getElementById('greeting').textContent=h<12?'Chào buổi sáng! ☀️':h<18?'Chào buổi chiều! 🌤️':'Chào buổi tối! 🌙';
-  const d=new Date();
-  const days=['Chủ Nhật','Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu','Thứ Bảy'];
-  document.getElementById('subDate').textContent=`${G.name} • ${days[d.getDay()]}, ${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}`;
-  renderAll();
-  loadHomeShowcase();
-  loadAiSuggestions(); // sinh gợi ý AI ngay khi vào app
-}
-
-// Force refresh feed — dùng khi cần tải lại thủ công
-window.forceRefreshFeed=function(){
-  db.ref('feed').off(); // off tất cả listener trên node feed
-  _feedListening=false;
-  document.getElementById('feed').innerHTML='<div style="text-align:center;color:var(--muted);padding:24px">Đang tải...</div>';
-  subscribeToFeed();
-};
-function renderAll(){
-  updateProgress();renderRanks();
-  document.getElementById('ptsChip').textContent=`⭐ ${G.points} điểm`;
-}
-
-function updateProgress(){
-  const pts=G.points;
-  let rank=RANKS[0],next=RANKS[1];
-  for(let i=RANKS.length-1;i>=0;i--){if(pts>=RANKS[i].req){rank=RANKS[i];next=RANKS[i+1]||null;break;}}
-  document.getElementById('rankName').textContent=`${rank.icon} ${rank.name}`;
-  document.getElementById('ptsChip').textContent=`⭐ ${pts} điểm`;
-  document.getElementById('statPts').textContent=pts;
-  if(next){
-    const pct=Math.min(100,Math.round((pts-rank.req)/(next.req-rank.req)*100));
-    document.getElementById('pbarFill').style.width=pct+'%';
-    document.getElementById('rankPts').textContent=`${pts} / ${next.req} điểm`;
-    document.getElementById('pbarLbl').textContent=`Còn ${next.req-pts} điểm nữa thành ${next.name}! 💪`;
-  }else{
-    document.getElementById('pbarFill').style.width='100%';
-    document.getElementById('rankPts').textContent='Đã đạt cấp cao nhất!';
-    document.getElementById('pbarLbl').textContent='Bạn thật tuyệt vời! 👑';
-  }
-}
-
-async function loadHomeShowcase(){
-  try{
-    const [storySnap,feedSnap,usersSnap]=await Promise.all([
-      db.ref('weeklyStories').get(),
-      db.ref('feed').get(),
-      db.ref('users').get()
-    ]);
-    const feedItems=[];
-    feedSnap.forEach(c=>{
-      const v=c.val();
-      if(v&&v.ts)feedItems.push({id:c.key,...v});
-    });
-
-    const stories=Object.entries(storySnap.val()||{})
-      .map(([key,val])=>({key,...(val||{})}))
-      .filter(s=>typeof s.content==='string'&&s.content.trim())
-      .sort((a,b)=>b.key.localeCompare(a.key));
-
-    const latest=stories[0]||null;
-    const storyWeek=document.getElementById('homeStoryWeek');
-    const storyTitle=document.getElementById('homeStoryTitle');
-    const storyText=document.getElementById('homeStoryText');
-
-    if(latest){
-      storyWeek.textContent=weekLabel(latest.key);
-      storyTitle.textContent=latest.title||'Câu chuyện tuần nổi bật';
-      storyText.textContent=String(latest.content||'').trim();
-    }else{
-      storyWeek.textContent='Câu chuyện tuần sẽ xuất hiện tại đây';
-      storyTitle.textContent='Những điều tử tế đang được lan tỏa';
-      storyText.textContent='Khi tuần hoàn thành, KindUp sẽ chọn việc tốt nổi bật nhất để kể lại trên trang chủ.';
-    }
-
-    renderHomeImpact(feedItems);
-    renderHomeValues(feedItems);
-
-    let totalGood=0;
-    feedItems.forEach(()=>{totalGood++;});
-    let totalUsers=0;
-    usersSnap.forEach(c=>{if(c.val())totalUsers++;});
-
-    document.getElementById('statDone').textContent=String(totalGood);
-    document.getElementById('statPts').textContent=String(totalUsers);
-    document.getElementById('statDoneLabel').textContent='Việc tốt toàn cộng đồng';
-    document.getElementById('statPtsLabel').textContent='Bạn tham gia KindUp';
-  }catch(e){
-    console.error('[Home] Load showcase failed:',e);
-    document.getElementById('homeStoryWeek').textContent='Không tải được câu chuyện tuần';
-    document.getElementById('homeStoryTitle').textContent='Hãy thử mở lại sau nhé';
-    document.getElementById('homeStoryText').textContent='KindUp sẽ hiển thị việc tốt nổi bật nhất tại đây khi dữ liệu sẵn sàng.';
-  }
-}
-
-window.openFeaturedStory=function(){
-  showPage('community');
-  switchCommTab('story');
-};
-
-// ═══ AI GỢI Ý — sinh tự động, dùng chung home + log ═══
-async function loadAiSuggestions(){
-  if(_aiSuggestLoading)return;
-  _aiSuggestLoading=true;
-  // Show loading
-  const homeLoading=document.getElementById('homeAiLoading');
-  const logLoading=document.getElementById('logTaskLoading');
-  const sel=document.getElementById('taskSel');
-  if(homeLoading)homeLoading.style.display='flex';
-  if(logLoading)logLoading.style.display='flex';
-  if(sel)sel.style.display='none';
-
-  // Fallback nếu AI lỗi
-  const fallback=[
-    {name:'Giúp ba mẹ việc nhà',icon:'🧹',reason:'Thể hiện tình yêu gia đình'},
-    {name:'Đọc sách 30 phút',icon:'📚',reason:'Mở rộng kiến thức mỗi ngày'},
-    {name:'Nói lời cảm ơn với ai đó',icon:'🙏',reason:'Lan tỏa năng lượng tích cực'},
-    {name:'Tập thể dục buổi sáng',icon:'🏃',reason:'Giữ sức khoẻ cho ngày dài'},
-    {name:'Dọn dẹp góc học tập',icon:'🪴',reason:'Môi trường gọn giúp học tốt hơn'},
-  ];
-
-  try{
-    const raw=await callGroq(
-      `Gợi ý 5 việc tốt khác nhau cho học sinh lớp 8 Việt Nam có thể làm hôm nay. Trả về JSON hợp lệ, chỉ JSON, không thêm gì khác:
-[{"name":"tên việc tốt","icon":"emoji","reason":"lý do ngắn gọn dưới 10 từ"},...]`,
-      'Bạn là trợ lý AI Kindup. Chỉ trả về JSON array, không có markdown, không có giải thích.'
-    );
-    if(raw){
-      // Xoá markdown nếu có
-      const clean=raw.replace(/```json|```/g,'').trim();
-      const parsed=JSON.parse(clean);
-      if(Array.isArray(parsed)&&parsed.length)_aiSuggestions=parsed.slice(0,5);
-      else _aiSuggestions=fallback;
-    }else _aiSuggestions=fallback;
-  }catch(e){_aiSuggestions=fallback;}
-
-  // Render home tasks list
-  const tasksList=document.getElementById('tasksList');
-  if(tasksList){
-    tasksList.innerHTML=_aiSuggestions.map(t=>`
-      <div class="task-item" onclick="pickSuggestion('${escHtml(t.name)}')">
-        <div class="task-ic">${t.icon||'✨'}</div>
-        <div class="task-info">
-          <div class="task-name">${escHtml(t.name)}</div>
-          <div class="task-pts" style="color:var(--muted)">${escHtml(t.reason||'')}</div>
-        </div>
-        <div class="task-check" style="font-size:.78rem;color:var(--green-dark);font-weight:700">Ghi →</div>
-      </div>`).join('');
-  }
-
-  // Render log select options
-  if(sel){
-    // Giữ lại option đầu và option "khác"
-    sel.innerHTML=`<option value="">-- Chọn việc tốt --</option>`;
-    _aiSuggestions.forEach(t=>{
-      const opt=document.createElement('option');
-      opt.value=t.name;
-      opt.textContent=`${t.icon||'✨'} ${t.name}`;
-      sel.appendChild(opt);
-    });
-    const other=document.createElement('option');
-    other.value='__other__';other.textContent='➕ Việc tốt khác (tự nhập)';
-    sel.appendChild(other);
-    sel.style.display='block';
-  }
-
-  if(homeLoading)homeLoading.style.display='none';
-  if(logLoading)logLoading.style.display='none';
-  _aiSuggestLoading=false;
-}
-
-// Nhấn vào gợi ý ở trang chủ → chuyển sang trang ghi, điền sẵn
-window.pickSuggestion=function(taskName){
-  showPage('log');
-  const sel=document.getElementById('taskSel');
-  if(sel){
-    // Tìm option khớp
-    for(let i=0;i<sel.options.length;i++){
-      if(sel.options[i].value===taskName){sel.selectedIndex=i;break;}
-    }
-    onSelChange();
-  }
-  document.getElementById('taskDesc').focus();
-};
-
-// Feed — nhấn vào card mở modal chi tiết
-function renderFeed(items){
-  const el=document.getElementById('feed');
-  const countEl=document.getElementById('feedCount');
-  if(countEl)countEl.textContent=items.length?`Có ${items.length} việc tốt đã được chia sẻ ✨`:'';
-  if(!items||!items.length){el.innerHTML='<div style="text-align:center;color:var(--muted);padding:32px 0">Chưa có việc tốt nào. Hãy là người đầu tiên! 🌱</div>';return;}
-  el.innerHTML=items.map(f=>{
-    const liked=G.likedPosts[f.id]||false;
-    const cmtCount=f.commentCount||0;
-    return`<div class="fcard" onclick="openPostModal('${f.id}')">
-      <div class="fhd">
-        <div class="fava" style="background:${escHtml(f.bg||'#bbf7d0')}">${escHtml(f.emoji||'😊')}</div>
-        <div><div class="fname">${escHtml(f.name)}</div><div class="ftime">${timeAgo(f.ts)} • ${escHtml(f.rank||'')}</div></div>
-      </div>
-      <div class="ftag">✅ ${escHtml(f.task)}</div>
-      <div class="fdesc">${escHtml(f.desc)}</div>
-      ${f.imageUrl?`<img class="fimg" src="${escHtml(f.imageUrl)}" loading="lazy" onclick="event.stopPropagation()"/>`:''}
-      <div class="fbtns" onclick="event.stopPropagation()">
-        <button class="fbtn ${liked?'liked':''}" data-id="${f.id}" data-likes="${f.likes||0}" onclick="toggleLike(this,event)">${liked?'❤️':'🤍'} ${f.likes||0}</button>
-        <button class="fbtn" onclick="openPostModal('${f.id}')">💬 ${cmtCount>0?cmtCount+' ':''} Bình luận</button>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function renderRanks(){
-  // Bỏ số sao — chỉ icon, tên, trạng thái
-  document.getElementById('ranksGrid').innerHTML=RANKS.map(r=>`
-    <div class="rcard ${G.points>=r.req?'unlocked':'locked'}">
-      <div class="rcard-ic">${r.icon}</div>
-      <div class="rcard-name">${r.name}</div>
-      <div class="rcard-req">${G.points>=r.req?'✅ Đã mở khóa':'🔒 Cần '+r.req+' điểm'}</div>
-    </div>`).join('');
-}
-
-function renderBoard(rows){
-  if(!rows||!rows.length)return;
-  const medals=['🥇','🥈','🥉'];
-  document.getElementById('board').innerHTML=rows.slice(0,20).map((r,i)=>`
-    <div class="brow ${r.uid===G.uid?'me':''}">
-      <div class="brank">${medals[i]||(i+1)}</div>
-      <div class="bava" style="background:${r.bg}">${r.emoji}</div>
-      <div class="bname-wrap">
-        <div class="bname">${escHtml(r.name)}${r.uid===G.uid?' (bạn)':''}</div>
-        <div class="btitle">${r.title}</div>
-        <div class="bstat">${r.weekDone} việc tốt</div>
-      </div>
-      <div class="bpts">${r.pts} điểm</div>
-    </div>`).join('');
-}
-
-// ═══ ACTIONS ═══
-function addPoints(pts){
-  G.points+=pts;G.weekDone++;
-  saveUser();renderAll();
-}
-
-window.onSelChange=function(){
-  const v=document.getElementById('taskSel').value;
-  document.getElementById('customWrap').style.display=(v==='__other__')?'block':'none';
-};
-
-window.submitTask=async function(){
-  const sel=document.getElementById('taskSel').value;
-  const desc=document.getElementById('taskDesc').value.trim();
-  if(!sel){showToast('⚠️ Chọn việc tốt đã làm nhé!');return;}
-  if(!desc){showToast('⚠️ Kể ngắn gọn đi bạn!');return;}
-  // Tên việc tốt
-  const isOther=(sel==='__other__');
-  const custom=document.getElementById('customTask').value.trim();
-  const finalName=isOther?(custom||'Việc tốt khác'):sel;
-  if(isOther&&!custom){showToast('⚠️ Nhập tên việc tốt của bạn nhé!');return;}
-
-  const btn=document.getElementById('btnSubmit');
-  btn.disabled=true;btn.textContent='⏳ Đang lưu...';
-
-  const imageUrl=_photoBase64;
-
-  // ─── Kiểm tra client-side trước (nhanh, không tốn API call) ───
-  const praiseBox=document.getElementById('praiseBox');
-  const praiseTxt=document.getElementById('praiseTxt');
-
-  function isDescMeaningless(text){
-    const t=text.trim();
-    if(t.length<8)return true;
-    const words=t.split(/\s+/).filter(w=>w.length>1);
-    if(words.length<3)return true;
-    if(/^(.{1,3})\1{3,}$/i.test(t))return true;
-    if(/^[a-z]{1,8}$/i.test(t)&&!/[aeiouăâêôơưđ]/i.test(t))return true;
-    if(/^[\d\s!@#$%^&*()_+=\-.,?]+$/.test(t))return true;
-    return false;
-  }
-
-  if(isDescMeaningless(desc)){
-    praiseBox.classList.add('show');
-    praiseTxt.innerHTML=`<div style="margin-bottom:8px;font-size:1.1rem">⚠️ Mô tả chưa đủ</div>Bạn hãy kể cụ thể hơn về việc tốt đã làm nhé! Ví dụ: ai được giúp, bạn đã làm gì, kết quả thế nào. 🙏`;
-    btn.disabled=false;btn.textContent='🎉 Ghi lại & nhận điểm';
-    return;
-  }
-
-  // ─── AI đánh giá + cho điểm 1-10 ───
-  praiseBox.classList.add('show');
-  praiseTxt.innerHTML='<div class="dots-wrap">AI đang đánh giá... <div class="dots"><span></span><span></span><span></span></div></div>';
-
-  const aiRaw=await callGroq(
-    `Tên việc tốt (do hệ thống gợi ý, chỉ dùng để tham khảo ngữ cảnh): "${finalName}"\nMô tả của học sinh tự viết (đây là nội dung CẦN ĐÁNH GIÁ): "${desc}"`,
-    `Bạn là AI kiểm duyệt nội dung cho ứng dụng Kindup dành cho học sinh Việt Nam.
-Nhiệm vụ: đánh giá MÔ TẢ của học sinh — không phải tên việc tốt.
-
-⚠️ QUAN TRỌNG: Tên việc tốt do hệ thống gợi ý sẵn, học sinh chỉ tự viết MÔ TẢ.
-Vì vậy hãy đánh giá dựa trên MÔ TẢ là chính. Dù tên việc tốt có hợp lý,
-nếu mô tả vô nghĩa hoặc không liên quan → score=0.
-
-Tiêu chí TỪ CHỐI (score=0):
-- Mô tả vô nghĩa, spam, ký tự ngẫu nhiên (vd: "asdf", "haha", "không biết", "oki")
-- Mô tả không liên quan đến tên việc tốt được chọn
-- Mô tả không đủ thông tin để xác nhận việc tốt đã thực sự xảy ra
-- Nội dung tiêu cực, có hại
-
-Tiêu chí CHẤP NHẬN (score 1-10):
-- Mô tả cụ thể, rõ ràng, mô tả đúng việc tốt đã làm
-- Có ích cho bản thân, gia đình, bạn bè hoặc cộng đồng
-- score càng cao nếu mô tả chi tiết, chân thực, cảm xúc tốt
-
-Quy tắc bắt buộc: CHỈ trả về JSON, không thêm bất kỳ chữ nào khác.
-Format bắt buộc: {"score":NUMBER,"praise":"STRING"}
-Ví dụ từ chối: {"score":0,"praise":"Mô tả chưa rõ ràng, bạn kể cụ thể hơn nhé — ai được giúp, bạn đã làm gì? 🙏"}
-Ví dụ chấp nhận: {"score":8,"praise":"Bạn thật tuyệt vời khi giúp mẹ nấu cơm!"}`
-  );
-
-  let earnedPts=5;
-  let praiseText=FALLBACKS.praise;
-  let isValid=false; // mặc định KHÔNG hợp lệ, phải AI xác nhận mới lưu
-  try{
-    if(aiRaw){
-      // Thử tìm JSON trong response kể cả khi có text thừa
-      const jsonMatch=aiRaw.match(/\{[\s\S]*"score"[\s\S]*"praise"[\s\S]*\}/);
-      const clean=jsonMatch?jsonMatch[0]:aiRaw.replace(/```json|```/g,'').trim();
-      const parsed=JSON.parse(clean);
-      if(typeof parsed.score==='number'){
-        if(parsed.score===0){
-          // Từ chối rõ ràng
-          isValid=false;
-          praiseText=parsed.praise||'Nội dung chưa phù hợp, bạn thử lại nhé! 🙏';
-        } else if(parsed.score>=1&&parsed.score<=10){
-          // Hợp lệ
-          isValid=true;
-          earnedPts=parsed.score;
-          if(parsed.praise)praiseText=parsed.praise;
+    // Khởi tạo bàn cờ ban đầu
+    function initGrid() {
+        gridEl.innerHTML = '';
+        for (let r = 0; r < GRID_SIZE; r++) {
+            for (let c = 0; c < GRID_SIZE; c++) {
+                const cell = document.createElement('div');
+                cell.classList.add('cell');
+                cell.dataset.row = r;
+                cell.dataset.col = c;
+                gridEl.appendChild(cell);
+            }
         }
-      }
+        bestScoreEl.innerText = bestScore;
     }
-  }catch(e){
-    // Parse thất bại → không lưu, yêu cầu thử lại
-    console.warn('AI score parse error:',e,aiRaw);
-    isValid=false;
-    praiseText='AI đang bận, bạn thử ghi lại sau ít phút nhé! 🙏';
-  }
 
-  if(!isValid){
-    // Không lưu, chỉ hiện phản hồi
-    praiseTxt.innerHTML=`<div style="margin-bottom:8px;font-size:1.1rem">⚠️ Chưa được ghi nhận</div>`+praiseText.replace(/\n/g,'<br>');
-    btn.disabled=false;btn.textContent='🎉 Ghi lại & nhận điểm';
-    return;
-  }
-
-  // Lưu điểm + feed
-  addPoints(earnedPts);
-  await postToFeed(finalName,desc,imageUrl,earnedPts);
-  loadHomeShowcase();
-  // Kích hoạt tạo câu chuyện tuần sau mỗi lần ghi việc tốt (chạy nền, không block UI)
-  checkAndGenerateStories().catch(err=>console.warn('[Story] Post-submit generate failed:',err));
-  showToast(`🎉 +${earnedPts} điểm! "${finalName}" đã được ghi lại!`);
-  showPointPopup(earnedPts,btn);
-  confetti();
-
-  // Hiện lời khen + điểm
-  const taskCat=catOfTask(finalName,desc);
-  const values=inferValues(finalName,desc);
-  const challenge=getCurrentWeeklyChallenge(Date.now());
-  praiseTxt.innerHTML=
-    `<div style="margin-bottom:8px"><span style="font-family:'Baloo 2',cursive;font-size:1.4rem;color:var(--orange)">+${earnedPts}</span> <span style="font-size:.85rem;color:var(--muted)">/ 10 điểm</span></div>`+
-    praiseText.replace(/\n/g,'<br>')+
-    `<div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:6px">
-      <span class="value-chip">${taskCat.icon} ${escHtml(taskCat.name)}</span>
-      ${values.map(v=>`<span class="value-chip">${v.icon} ${escHtml(v.name)}</span>`).join('')}
-    </div>
-    <div style="margin-top:10px;font-size:.78rem;color:var(--muted)">Thử thách tuần hiện tại: ${escHtml(challenge.title)}</div>`;
-
-  // Reset form
-  document.getElementById('taskSel').value='';
-  document.getElementById('taskDesc').value='';
-  document.getElementById('customTask').value='';
-  document.getElementById('customWrap').style.display='none';
-  removePhoto();
-  btn.disabled=false;btn.textContent='🎉 Ghi lại & nhận điểm';
-};
-
-// ═══ THÀNH TÍCH CÁ NHÂN ═══
-const TASK_CATS={
-  'Gia đình':    {icon:'❤️', keys:['mẹ','ba','cha','bố','gia đình','em','anh','chị','ông','bà','nấu','dọn','giặt','chợ','nhà']},
-  'Môi trường':  {icon:'🌍', keys:['rác','môi trường','cây','trồng','điện','nước','tái chế','xanh','sạch']},
-  'Học tập':     {icon:'📚', keys:['sách','học','bài','đọc','ôn','kiến thức','thư viện','nghiên cứu']},
-  'Cộng đồng':   {icon:'🤝', keys:['bạn','giúp','nhường','quyên','tặng','an ủi','thầy','cô','người','cụ','bà']},
-  'Sức khoẻ':    {icon:'💪', keys:['tập','chạy','thể dục','sport','vận động','ngủ','ăn']},
-};
-const VALUE_BADGES=[
-  {id:'yeu_thuong',name:'Yêu thương',icon:'❤️',desc:'Quan tâm gia đình, bạn bè và người xung quanh.',keys:['mẹ','ba','gia đình','em','anh','chị','cảm ơn','an ủi','giúp','chia sẻ']},
-  {id:'trach_nhiem',name:'Trách nhiệm',icon:'🛡️',desc:'Biết chủ động làm điều đúng và hoàn thành việc cần làm.',keys:['dọn','rửa','nấu','trực nhật','hoàn thành','giúp việc','đúng giờ']},
-  {id:'cham_hoc',name:'Chăm học',icon:'📚',desc:'Nuôi dưỡng tinh thần tự học và tiến bộ mỗi ngày.',keys:['đọc','sách','học','bài','ôn','kiến thức','thư viện']},
-  {id:'chia_se',name:'Chia sẻ',icon:'🤝',desc:'Sẵn sàng giúp đỡ và lan tỏa điều tích cực.',keys:['tặng','quyên','nhường','giúp','hỗ trợ','bình luận','động viên']},
-  {id:'xanh',name:'Sống xanh',icon:'🌍',desc:'Biết bảo vệ môi trường từ những việc nhỏ nhất.',keys:['rác','cây','trồng','điện','nước','tái chế','xanh','sạch']},
-  {id:'ky_luat',name:'Kỷ luật',icon:'⏰',desc:'Rèn thói quen tốt và biết chăm sóc bản thân bền bỉ.',keys:['tập','chạy','thể dục','ngủ sớm','buổi sáng','vận động']},
-];
-const CATEGORY_TO_VALUES={
-  'Gia đình':['yeu_thuong','trach_nhiem'],
-  'Môi trường':['xanh','trach_nhiem'],
-  'Học tập':['cham_hoc','ky_luat'],
-  'Cộng đồng':['chia_se','yeu_thuong'],
-  'Sức khoẻ':['ky_luat','trach_nhiem'],
-  'Khác':['trach_nhiem']
-};
-const WEEKLY_CHALLENGES=[
-  {id:'family',icon:'❤️',title:'Tuần yêu thương gia đình',desc:'Hoàn thành 2 việc tốt hướng về gia đình như giúp việc nhà, hỏi han hoặc chăm sóc người thân.',target:2,type:'category',category:'Gia đình',valueIds:['yeu_thuong','trach_nhiem'],note:'Rất phù hợp để chứng minh app nuôi dưỡng phẩm chất trong đời sống thật.'},
-  {id:'green',icon:'🌍',title:'Tuần sống xanh',desc:'Hoàn thành 2 việc tốt giúp môi trường sạch hơn hoặc tiết kiệm tài nguyên.',target:2,type:'category',category:'Môi trường',valueIds:['xanh','trach_nhiem'],note:'Có thể dùng để thuyết trình tác động của sản phẩm với môi trường học đường.'},
-  {id:'community',icon:'🤝',title:'Tuần sẻ chia',desc:'Thực hiện 2 hành động hỗ trợ bạn bè, thầy cô hoặc cộng đồng xung quanh.',target:2,type:'category',category:'Cộng đồng',valueIds:['chia_se','yeu_thuong'],note:'Điểm mạnh ở chỗ kết nối cá nhân với tập thể chứ không chỉ tự ghi điểm.'},
-  {id:'study',icon:'📚',title:'Tuần tự học tích cực',desc:'Ghi nhận 2 việc tốt giúp bản thân học tập tốt hơn và truyền cảm hứng học tập.',target:2,type:'category',category:'Học tập',valueIds:['cham_hoc','ky_luat'],note:'Cho thấy KindUp không chỉ rèn đạo đức mà còn hỗ trợ thói quen học tập.'},
-  {id:'streak',icon:'✨',title:'Tuần bền bỉ 3 ngày',desc:'Ghi nhận ít nhất 3 việc tốt trong tuần để tạo nhịp thói quen tích cực.',target:3,type:'count',note:'Ban giám khảo thường đánh giá cao yếu tố hình thành thói quen bền vững.'},
-];
-
-function catOfTask(taskName, desc){
-  const txt=(taskName+' '+(desc||'')).toLowerCase();
-  for(const [cat,info] of Object.entries(TASK_CATS)){
-    if(info.keys.some(k=>txt.includes(k)))return{name:cat,icon:info.icon};
-  }
-  return{name:'Khác',icon:'✨'};
-}
-
-function inferValues(taskName,desc){
-  const txt=(taskName+' '+(desc||'')).toLowerCase();
-  const scores=VALUE_BADGES.map(v=>({
-    ...v,
-    score:v.keys.reduce((sum,key)=>sum+(txt.includes(key)?1:0),0)
-  }));
-  const direct=scores.filter(v=>v.score>0).sort((a,b)=>b.score-a.score);
-  if(direct.length)return direct.slice(0,2);
-  const category=catOfTask(taskName,desc).name;
-  const fallbackIds=CATEGORY_TO_VALUES[category]||CATEGORY_TO_VALUES['Khác'];
-  return fallbackIds.map(id=>VALUE_BADGES.find(v=>v.id===id)).filter(Boolean).slice(0,2);
-}
-
-function getCurrentWeeklyChallenge(date){
-  const info=getWeekInfo(date||Date.now());
-  return WEEKLY_CHALLENGES[(info.week-1)%WEEKLY_CHALLENGES.length];
-}
-
-function countChallengeProgress(challenge,items){
-  if(!challenge)return 0;
-  if(challenge.type==='count')return items.length;
-  if(challenge.type==='category'){
-    return items.filter(item=>{
-      const category=catOfTask(item.task,item.desc).name;
-      if(category===challenge.category)return true;
-      const valueIds=inferValues(item.task,item.desc).map(value=>value.id);
-      return (challenge.valueIds||[]).some(id=>valueIds.includes(id));
-    }).length;
-  }
-  return 0;
-}
-
-function uniqueCount(items,key){
-  return new Set(items.map(item=>item&&item[key]).filter(Boolean)).size;
-}
-
-function sumField(items,key){
-  return items.reduce((sum,item)=>sum+(parseInt(item?.[key],10)||0),0);
-}
-
-function renderHomeImpact(feedItems){
-  const currentWeek=getWeekKey(Date.now());
-  const weekItems=(feedItems||[]).filter(item=>getWeekKey(item.ts)===currentWeek);
-  const impactTasks=document.getElementById('impactTasks');
-  const impactUsers=document.getElementById('impactUsers');
-  const impactLikes=document.getElementById('impactLikes');
-  if(impactTasks)impactTasks.textContent=String(weekItems.length);
-  if(impactUsers)impactUsers.textContent=String(uniqueCount(weekItems,'uid'));
-  if(impactLikes)impactLikes.textContent=String(sumField(weekItems,'likes'));
-
-  const challenge=getCurrentWeeklyChallenge(Date.now());
-  const userItems=weekItems.filter(item=>item.uid===G.uid);
-  const progress=countChallengeProgress(challenge,userItems);
-  const target=Math.max(1,challenge?.target||1);
-  const pct=Math.min(100,Math.round(progress/target*100));
-  document.getElementById('challengeTitle').textContent=`${challenge.icon} ${challenge.title}`;
-  document.getElementById('challengeDesc').textContent=challenge.desc;
-  document.getElementById('challengeProgressNum').textContent=`${Math.min(progress,target)}/${target}`;
-  document.getElementById('challengeFill').style.width=pct+'%';
-  document.getElementById('challengeMetaLeft').textContent=challenge.type==='category'?`Mục tiêu: ${challenge.category}`:'Mục tiêu: duy trì đều';
-  document.getElementById('challengeMetaRight').textContent=progress>=target?'Đã hoàn thành':'Còn '+Math.max(0,target-progress)+' bước nữa';
-  document.getElementById('challengeNote').textContent=challenge.note;
-}
-
-function renderHomeValues(feedItems){
-  const el=document.getElementById('homeValues');
-  if(!el)return;
-  const myItems=(feedItems||[]).filter(item=>item.uid===G.uid).sort((a,b)=>(b.ts||0)-(a.ts||0));
-  if(!myItems.length){
-    el.innerHTML='<span class="value-chip">🌱 Bắt đầu việc tốt đầu tiên để mở huy hiệu</span>';
-    return;
-  }
-  const scoreMap={};
-  myItems.forEach(item=>{
-    inferValues(item.task,item.desc).forEach(value=>{
-      scoreMap[value.id]=(scoreMap[value.id]||0)+1;
-    });
-  });
-  const top=Object.entries(scoreMap)
-    .sort((a,b)=>b[1]-a[1])
-    .slice(0,3)
-    .map(([id,count])=>{
-      const value=VALUE_BADGES.find(v=>v.id===id);
-      return value?{...value,count}:null;
-    })
-    .filter(Boolean);
-  el.innerHTML=top.map(value=>`<span class="value-chip">${value.icon} ${escHtml(value.name)} • ${value.count}</span>`).join('');
-}
-
-function calcStreak(history){
-  if(!history.length)return 0;
-  const today=new Date();
-  today.setHours(0,0,0,0);
-  const dayKeys=[...new Set(history.map(h=>{
-    const d=new Date(h.ts);
-    d.setHours(0,0,0,0);
-    return d.getTime();
-  }))].sort((a,b)=>b-a);
-  let streak=0;
-  for(let i=0;i<dayKeys.length;i++){
-    const diff=Math.round((today-dayKeys[i])/86400000);
-    if(diff===i||diff===i+1)streak++;
-    else break;
-  }
-  return streak;
-}
-
-function buildValueStats(history){
-  const stats={};
-  VALUE_BADGES.forEach(value=>{stats[value.id]={...value,count:0};});
-  (history||[]).forEach(item=>{
-    inferValues(item.task,item.desc).forEach(value=>{
-      if(stats[value.id])stats[value.id].count++;
-    });
-  });
-  return Object.values(stats).sort((a,b)=>b.count-a.count);
-}
-
-async function loadAchievements(){
-  const snap=await db.ref('feed').orderByChild('uid').equalTo(G.uid).get();
-  const history=[];
-  snap.forEach(c=>{
-    const v=c.val();
-    if(v)history.push({id:c.key,...v});
-  });
-  history.sort((a,b)=>b.ts-a.ts);
-
-  // ── Tổng quan ──
-  const totalPts=G.points;
-  const totalDone=history.length;
-  const rank=getRankFor(totalPts);
-  const nextRank=RANKS[RANKS.findIndex(r=>r.req===rank.req)+1];
-  const streak=calcStreak(history);
-  document.getElementById('achOverview').innerHTML=`
-    <div class="ach-stat">
-      <div class="ach-stat-num" style="color:var(--green-dark)">${totalDone}</div>
-      <div class="ach-stat-lbl">🌟 Việc tốt đã làm</div>
-    </div>
-    <div class="ach-stat">
-      <div class="ach-stat-num" style="color:var(--orange)">${totalPts}</div>
-      <div class="ach-stat-lbl">⭐ Điểm tích luỹ</div>
-    </div>
-    <div class="ach-stat">
-      <div class="ach-stat-num" style="color:var(--purple)">${rank.icon}</div>
-      <div class="ach-stat-lbl">${rank.name}</div>
-    </div>
-    <div class="ach-stat">
-      <div class="ach-stat-num" style="color:#06b6d4">${nextRank?nextRank.req-totalPts:'MAX'}</div>
-      <div class="ach-stat-lbl">${nextRank?'⚡ Điểm lên cấp':'👑 Đã max cấp'}</div>
-    </div>`;
-  document.getElementById('streakNum').textContent=String(streak);
-  document.getElementById('streakTitle').textContent=streak>=7?'Chuỗi tử tế rất ấn tượng':'Chuỗi việc tốt của bạn';
-  document.getElementById('streakDesc').textContent=streak?`Bạn đã duy trì ${streak} ngày có việc tốt liên tiếp hoặc sát nhau. Đây là minh chứng rất đẹp cho việc hình thành thói quen.`:'Hãy ghi nhận việc tốt hôm nay để bắt đầu chuỗi thói quen tích cực.';
-
-  // ── Thống kê chủ đề ──
-  const catCount={};
-  history.forEach(h=>{
-    const c=catOfTask(h.task,h.desc);
-    if(!catCount[c.name])catCount[c.name]={count:0,icon:c.icon};
-    catCount[c.name].count++;
-  });
-  const maxCat=Math.max(1,...Object.values(catCount).map(c=>c.count));
-  document.getElementById('achCats').innerHTML=
-    Object.entries(catCount).sort((a,b)=>b[1].count-a[1].count).map(([name,{count,icon}])=>`
-      <div class="ach-cat">
-        <div class="ach-cat-hd">
-          <div class="ach-cat-name">${icon} ${name}</div>
-          <div class="ach-cat-count">${count} việc tốt</div>
-        </div>
-        <div class="ach-cat-bar"><div class="ach-cat-fill" style="width:${Math.round(count/maxCat*100)}%"></div></div>
-      </div>`).join('')||'<div style="color:var(--muted);font-size:.88rem;padding:8px">Chưa có dữ liệu</div>';
-
-  const valueStats=buildValueStats(history);
-  const maxValue=Math.max(1,...valueStats.map(v=>v.count));
-  document.getElementById('valuesGrid').innerHTML=valueStats.map(value=>`
-    <div class="value-card">
-      <div class="value-card-top">
-        <div class="value-card-ic">${value.icon}</div>
-        <div>
-          <div class="value-card-name">${value.name}</div>
-          <div class="value-card-count">${value.count} lần được ghi nhận</div>
-        </div>
-      </div>
-      <div class="value-card-desc">${value.desc}</div>
-      <div class="value-card-bar"><div class="value-card-fill" style="width:${Math.round(value.count/maxValue*100)}%"></div></div>
-    </div>`).join('');
-
-  // ── Lịch sử — nhấn vào mở modal chi tiết ──
-  document.getElementById('historyCount').textContent=`${history.length} việc tốt`;
-  if(!history.length){
-    document.getElementById('historyList').innerHTML='<div style="text-align:center;color:var(--muted);padding:24px">Chưa có việc tốt nào. Hãy bắt đầu hôm nay! 🌱</div>';
-    return;
-  }
-  document.getElementById('historyList').innerHTML=history.map(h=>{
-    const d=new Date(h.ts);
-    const cat=catOfTask(h.task,h.desc);
-    const days=['CN','T2','T3','T4','T5','T6','T7'];
-    const liked=G.likedPosts[h.id]||false;
-    const cmtCount=h.commentCount||0;
-    return`<div class="hist-item" onclick="openPostModal('${h.id}')" style="cursor:pointer">
-      <div class="hist-date">
-        <div class="hist-date-day">${d.getDate()}</div>
-        <div style="font-size:.65rem;color:var(--muted)">${days[d.getDay()]}</div>
-        <div style="font-size:.65rem;color:var(--muted)">${d.getMonth()+1}/${d.getFullYear().toString().slice(2)}</div>
-      </div>
-      <div class="hist-body">
-        <div class="hist-task">${escHtml(h.task)}</div>
-        ${h.desc?`<div class="hist-desc">${escHtml(h.desc)}</div>`:''}
-        <div class="hist-meta">
-          <span class="hist-pts">+${h.pts||0} điểm</span>
-          <span class="hist-cat">${cat.icon} ${cat.name}</span>
-          <span style="font-size:.7rem;color:var(--muted)">${liked?'❤️':'🤍'} ${h.likes||0}</span>
-          ${cmtCount?`<span style="font-size:.7rem;color:var(--muted)">💬 ${cmtCount}</span>`:''}
-        </div>
-      </div>
-      <div style="color:var(--muted);font-size:.8rem;align-self:center">›</div>
-    </div>`;
-  }).join('');
-}
-// ═══ CÂU CHUYỆN TUẦN ═══
-function addDays(date,days){
-  const d=new Date(date);
-  d.setDate(d.getDate()+days);
-  return d;
-}
-function getStartOfWeek(date){
-  const d=new Date(date||Date.now());
-  d.setHours(0,0,0,0);
-  const day=(d.getDay()+6)%7;
-  d.setDate(d.getDate()-day);
-  return d;
-}
-function getWeekInfo(date){
-  const start=getStartOfWeek(date);
-  const thursday=addDays(start,3);
-  const weekYear=thursday.getFullYear();
-  const jan4=new Date(weekYear,0,4);
-  const firstWeekStart=getStartOfWeek(jan4);
-  const week=Math.round((start-firstWeekStart)/604800000)+1;
-  return{weekYear,week,start};
-}
-function getWeekKey(date){
-  const info=getWeekInfo(date);
-  return`${info.weekYear}-W${String(info.week).padStart(2,'0')}`;
-}
-function weekKeyToStartDate(key){
-  const [year,w]=String(key).split('-W');
-  const jan4=new Date(parseInt(year,10),0,4);
-  const firstWeekStart=getStartOfWeek(jan4);
-  return addDays(firstWeekStart,(parseInt(w,10)-1)*7);
-}
-function weekLabel(key){
-  const [year,w]=String(key).split('-W');
-  const monday=weekKeyToStartDate(key);
-  const sunday=addDays(monday,6);
-  const fmt=d=>`${d.getDate()}/${d.getMonth()+1}`;
-  return`Tuần ${w} • ${fmt(monday)} – ${fmt(sunday)}/${year}`;
-}
-function listWeeksBetween(minTs,maxTs){
-  if(!Number.isFinite(minTs)||!Number.isFinite(maxTs)||minTs>maxTs)return[];
-  const weeks=[];
-  let cursor=getStartOfWeek(minTs);
-  const end=getStartOfWeek(maxTs);
-  while(cursor<=end){
-    weeks.push(getWeekKey(cursor));
-    cursor=addDays(cursor,7);
-  }
-  return weeks;
-}
-function safeJsonParse(raw){
-  if(!raw)return null;
-  const clean=String(raw).replace(/```json|```/g,'').trim();
-  try{return JSON.parse(clean);}catch(e){}
-  const match=clean.match(/\{[\s\S]*\}/);
-  if(match){
-    try{return JSON.parse(match[0]);}catch(e){}
-  }
-  return null;
-}
-function buildFallbackStory(weekKey,posts,primary){
-  const sorted=[...posts].sort((a,b)=>(b.ts||0)-(a.ts||0));
-  const others=sorted.filter(p=>p.id!==primary.id).slice(0,2);
-  const lead=`Trong ${weekLabel(weekKey)}, ${primary.name} đã để lại dấu ấn đẹp với việc "${primary.task}". ${primary.desc||'Hành động nhỏ nhưng mang nhiều ý nghĩa tích cực.'}`;
-  const support=others.length
-    ? others.map(p=>`${p.name} cũng góp thêm điều tốt qua "${p.task}"`).join(', ')+'.'
-    : 'Những việc tốt dù nhỏ vẫn có thể làm cho lớp học, gia đình và cộng đồng ấm áp hơn mỗi ngày.';
-  const ending='Mỗi việc tốt được bắt đầu đều có thể truyền cảm hứng để thêm nhiều điều tử tế tiếp tục lan ra.';
-  return{
-    title:`Điều tử tế nở hoa từ ${primary.name}`,
-    content:[lead,support,ending].join('\n\n'),
-    tags:['Tử tế','Truyền cảm hứng','Kindup']
-  };
-}
-function buildStoryDataset(posts,existingKeys){
-  const validPosts=(posts||[])
-    .filter(p=>p&&Number.isFinite(p.ts))
-    .sort((a,b)=>(a.ts||0)-(b.ts||0));
-  const byWeek={};
-  validPosts.forEach(post=>{
-    const wk=getWeekKey(post.ts);
-    if(!byWeek[wk])byWeek[wk]=[];
-    byWeek[wk].push(post);
-  });
-  const minTs=validPosts.length?validPosts[0].ts:null;
-  const maxTs=validPosts.length?validPosts[validPosts.length-1].ts:null;
-  const weeksInRange=listWeeksBetween(minTs,maxTs);
-  const currentWeekKey=getWeekKey(Date.now());
-
-  // Bổ sung tuần hiện tại nếu có dữ liệu nhưng chưa nằm trong range
-  if((byWeek[currentWeekKey]?.length||0)>0 && !weeksInRange.includes(currentWeekKey)){
-    weeksInRange.push(currentWeekKey);
-  }
-
-  const completedWeeks=weeksInRange.filter(wk=>wk<currentWeekKey);
-  const pendingWeeks=weeksInRange.filter(wk=>wk>currentWeekKey&&(byWeek[wk]?.length||0)>0);
-
-  // Tất cả tuần có dữ liệu (kể cả tuần hiện tại) mà chưa có story => cần tạo
-  const weeksWithData=weeksInRange.filter(wk=>(byWeek[wk]?.length||0)>0);
-  const missingWeeks=weeksWithData.filter(wk=>!existingKeys.has(wk));
-
-  return{validPosts,byWeek,minTs,maxTs,weeksInRange,currentWeekKey,completedWeeks,pendingWeeks,missingWeeks};
-}
-
-window.switchCommTab=async function(tab){
-  document.getElementById('panel-feed').style.display=tab==='feed'?'block':'none';
-  document.getElementById('panel-story').style.display=tab==='story'?'block':'none';
-  document.getElementById('ctab-feed').classList.toggle('active',tab==='feed');
-  document.getElementById('ctab-story').classList.toggle('active',tab==='story');
-  if(tab==='story'){
-    await renderStories();
-  }
-};
-
-async function renderStories(){
-  const el=document.getElementById('storyList');
-  el.innerHTML=`<div style="text-align:center;padding:24px;color:var(--muted);font-size:.88rem"><div class="dots-wrap">Đang tải... <div class="dots"><span></span><span></span><span></span></div></div></div>`;
-
-  await checkAndGenerateStories();
-  const snap=await db.ref('weeklyStories').get();
-  const rawStories=snap.val()||{};
-  const stories=Object.entries(rawStories)
-    .map(([key,val])=>{
-      const story=val&&typeof val==='object'?val:{};
-      return{
-        key,
-        title:typeof story.title==='string'&&story.title.trim()?story.title.trim():'Câu chuyện tuần',
-        content:typeof story.content==='string'&&story.content.trim()?story.content.trim():'',
-        tags:Array.isArray(story.tags)?story.tags.filter(Boolean):[],
-        generatedAt:Number.isFinite(story.generatedAt)?story.generatedAt:0,
-      };
-    })
-    .filter(s=>s.content)
-    .sort((a,b)=>b.key.localeCompare(a.key));
-  if(!stories.length){
-    const info=await getStoryGenerationStatus();
-    // Có tuần cần tạo nhưng generate vẫn thất bại (AI lỗi, proxy lỗi...)
-    if(info.missingWeeks.length){
-      const labels=info.missingWeeks.slice(0,3).map(weekLabel).join(', ');
-      el.innerHTML=`<div style="text-align:center;padding:32px 16px;color:var(--muted)">
-        Chưa tạo được câu chuyện tuần cho ${escHtml(labels)}.<br>
-        <span style="font-size:.78rem">Bạn thử mở lại tab này sau ít phút nhé. ⚠️</span>
-      </div>`;
-    }else if(info.pendingWeeks.length){
-      const labels=info.pendingWeeks.slice(0,2).map(weekLabel).join(', ');
-      el.innerHTML=`<div style="text-align:center;padding:32px 16px;color:var(--muted)">Câu chuyện cho ${escHtml(labels)} sẽ được tạo khi sang tuần kế tiếp nhé. 🌱</div>`;
-    }else{
-      el.innerHTML=`<div style="text-align:center;padding:32px 16px;color:var(--muted)">Chưa có dữ liệu việc tốt để tạo câu chuyện tuần. Khi có ít nhất 1 việc tốt, hệ thống sẽ tự tạo và lưu lại nhé! 🌱</div>`;
+    // Vẽ lại trạng thái màu sắc trên bàn cờ
+    function drawGrid() {
+        const cells = document.querySelectorAll('.cell');
+        cells.forEach(cell => {
+            const r = parseInt(cell.dataset.row);
+            const c = parseInt(cell.dataset.col);
+            cell.style.backgroundColor = gridData[r][c] ? gridData[r][c] : 'var(--cell-empty)';
+        });
     }
-    return;
-  }
-  el.innerHTML=`
-    <div style="font-size:.8rem;color:var(--muted);margin:2px 2px 12px">${stories.length} câu chuyện tuần</div>
-    ${stories.map(s=>`
-    <div class="story-card">
-      <div class="story-header">
-        <div class="story-week">📅 ${weekLabel(s.key)}</div>
-        <div class="story-title">${escHtml(s.title)}</div>
-      </div>
-      <div class="story-body">${String(s.content).split('\n').filter(l=>l.trim()).map(l=>`<p>${escHtml(l)}</p>`).join('')}</div>
-      <div class="story-footer">
-        ${(s.tags||[]).map(t=>`<span class="story-tag">${escHtml(t)}</span>`).join('')}
-        <span style="margin-left:auto;font-size:.72rem;color:var(--muted)">✍️ AI Kindup</span>
-      </div>
-    </div>`).join('')}`;
-}
 
-async function getStoryGenerationStatus(){
-  const [feedSnap,storySnap]=await Promise.all([db.ref('feed').get(),db.ref('weeklyStories').get()]);
-  const posts=[];
-  feedSnap.forEach(c=>{
-    const post=c.val();
-    if(post)posts.push({id:c.key,...post});
-  });
-  const existingKeys=new Set();
-  storySnap.forEach(c=>{
-    const val=c.val();
-    // Chỉ tính là "đã có" nếu story thực sự có nội dung
-    if(val&&typeof val.content==='string'&&val.content.trim()){
-      existingKeys.add(c.key);
-    }
-  });
-  const dataset=buildStoryDataset(posts,existingKeys);
-  return{
-    ...dataset,
-    existingKeys,
-  };
-}
-
-async function checkAndGenerateStories(){
-  // Nếu đang chạy thì đợi promise hiện tại, không chạy song song
-  if(_storyGeneratingPromise)return _storyGeneratingPromise;
-  _storyGenerating=true;
-  _storyGeneratingPromise=(async()=>{
-    try{
-      const status=await getStoryGenerationStatus();
-      if(!status.validPosts.length||!status.missingWeeks.length)return;
-
-      // Sắp xếp: tuần cũ trước, tuần hiện tại cuối (ưu tiên hoàn thành lịch sử)
-      const missing=status.missingWeeks
-        .map(weekKey=>[weekKey,status.byWeek[weekKey]||[]])
-        .filter(([,posts])=>posts.length>0)
-        .sort((a,b)=>a[0].localeCompare(b[0]));
-
-      if(!missing.length)return;
-      console.log(`[Story] Cần tạo ${missing.length} câu chuyện:`,missing.map(([k])=>k));
-
-      for(const [weekKey,posts] of missing){
-        // Kiểm tra lần nữa ngay trước khi generate, tránh race condition
-        const snap=await db.ref(`weeklyStories/${weekKey}`).get();
-        if(snap.exists()&&snap.val()?.content?.trim()){
-          console.log(`[Story] ⏭️ Đã có, bỏ qua: ${weekKey}`);
-          continue;
+    // Sinh ra các khối ở khay dưới (Dock)
+    function generateDockPieces() {
+        dockEl.innerHTML = '';
+        for (let i = 0; i < 3; i++) {
+            const slot = document.createElement('div');
+            slot.classList.add('dock-slot');
+            
+            const pieceObj = createPieceElement();
+            slot.appendChild(pieceObj);
+            dockEl.appendChild(slot);
         }
-        await generateWeekStory(weekKey,posts);
-        // Delay nhỏ tránh spam API
-        await new Promise(r=>setTimeout(r,400));
-      }
-    }catch(err){
-      console.error('[Story] checkAndGenerateStories error:',err);
-    }finally{
-      _storyGenerating=false;
-      _storyGeneratingPromise=null;
+        // Sau khi sinh khối mới, check ngay xem có bị Game Over lập tức không
+        checkGameOver();
     }
-  })();
-  return _storyGeneratingPromise;
-}
 
-async function generateWeekStory(weekKey,posts){
-  const ranked=[...posts].sort((a,b)=>((b.likes||0)+(b.pts||0)*2+(b.commentCount||0))-((a.likes||0)+(a.pts||0)*2+(a.commentCount||0)));
-  const primary=ranked[0];
-  if(!primary)return;
+    function createPieceElement() {
+        const shape = SHAPES[Math.floor(Math.random() * SHAPES.length)];
+        const color = COLORS[Math.floor(Math.random() * COLORS.length)];
+        
+        const piece = document.createElement('div');
+        piece.classList.add('piece');
+        piece.style.gridTemplateRows = `repeat(${shape.length}, 1fr)`;
+        piece.style.gridTemplateColumns = `repeat(${shape[0].length}, 1fr)`;
+        piece.dataset.shape = JSON.stringify(shape);
+        piece.dataset.color = color;
 
-  const summary=ranked.slice(0,12).map((p,i)=>`${i+1}. ${p.name}: "${p.task}" — ${p.desc||''} (${p.pts||0} điểm, ❤️${p.likes||0}, 💬${p.commentCount||0})`).join('\n');
-  const aiRaw=await callGroq(
-    `Dữ liệu việc tốt trong ${weekLabel(weekKey)}:\n${summary}`,
-    `Bạn là biên tập viên của Kindup – ứng dụng việc tốt mỗi ngày dành cho học sinh Việt Nam.
-Hãy đọc danh sách việc tốt và tự chọn 1 việc nổi bật nhất để làm trung tâm câu chuyện.
-Yêu cầu:
-- Chọn 1 việc tốt tiêu biểu nhất làm điểm nhấn
-- Có thể nhắc thêm 1-2 việc tốt khác nếu phù hợp
-- Tiêu đề hay, gợi cảm xúc, không dùng từ "tuần"
-- Nội dung 120-180 từ, tự nhiên, ấm áp, dễ hiểu với học sinh
-- Tiếng Việt, không markdown, không emoji
-- Chỉ trả về JSON hợp lệ: {"title":"tiêu đề","content":"nội dung, xuống dòng dùng \\n","tags":["tag1","tag2","tag3"]}`
-  );
+        // Tính kích thước ô nhỏ trong khối dựa theo tỷ lệ lưới để nhìn cân đối
+        const cellSize = Math.floor(gridEl.clientWidth / 8) - 6; 
+        
+        shape.forEach(row => {
+            row.forEach(val => {
+                const pCell = document.createElement('div');
+                pCell.classList.add('p-cell');
+                pCell.style.width = cellSize + 'px';
+                pCell.style.height = cellSize + 'px';
+                if (val) {
+                    pCell.style.backgroundColor = color;
+                } else {
+                    pCell.style.backgroundColor = 'transparent';
+                }
+                piece.appendChild(pCell);
+            });
+        });
 
-  const parsed=safeJsonParse(aiRaw)||buildFallbackStory(weekKey,posts,primary);
-  if(!parsed.title||!parsed.content)return;
-
-  const payload={
-    title:parsed.title,
-    content:parsed.content,
-    tags:Array.isArray(parsed.tags)?parsed.tags.slice(0,5):[],
-    generatedAt:Date.now(),
-    postCount:posts.length,
-    sourcePostId:primary.id||null,
-    sourceTask:primary.task||'',
-    sourceName:primary.name||'',
-  };
-
-  // Chỉ tạo nếu tuần này chưa có story hoàn chỉnh, tránh ghi đè khi nhiều lượt load cùng chạy generate.
-  const result=await db.ref(`weeklyStories/${weekKey}`).transaction(current=>{
-    if(current&&typeof current.content==='string'&&current.content.trim()) return;
-    return payload;
-  });
-
-  if(result.committed){
-    console.log(`[Story] ✅ ${weekKey}: "${parsed.title}"`);
-  }else{
-    console.log(`[Story] ⏭️ Bỏ qua ${weekKey}: story đã tồn tại`);
-  }
-}
-
-window.toggleLike=async function(btn,e){
-  if(e)e.stopPropagation();
-  const id=btn.dataset.id;
-  const liked=G.likedPosts[id]||false;
-  const l=parseInt(btn.dataset.likes)||0;
-  if(liked){
-    G.likedPosts[id]=false;btn.classList.remove('liked');
-    const newL=Math.max(0,l-1);
-    btn.dataset.likes=newL;btn.textContent='🤍 '+newL;
-    db.ref(`feed/${id}`).update({likes:newL});
-  }else{
-    G.likedPosts[id]=true;btn.classList.add('liked');
-    btn.dataset.likes=l+1;btn.textContent='❤️ '+(l+1);
-    db.ref(`feed/${id}`).update({likes:l+1});
-  }
-  db.ref(`users/${G.uid}/likedPosts`).update({[id]:G.likedPosts[id]});
-  if(_modalFeedId===id)updateModalLikeBtn();
-};
-
-// ═══ MODAL CHI TIẾT ═══
-let _modalFeedData=null;
-
-window.openPostModal=function(feedId){
-  _modalFeedId=feedId;
-  const modal=document.getElementById('postModal');
-  modal.classList.add('open');
-  document.getElementById('modalInfo').innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Đang tải...</div>';
-  document.getElementById('modalCmtsList').innerHTML='<div style="font-size:.84rem;color:var(--muted)">Đang tải...</div>';
-  // Unsubscribe comments cũ
-  if(_modalCmtsUnsub){
-    try{db.ref(`comments/${_modalFeedId}`).off('value',_modalCmtsUnsub);}catch(e){}
-    _modalCmtsUnsub=null;
-  }
-  // Load bài đăng, sau đó mới subscribe comments
-  db.ref(`feed/${feedId}`).get().then(snap=>{
-    if(!snap.exists())return;
-    _modalFeedData={id:feedId,...snap.val()};
-    renderModalInfo(_modalFeedData);
-    // Subscribe comments sau khi DOM đã render xong
-    _modalCmtsUnsub=db.ref(`comments/${feedId}`).on('value',snap=>{
-      const items=[];
-      snap.forEach(c=>{const v=c.val();if(v)items.push(v);});
-      items.sort((a,b)=>(a.ts||0)-(b.ts||0));
-      const el=document.getElementById('modalCmtsList');
-      if(!el)return;
-      if(!items.length){
-        el.innerHTML='<div style="font-size:.84rem;color:var(--muted);padding:4px 0">Chưa có bình luận nào. Hãy là người đầu tiên!</div>';
-        return;
-      }
-      el.innerHTML=items.map(c=>`
-        <div class="cmt-item">
-          <div class="cmt-ava">${escHtml((c.name||'?').charAt(0).toUpperCase())}</div>
-          <div class="cmt-body">
-            <div class="cmt-name">${escHtml(c.name)}</div>
-            <div class="cmt-text">${escHtml(c.text)}</div>
-          </div>
-        </div>`).join('');
-      // Scroll xuống comment mới nhất
-      const wrap=document.getElementById('modalCmtsWrap');
-      if(wrap)wrap.scrollTop=wrap.scrollHeight;
-    });
-  });
-};
-
-function renderModalInfo(f){
-  const liked=G.likedPosts[f.id]||false;
-  document.getElementById('modalInfo').innerHTML=`
-    <div class="fhd" style="margin-bottom:8px">
-      <div class="fava" style="background:${escHtml(f.bg||'#bbf7d0')}">${escHtml(f.emoji||'😊')}</div>
-      <div><div class="fname">${escHtml(f.name)}</div><div class="ftime">${timeAgo(f.ts)} • ${escHtml(f.rank||'')}</div></div>
-    </div>
-    <div class="ftag" style="margin-bottom:8px">✅ ${escHtml(f.task)}</div>
-    <div class="fdesc" style="margin-bottom:10px">${escHtml(f.desc)}</div>
-    ${f.imageUrl?`<img class="modal-img" src="${escHtml(f.imageUrl)}"/>`:''}
-    <div class="fbtns">
-      <button id="modalLikeBtn" class="fbtn ${liked?'liked':''}" data-id="${f.id}" data-likes="${f.likes||0}" onclick="toggleLike(this,null)">${liked?'❤️':'🤍'} ${f.likes||0}</button>
-    </div>
-  `;
-}
-
-function updateModalLikeBtn(){
-  const btn=document.getElementById('modalLikeBtn');
-  if(!btn)return;
-  const liked=G.likedPosts[_modalFeedId]||false;
-  btn.className='fbtn '+(liked?'liked':'');
-  btn.textContent=(liked?'❤️ ':'🤍 ')+btn.dataset.likes;
-}
-
-window.closeModal=function(e){
-  if(e.target===document.getElementById('postModal'))closeModalDirect();
-};
-window.closeModalDirect=function(){
-  document.getElementById('postModal').classList.remove('open');
-  if(_modalCmtsUnsub&&_modalFeedId){
-    try{db.ref(`comments/${_modalFeedId}`).off('value',_modalCmtsUnsub);}catch(e){}
-    _modalCmtsUnsub=null;
-  }
-  _modalFeedId=null;_modalFeedData=null;
-  document.getElementById('modalCmtInp').value='';
-};
-
-window.modalPostComment=async function(){
-  if(!G.uid){showToast('⚠️ Cần đăng nhập!');return;}
-  if(!_modalFeedId)return;
-  const inp=document.getElementById('modalCmtInp');
-  const text=inp.value.trim();if(!text)return;
-  inp.value='';
-  await db.ref(`comments/${_modalFeedId}`).push({uid:G.uid,name:G.name,text,ts:Date.now()});
-  // Tăng commentCount trên feed node
-  db.ref(`feed/${_modalFeedId}/commentCount`).transaction(n=>(n||0)+1);
-};
-
-// ═══ AI ═══
-const FALLBACKS={
-  suggest:'Hôm nay bạn có thể thử:\n1. 📚 Đọc sách 20-30 phút – giúp não phát triển!\n2. 🙏 Nói "cảm ơn" với ba mẹ hoặc thầy cô.\n3. 🧹 Dọn dẹp góc học tập – môi trường gọn giúp học tốt hơn!',
-  praise:'Bạn thật tuyệt vời! 🌟 Việc bạn đã làm không chỉ giúp ích cho người khác mà còn giúp bản thân tốt hơn mỗi ngày. Hãy tiếp tục nhé! 💪✨',
-  chat:'Cảm ơn bạn đã chia sẻ! 😊 Hãy nhớ: mỗi ngày một chút, bạn sẽ trở thành người tuyệt vời hơn! 🌱',
-};
-
-async function callGroq(prompt,sys){
-  try{
-    const res=await fetch('https://groq-proxy-vercel-three.vercel.app/api/chat',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model:'llama-3.1-8b-instant',
-        messages:[
-          {role:'system',content:sys},
-          {role:'user',content:prompt}
-        ],
-        max_tokens:400,
-        temperature:0.8
-      })
-    });
-    const d=await res.json();
-    if(d.error){console.error('Proxy error:',d.error);return null;}
-    return d.choices?.[0]?.message?.content||null;
-  }catch(e){console.error('Proxy error:',e);return null;}
-}
-
-// aiSuggest đã được thay bằng loadAiSuggestions() dùng chung home + log
-
-window.sendChat=async function(){
-  const inp=document.getElementById('chatInp');
-  const msg=inp.value.trim();
-  if(!msg)return;
-
-  inp.value='';
-  addChatMsg(msg,'user');
-  G.chatHistory.push({role:'user',content:msg});
-
-  const typing=document.createElement('div');
-  typing.className='msg ai';
-  typing.innerHTML='<div class="dots-wrap"><div class="dots"><span></span><span></span><span></span></div></div>';
-
-  const cm=document.getElementById('chatMsgs');
-  cm.appendChild(typing);
-  cm.scrollTop=cm.scrollHeight;
-
-  const messages=[
-    {
-      role:'system',
-      content:'Bạn là trợ lý AI thân thiện của Kindup – giúp học sinh Việt Nam (lớp 6-9) rèn luyện thói quen tốt mỗi ngày. Vui vẻ, ấm áp như người bạn. Emoji vừa phải. Trả lời tiếng Việt, tối đa 120 từ.'
-    },
-    ...G.chatHistory.slice(-10)
-  ];
-
-  let reply=FALLBACKS.chat;
-
-  try{
-    const res=await fetch('https://groq-proxy-vercel-three.vercel.app/api/chat',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model:'llama-3.1-8b-instant',
-        messages,
-        max_tokens:300,
-        temperature:0.85
-      })
-    });
-
-    const d=await res.json();
-
-    if(d.error){
-      console.error('Proxy error:', d.error);
-    }else{
-      reply=d.choices?.[0]?.message?.content || FALLBACKS.chat;
+        addDragEvents(piece);
+        return piece;
     }
-  }catch(e){
-    console.error('Chat error:', e);
-  }
 
-  G.chatHistory.push({role:'assistant',content:reply});
-  typing.remove();
-  addChatMsg(reply,'ai');
-};
+    // Xử lý kéo thả nâng cao (Hỗ trợ tốt cả Chuột lẫn Cảm ứng điện thoại)
+    function addDragEvents(piece) {
+        let active = false;
+        let startX, startY;
+        
+        const handleStart = (e) => {
+            active = true;
+            piece.classList.add('dragging');
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            
+            const rect = piece.getBoundingClientRect();
+            // Độ lệch tâm để ngón tay/chuột không đè khuất khối hình
+            piece.dataset.offsetX = clientX - rect.left - (rect.width/2);
+            piece.dataset.offsetY = clientY - rect.top - (rect.height * 0.8); 
+            
+            movePiece(clientX, clientY);
+        };
 
-function addChatMsg(text,role){
-  const d=document.createElement('div');d.className='msg '+role;
-  d.innerHTML=text.replace(/\n/g,'<br>');
-  const cm=document.getElementById('chatMsgs');
-  cm.appendChild(d);cm.scrollTop=cm.scrollHeight;
-}
-window.quickMsg=t=>{document.getElementById('chatInp').value=t;sendChat();};
+        const handleMove = (e) => {
+            if (!active) return;
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            movePiece(clientX, clientY);
+        };
 
-function updateScrollTopBtn(){
-  const main=document.querySelector('.main');
-  const btn=document.getElementById('scrollTopBtn');
-  if(!main||!btn)return;
-  btn.classList.toggle('show',main.scrollTop>320);
-}
-window.scrollMainToTop=function(){
-  const main=document.querySelector('.main');
-  if(main)main.scrollTo({top:0,behavior:'smooth'});
-};
+        const handleEnd = (e) => {
+            if (!active) return;
+            active = false;
+            piece.classList.remove('dragging');
+            piece.style.position = '';
+            piece.style.left = '';
+            piece.style.top = '';
 
-// ═══ NAVIGATION — highlight tab + tải lại dữ liệu ═══
-window.showPage=function(id){
-  _currentPage=id;
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.bnav-btn').forEach(b=>b.classList.remove('active'));
-  document.getElementById('page-'+id).classList.add('active');
-  const btn=document.getElementById('bn-'+id);
-  if(btn)btn.classList.add('active');
-  document.querySelector('.main').scrollTop=0;
-  document.getElementById('logoutMenu').style.display='none';
-  // Tải lại dữ liệu theo trang (trừ AI)
-  if(id==='home'){
-    refreshHome();
-    loadHomeShowcase();
-    // Làm mới gợi ý AI mỗi lần vào trang chủ
-    _aiSuggestLoading=false;
-    _aiSuggestions=[];
-    loadAiSuggestions();
-  }
-  if(id==='log'){
-    // Xoá lời khen cũ khi quay lại trang ghi
-    document.getElementById('praiseBox').classList.remove('show');
-    document.getElementById('praiseTxt').innerHTML='';
-    // Nếu chưa có gợi ý AI thì load
-    if(!_aiSuggestions.length&&!_aiSuggestLoading)loadAiSuggestions();
-  }
-  // community và board dùng realtime listener, tự cập nhật, không cần re-subscribe
-  if(id==='ranks') loadAchievements();
-  updateScrollTopBtn();
-};
+            const clientX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
+            const clientY = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
 
-function refreshHome(){
-  if(!G.uid)return;
-  db.ref(`users/${G.uid}`).get().then(snap=>{
-    if(!snap.exists())return;
-    const d=snap.val();
-    G.points=d.points||0;G.weekDone=d.weekDone||0;
-    G.doneToday=Array.isArray(d.doneToday)?d.doneToday:[];
-    G.likedPosts=d.likedPosts||{};
-    renderAll();
-  });
-}
+            attemptPlacePiece(piece, clientX, clientY);
+        };
 
-window.toggleMenu=function(){
-  const m=document.getElementById('logoutMenu');
-  m.style.display=m.style.display==='none'?'block':'none';
-};
-document.addEventListener('click',e=>{
-  const menu=document.getElementById('logoutMenu'),ava=document.getElementById('userAva');
-  if(menu&&!menu.contains(e.target)&&!ava.contains(e.target))menu.style.display='none';
-});
-document.querySelector('.main').addEventListener('scroll',updateScrollTopBtn,{passive:true});
+        function movePiece(cx, cy) {
+            piece.style.position = 'fixed';
+            piece.style.left = (cx - piece.dataset.offsetX) + 'px';
+            piece.style.top = (cy - piece.dataset.offsetY) + 'px';
+        }
 
-let _toastTimer=null;
-window.showToast=function(msg){
-  const t=document.getElementById('toast');
-  t.textContent=msg;t.classList.add('show');
-  if(_toastTimer)clearTimeout(_toastTimer);
-  _toastTimer=setTimeout(()=>{t.classList.remove('show');_toastTimer=null;},2800);
-};
-window.showPointPopup=function(pts,el){
-  const rect=el?el.getBoundingClientRect():{left:window.innerWidth/2,top:window.innerHeight/2,width:0};
-  const div=document.createElement('div');div.className='pt-popup';
-  div.textContent=`+${pts} ⭐`;
-  div.style.left=(rect.left+rect.width/2-30)+'px';
-  div.style.top=rect.top+'px';
-  document.body.appendChild(div);
-  setTimeout(()=>div.remove(),1700);
-};
-window.confetti=function(){
-  const colors=['#22c55e','#fbbf24','#f97316','#a855f7','#ec4899','#3b82f6'];
-  for(let i=0;i<18;i++){
-    const el=document.createElement('div');el.className='confetti-piece';
-    el.style.cssText=`left:${Math.random()*100}vw;top:0;background:${colors[i%colors.length]};animation-delay:${Math.random()*.6}s;animation-duration:${.9+Math.random()*.5}s;border-radius:${Math.random()>.5?'50%':'2px'}`;
-    document.body.appendChild(el);setTimeout(()=>el.remove(),1800);
-  }
-};
+        piece.addEventListener('mousedown', handleStart);
+        window.addEventListener('mousemove', handleMove);
+        window.addEventListener('mouseup', handleEnd);
+
+        piece.addEventListener('touchstart', handleStart, { passive: false });
+        window.addEventListener('touchmove', handleMove, { passive: false });
+        window.addEventListener('touchend', handleEnd);
+    }
+
+    // Thử đặt khối vào ma trận lưới
+    function attemptPlacePiece(piece, cx, cy) {
+        const shape = JSON.parse(piece.dataset.shape);
+        const color = piece.dataset.color;
+        
+        // Tìm ô dưới tâm khối hình
+        const cells = document.querySelectorAll('.cell');
+        let targetCell = null;
+        
+        cells.forEach(cell => {
+            const rect = cell.getBoundingClientRect();
+            if (cx >= rect.left && cx <= rect.right && cy >= rect.top && cy <= rect.bottom) {
+                targetCell = cell;
+            }
+        });
+
+        if (!targetCell) return; // Ra ngoài rìa thì không làm gì, tự trả về chỗ cũ
+
+        const baseR = parseInt(targetCell.dataset.row);
+        const baseC = parseInt(targetCell.dataset.col);
+
+        // Kiểm tra xem vị trí đặt có hợp lệ không
+        let canPlace = true;
+        for (let r = 0; r < shape.length; r++) {
+            for (let c = 0; c < shape[0].length; c++) {
+                if (shape[r][c]) {
+                    const gridR = baseR + r;
+                    const gridC = baseC + c;
+                    
+                    if (gridR >= GRID_SIZE || gridC >= GRID_SIZE || gridData[gridR][gridC] !== null) {
+                        canPlace = false;
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Nếu hợp lệ -> Đổ dữ liệu vào bàn cờ
+        if (canPlace) {
+            for (let r = 0; r < shape.length; r++) {
+                for (let c = 0; c < shape[0].length; c++) {
+                    if (shape[r][c]) {
+                        gridData[baseR + r][baseC + c] = color;
+                    }
+                }
+            }
+            score += shape.flat().filter(v => v).length * 10;
+            
+            // Xóa khối đã đặt thành công khỏi dock slot
+            const slot = piece.parentElement;
+            slot.innerHTML = ''; 
+
+            drawGrid();
+            checkLines();
+
+            // Nếu cả 3 slot đều trống sạch, cấp loạt khối mới
+            const remainingPieces = document.querySelectorAll('.piece');
+            if (remainingPieces.length === 0) {
+                generateDockPieces();
+            } else {
+                checkGameOver(); // Kiểm tra xem các khối còn lại có bị kẹt cứng không
+            }
+        }
+    }
+
+    // Kiểm tra hàng/cột đầy và tính toán Combo Streak
+    function checkLines() {
+        let rowsToClear = [];
+        let colsToClear = [];
+
+        for (let r = 0; r < GRID_SIZE; r++) {
+            if (gridData[r].every(cell => cell !== null)) rowsToClear.push(r);
+        }
+        for (let c = 0; c < GRID_SIZE; c++) {
+            let isColFull = true;
+            for (let r = 0; r < GRID_SIZE; r++) {
+                if (gridData[r][c] === null) { isColFull = false; break; }
+            }
+            if (isColFull) colsToClear.push(c);
+        }
+
+        const totalLines = rowsToClear.length + colsToClear.length;
+
+        if (totalLines > 0) {
+            streak++;
+            // Tính điểm đột biến dựa trên combo hàng và chuỗi Streak ăn liên tục
+            score += totalLines * 100 * streak;
+            
+            // Kích hoạt hiệu ứng nổ nhẹ mắt
+            rowsToClear.forEach(r => {
+                for(let c=0; c<GRID_SIZE; c++) {
+                    getGridCell(r, c).classList.add('clear-anim');
+                    gridData[r][c] = null;
+                }
+            });
+            colsToClear.forEach(c => {
+                for(let r=0; r<GRID_SIZE; r++) {
+                    getGridCell(r, c).classList.add('clear-anim');
+                    gridData[r][c] = null;
+                }
+            });
+
+            // Hiển thị Banner Combo
+            streakEl.innerText = `Combo X${streak}!`;
+            streakEl.style.opacity = '1';
+
+            setTimeout(() => {
+                document.querySelectorAll('.cell').forEach(el => el.classList.remove('clear-anim'));
+                drawGrid();
+            }, 150);
+
+        } else {
+            streak = 0; // Đứt mạch streak
+            streakEl.style.opacity = '0';
+        }
+
+        scoreEl.innerText = score;
+        if (score > bestScore) {
+            bestScore = score;
+            bestScoreEl.innerText = bestScore;
+            localStorage.setItem('block_blast_best', bestScore);
+        }
+    }
+
+    function getGridCell(r, c) {
+        return document.querySelector(`.cell[data-row='${r}'][data-col='${c}']`);
+    }
+
+    // Thuật toán cốt lõi: Kiểm tra xem các khối còn lại còn khe trống nào nhét vừa không
+    function checkGameOver() {
+        const remainingPieces = document.querySelectorAll('.piece');
+        if (remainingPieces.length === 0) return;
+
+        let anyPieceCanFit = false;
+
+        remainingPieces.forEach(piece => {
+            const shape = JSON.parse(piece.dataset.shape);
+            
+            // Thử giả lập đặt khối này vào TẤT CẢ các vị trí trên bàn cờ 8x8
+            for (let r = 0; r <= GRID_SIZE - shape.length; r++) {
+                for (let c = 0; c <= GRID_SIZE - shape[0].length; c++) {
+                    let canFitAtThisSpot = true;
+                    
+                    for (let pr = 0; pr < shape.length; pr++) {
+                        for (let pc = 0; pc < shape[0].length; pc++) {
+                            if (shape[pr][pc] && gridData[r + pr][c + pc] !== null) {
+                                canFitAtThisSpot = false;
+                                break;
+                            }
+                        }
+                        if (!canFitAtThisSpot) break;
+                    }
+
+                    if (canFitAtThisSpot) {
+                        anyPieceCanFit = true;
+                        // Làm tối mờ hoặc bình thường khối tùy theo trạng thái có đặt được không (Tính năng ẩn cực hay của bản gốc)
+                        piece.style.opacity = '1';
+                        return;
+                    }
+                }
+            }
+            if (!anyPieceCanFit) {
+                piece.style.opacity = '0.3'; // Khối nào không vừa bất cứ đâu nữa sẽ tự mờ đi
+            }
+        });
+
+        if (!anyPieceCanFit) {
+            setTimeout(() => {
+                document.getElementById('final-score').innerText = score;
+                document.getElementById('game-over-screen').style.display = 'flex';
+            }, 600);
+        }
+    }
+
+    function resetGame() {
+        gridData = Array(GRID_SIZE).fill().map(() => Array(GRID_SIZE).fill(null));
+        score = 0;
+        streak = 0;
+        scoreEl.innerText = '0';
+        streakEl.style.opacity = '0';
+        document.getElementById('game-over-screen').style.display = 'none';
+        initGrid();
+        drawGrid();
+        generateDockPieces();
+    }
+
+    // Khởi chạy game
+    initGrid();
+    generateDockPieces();
 </script>
 </body>
 </html>

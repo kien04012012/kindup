@@ -2,143 +2,104 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Block Blast Pro Ultimate</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Block Blast - Smooth Edition</title>
     <style>
         :root {
-            --bg-color: #0f172a;
-            --grid-bg: #1e293b;
-            --cell-empty: #334155;
+            --bg-color: #0b0f19;
+            --grid-bg: #151f32;
+            --cell-empty: #24324d;
         }
         body {
-            margin: 0;
-            padding: 0;
+            margin: 0; padding: 0;
             background-color: var(--bg-color);
             color: white;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            overflow: hidden;
-            user-select: none;
+            font-family: system-ui, -apple-system, sans-serif;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            min-height: 100vh; overflow: hidden; touch-action: none; user-select: none;
         }
         #game-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-            max-width: 420px;
-            padding: 10px;
+            display: flex; flex-direction: column; align-items: center;
+            width: 100%; max-width: 400px; padding: 10px; box-sizing: border-box;
         }
         .header {
-            display: flex;
-            justify-content: space-between;
-            width: 100%;
-            margin-bottom: 15px;
+            display: flex; justify-content: space-between; align-items: center;
+            width: 100%; margin-bottom: 20px;
         }
         .score-box {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 8px 16px;
-            border-radius: 12px;
-            text-align: center;
-            min-width: 100px;
+            background: rgba(255, 255, 255, 0.06);
+            padding: 10px 20px; border-radius: 16px; text-align: center; min-width: 90px;
+            border: 1px solid rgba(255,255,255,0.05);
         }
-        .score-label { font-size: 12px; color: #94a3b8; text-transform: uppercase; font-weight: bold;}
-        .score-val { font-size: 24px; font-weight: 900; color: #fbbf24; }
+        .score-label { font-size: 11px; color: #64748b; text-transform: uppercase; font-weight: bold; letter-spacing: 1px;}
+        .score-val { font-size: 26px; font-weight: 800; color: #f59e0b; }
         
         #streak-banner {
-            font-size: 20px;
-            font-weight: bold;
-            color: #f43f5e;
-            height: 30px;
-            text-transform: uppercase;
-            text-shadow: 0 0 10px rgba(244,63,94,0.6);
-            opacity: 0;
-            transition: opacity 0.2s;
+            font-size: 22px; font-weight: 900; color: #f43f5e;
+            text-transform: uppercase; text-shadow: 0 0 15px rgba(244,63,94,0.6);
+            opacity: 0; transform: scale(0.8); transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
+        #streak-banner.show { opacity: 1; transform: scale(1); }
         
-        /* Bàn cờ 8x8 */
+        /* Bàn cờ */
         #grid {
-            display: grid;
-            grid-template-columns: repeat(8, 1fr);
-            grid-template-rows: repeat(8, 1fr);
-            gap: 4px;
-            width: 100%;
-            aspect-ratio: 1;
-            background-color: var(--grid-bg);
-            padding: 6px;
-            border-radius: 16px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr);
+            gap: 5px; width: 100%; aspect-ratio: 1;
+            background-color: var(--grid-bg); padding: 8px; border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6); box-sizing: border-box;
+            position: relative;
         }
         .cell {
-            background-color: var(--cell-empty);
-            border-radius: 6px;
-            transition: background-color 0.15s, transform 0.1s;
+            background-color: var(--cell-empty); border-radius: 6px;
+            transition: background-color 0.1s; position: relative;
+        }
+        /* Hiển thị vị trí khối sẽ rơi vào */
+        .cell.preview {
+            opacity: 0.5;
+            box-shadow: inset 0 0 0 3px #ffffff;
         }
         .cell.clear-anim {
-            transform: scale(0);
-            background-color: #ffffff !important;
+            animation: popOut 0.2s ease forwards;
+        }
+        @keyframes popOut {
+            0% { transform: scale(1); background-color: #fff; }
+            100% { transform: scale(0.5); opacity: 0; }
         }
 
-        /* Khay chứa 3 khối */
+        /* Khay chứa khối */
         #dock {
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            width: 100%;
-            height: 140px;
-            margin-top: 25px;
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 16px;
-            padding: 10px 0;
+            display: flex; justify-content: space-around; align-items: center;
+            width: 100%; height: 130px; margin-top: 25px;
+            background: rgba(255, 255, 255, 0.02); border-radius: 20px; padding: 5px 10px; box-sizing: border-box;
         }
         .dock-slot {
-            width: 110px;
-            height: 110px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            width: 100px; height: 100px; display: flex; align-items: center; justify-content: center;
         }
         .piece {
-            display: grid;
-            gap: 2px;
-            cursor: grab;
-            transition: transform 0.1s;
-            transform-origin: center center;
+            display: grid; gap: 3px; cursor: grab;
+            transition: transform 0.1s ease; transform-origin: center center;
         }
+        /* Khi nhấc khối lên: Phóng to bằng size lưới và đẩy lên trên ngón tay */
         .piece.dragging {
             cursor: grabbing;
-            transform: scale(1.15);
-            opacity: 0.9;
-            position: absolute;
-            z-index: 1000;
-            pointer-events: none; /* Tránh cản lỗi khi nhấc */
+            opacity: 0.95; z-index: 1000; pointer-events: none; position: fixed !important;
+            transform: scale(1.3) translateY(-45px) !important; 
         }
-        .p-cell {
-            border-radius: 4px;
-        }
+        .p-cell { border-radius: 4px; }
 
-        /* Màn hình Game Over */
+        /* Game Over Screen */
         #game-over-screen {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(15, 23, 42, 0.9);
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 2000;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(7, 10, 19, 0.95); display: none;
+            flex-direction: column; align-items: center; justify-content: center; z-index: 2000;
         }
-        #game-over-screen h1 { font-size: 40px; color: #f43f5e; margin-bottom: 10px; }
+        #game-over-screen h1 { font-size: 42px; color: #f43f5e; margin-bottom: 5px; font-weight: 900; }
         #restart-btn {
-            background: #2563eb; color: white; border: none;
-            padding: 12px 30px; font-size: 18px; font-weight: bold;
-            border-radius: 8px; cursor: pointer; margin-top: 20px;
-            transition: background 0.2s;
+            background: #3b82f6; color: white; border: none; padding: 14px 40px;
+            font-size: 18px; font-weight: bold; border-radius: 12px; cursor: pointer; margin-top: 25px;
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4); transition: all 0.2s;
         }
-        #restart-btn:hover { background: #1d4ed8; }
+        #restart-btn:hover { background: #2563eb; transform: translateY(-2px); }
     </style>
 </head>
 <body>
@@ -162,7 +123,8 @@
 
 <div id="game-over-screen">
     <h1>GAME OVER</h1>
-    <p>Số điểm của bạn: <span id="final-score" style="color:#fbbf24; font-weight:bold;">0</span></p>
+    <p style="font-size: 18px; color: #94a3b8;">Điểm số của bạn</p>
+    <div id="final-score" style="font-size: 48px; font-weight: 900; color: #f59e0b;">0</div>
     <button id="restart-btn" onclick="resetGame()">Chơi Lại</button>
 </div>
 
@@ -170,20 +132,19 @@
     const GRID_SIZE = 8;
     let gridData = Array(GRID_SIZE).fill().map(() => Array(GRID_SIZE).fill(null));
     let score = 0;
-    let bestScore = localStorage.getItem('block_blast_best') || 0;
+    let bestScore = localStorage.getItem('bb_smooth_best') || 0;
     let streak = 0;
 
-    const COLORS = ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4'];
+    const COLORS = ['#ff4757', '#2ed573', '#1e90ff', '#ffa502', '#9b59b6', '#00d2d3'];
+    // Danh sách khối thân thiện, dễ chơi hơn
     const SHAPES = [
-        [[1]], // 1 ô
-        [[1, 1]], // 2 ô ngang
-        [[1], [1]], // 2 ô dọc
-        [[1, 1, 1]], // 3 ô ngang
-        [[1], [1], [1]], // 3 ô dọc
-        [[1, 1], [1, 1]], // Vuông 2x2
-        [[1, 1, 1], [0, 1, 0]], // Chữ T
-        [[1, 0], [1, 0], [1, 1]], // Chữ L gọn
-        [[0, 1], [0, 1], [1, 1]], // Chữ L ngược
+        [[1]], 
+        [[1, 1]], [[1], [1]], 
+        [[1, 1, 1]], [[1], [1], [1]], 
+        [[1, 1], [1, 1]], 
+        [[1, 1, 1], [0, 1, 0]], 
+        [[1, 1], [1, 0]], 
+        [[1, 0], [1, 1]]
     ];
 
     const gridEl = document.getElementById('grid');
@@ -192,43 +153,35 @@
     const bestScoreEl = document.getElementById('best-score');
     const streakEl = document.getElementById('streak-banner');
 
-    // Khởi tạo bàn cờ ban đầu
     function initGrid() {
         gridEl.innerHTML = '';
         for (let r = 0; r < GRID_SIZE; r++) {
             for (let c = 0; c < GRID_SIZE; c++) {
                 const cell = document.createElement('div');
                 cell.classList.add('cell');
-                cell.dataset.row = r;
-                cell.dataset.col = c;
+                cell.dataset.row = r; cell.dataset.col = c;
                 gridEl.appendChild(cell);
             }
         }
         bestScoreEl.innerText = bestScore;
     }
 
-    // Vẽ lại trạng thái màu sắc trên bàn cờ
     function drawGrid() {
-        const cells = document.querySelectorAll('.cell');
-        cells.forEach(cell => {
-            const r = parseInt(cell.dataset.row);
-            const c = parseInt(cell.dataset.col);
-            cell.style.backgroundColor = gridData[r][c] ? gridData[r][c] : 'var(--cell-empty)';
+        document.querySelectorAll('.cell').forEach(cell => {
+            const r = cell.dataset.row; const c = cell.dataset.col;
+            cell.style.backgroundColor = gridData[r][c] || 'var(--cell-empty)';
+            cell.classList.remove('preview');
         });
     }
 
-    // Sinh ra các khối ở khay dưới (Dock)
     function generateDockPieces() {
         dockEl.innerHTML = '';
         for (let i = 0; i < 3; i++) {
             const slot = document.createElement('div');
             slot.classList.add('dock-slot');
-            
-            const pieceObj = createPieceElement();
-            slot.appendChild(pieceObj);
+            slot.appendChild(createPieceElement());
             dockEl.appendChild(slot);
         }
-        // Sau khi sinh khối mới, check ngay xem có bị Game Over lập tức không
         checkGameOver();
     }
 
@@ -243,20 +196,16 @@
         piece.dataset.shape = JSON.stringify(shape);
         piece.dataset.color = color;
 
-        // Tính kích thước ô nhỏ trong khối dựa theo tỷ lệ lưới để nhìn cân đối
-        const cellSize = Math.floor(gridEl.clientWidth / 8) - 6; 
+        // Kích thước thu nhỏ khi nằm trong khay dock (nhìn cho gọn)
+        const miniSize = 18; 
         
         shape.forEach(row => {
             row.forEach(val => {
                 const pCell = document.createElement('div');
                 pCell.classList.add('p-cell');
-                pCell.style.width = cellSize + 'px';
-                pCell.style.height = cellSize + 'px';
-                if (val) {
-                    pCell.style.backgroundColor = color;
-                } else {
-                    pCell.style.backgroundColor = 'transparent';
-                }
+                pCell.style.width = miniSize + 'px';
+                pCell.style.height = miniSize + 'px';
+                pCell.style.backgroundColor = val ? color : 'transparent';
                 piece.appendChild(pCell);
             });
         });
@@ -265,22 +214,22 @@
         return piece;
     }
 
-    // Xử lý kéo thả nâng cao (Hỗ trợ tốt cả Chuột lẫn Cảm ứng điện thoại)
     function addDragEvents(piece) {
         let active = false;
-        let startX, startY;
         
         const handleStart = (e) => {
             active = true;
             piece.classList.add('dragging');
+            
+            // Ép kích thước các ô bên trong to bằng kích thước ô lưới thật khi kéo
+            const realCellSize = (gridEl.clientWidth / 8) - 6;
+            piece.querySelectorAll('.p-cell').forEach(cell => {
+                cell.style.width = realCellSize + 'px';
+                cell.style.height = realCellSize + 'px';
+            });
+
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
             const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-            
-            const rect = piece.getBoundingClientRect();
-            // Độ lệch tâm để ngón tay/chuột không đè khuất khối hình
-            piece.dataset.offsetX = clientX - rect.left - (rect.width/2);
-            piece.dataset.offsetY = clientY - rect.top - (rect.height * 0.8); 
-            
             movePiece(clientX, clientY);
         };
 
@@ -289,15 +238,18 @@
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
             const clientY = e.touches ? e.touches[0].clientY : e.clientY;
             movePiece(clientX, clientY);
+            updatePreview(piece, clientX, clientY);
         };
 
         const handleEnd = (e) => {
             if (!active) return;
             active = false;
             piece.classList.remove('dragging');
-            piece.style.position = '';
-            piece.style.left = '';
-            piece.style.top = '';
+            
+            // Trả lại kích thước mini phòng trường hợp thả hụt
+            piece.querySelectorAll('.p-cell').forEach(cell => {
+                cell.style.width = '18px'; cell.style.height = '18px';
+            });
 
             const clientX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
             const clientY = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
@@ -306,9 +258,9 @@
         };
 
         function movePiece(cx, cy) {
-            piece.style.position = 'fixed';
-            piece.style.left = (cx - piece.dataset.offsetX) + 'px';
-            piece.style.top = (cy - piece.dataset.offsetY) + 'px';
+            // Đặt tâm khối nằm đúng vị trí chuột/tay, dịch lên trên 45px để tránh bị che
+            piece.style.left = (cx - piece.clientWidth / 2) + 'px';
+            piece.style.top = (cy - piece.clientHeight / 2 - 45) + 'px';
         }
 
         piece.addEventListener('mousedown', handleStart);
@@ -320,193 +272,164 @@
         window.addEventListener('touchend', handleEnd);
     }
 
-    // Thử đặt khối vào ma trận lưới
-    function attemptPlacePiece(piece, cx, cy) {
+    // Lấy thông tin ô lưới nằm dưới tọa độ kéo thả (Tính thêm phần offset nhấc cao khối)
+    function getTargetGridCoords(piece, cx, cy) {
         const shape = JSON.parse(piece.dataset.shape);
-        const color = piece.dataset.color;
+        // Bù trừ 45px theo CSS dịch chuyển khay kéo lên
+        const testY = cy - 45; 
         
-        // Tìm ô dưới tâm khối hình
-        const cells = document.querySelectorAll('.cell');
         let targetCell = null;
-        
-        cells.forEach(cell => {
+        document.querySelectorAll('.cell').forEach(cell => {
             const rect = cell.getBoundingClientRect();
-            if (cx >= rect.left && cx <= rect.right && cy >= rect.top && cy <= rect.bottom) {
+            if (cx >= rect.left && cx <= rect.right && testY >= rect.top && testY <= rect.bottom) {
                 targetCell = cell;
             }
         });
 
-        if (!targetCell) return; // Ra ngoài rìa thì không làm gì, tự trả về chỗ cũ
+        if (!targetCell) return null;
 
-        const baseR = parseInt(targetCell.dataset.row);
-        const baseC = parseInt(targetCell.dataset.col);
+        // Căn lề trái trên của khối vào ô đích
+        const baseR = parseInt(targetCell.dataset.row) - Math.floor(shape.length / 2);
+        const baseC = parseInt(targetCell.dataset.col) - Math.floor(shape[0].length / 2);
+        
+        return { r: baseR, c: baseC };
+    }
 
-        // Kiểm tra xem vị trí đặt có hợp lệ không
-        let canPlace = true;
-        for (let r = 0; r < shape.length; r++) {
-            for (let c = 0; c < shape[0].length; c++) {
-                if (shape[r][c]) {
-                    const gridR = baseR + r;
-                    const gridC = baseC + c;
-                    
-                    if (gridR >= GRID_SIZE || gridC >= GRID_SIZE || gridData[gridR][gridC] !== null) {
-                        canPlace = false;
-                        break;
-                    }
-                }
-            }
-        }
+    // Hiển thị bóng ma (Preview) vị trí khối chuẩn bị đáp xuống
+    function updatePreview(piece, cx, cy) {
+        drawGrid(); // Reset preview cũ
+        const coords = getTargetGridCoords(piece, cx, cy);
+        if (!coords) return;
 
-        // Nếu hợp lệ -> Đổ dữ liệu vào bàn cờ
-        if (canPlace) {
+        const shape = JSON.parse(piece.dataset.shape);
+        if (isValidMove(shape, coords.r, coords.c)) {
             for (let r = 0; r < shape.length; r++) {
                 for (let c = 0; c < shape[0].length; c++) {
                     if (shape[r][c]) {
-                        gridData[baseR + r][baseC + c] = color;
+                        const cell = getGridCell(coords.r + r, coords.c + c);
+                        if (cell) cell.classList.add('preview');
                     }
                 }
-            }
-            score += shape.flat().filter(v => v).length * 10;
-            
-            // Xóa khối đã đặt thành công khỏi dock slot
-            const slot = piece.parentElement;
-            slot.innerHTML = ''; 
-
-            drawGrid();
-            checkLines();
-
-            // Nếu cả 3 slot đều trống sạch, cấp loạt khối mới
-            const remainingPieces = document.querySelectorAll('.piece');
-            if (remainingPieces.length === 0) {
-                generateDockPieces();
-            } else {
-                checkGameOver(); // Kiểm tra xem các khối còn lại có bị kẹt cứng không
             }
         }
     }
 
-    // Kiểm tra hàng/cột đầy và tính toán Combo Streak
+    function isValidMove(shape, baseR, baseC) {
+        for (let r = 0; r < shape.length; r++) {
+            for (let c = 0; c < shape[0].length; c++) {
+                if (shape[r][c]) {
+                    const gridR = baseR + r; const gridC = baseC + c;
+                    if (gridR < 0 || gridR >= GRID_SIZE || gridC < 0 || gridC >= GRID_SIZE || gridData[gridR][gridC] !== null) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    function attemptPlacePiece(piece, cx, cy) {
+        const coords = getTargetGridCoords(piece, cx, cy);
+        const shape = JSON.parse(piece.dataset.shape);
+        const color = piece.dataset.color;
+
+        if (coords && isValidMove(shape, coords.r, coords.c)) {
+            for (let r = 0; r < shape.length; r++) {
+                for (let c = 0; c < shape[0].length; c++) {
+                    if (shape[r][c]) gridData[coords.r + r][coords.c + c] = color;
+                }
+            }
+            score += shape.flat().filter(v => v).length * 10;
+            piece.parentElement.innerHTML = ''; 
+
+            drawGrid();
+            checkLines();
+
+            if (document.querySelectorAll('.piece').length === 0) {
+                generateDockPieces();
+            } else {
+                checkGameOver();
+            }
+        } else {
+            drawGrid(); // Xóa preview khi thả trượt
+        }
+    }
+
     function checkLines() {
-        let rowsToClear = [];
-        let colsToClear = [];
+        let rowsToClear = []; let colsToClear = [];
 
         for (let r = 0; r < GRID_SIZE; r++) {
             if (gridData[r].every(cell => cell !== null)) rowsToClear.push(r);
         }
         for (let c = 0; c < GRID_SIZE; c++) {
-            let isColFull = true;
-            for (let r = 0; r < GRID_SIZE; r++) {
-                if (gridData[r][c] === null) { isColFull = false; break; }
-            }
-            if (isColFull) colsToClear.push(c);
+            if (gridData.every(row => row[c] !== null)) colsToClear.push(c);
         }
 
         const totalLines = rowsToClear.length + colsToClear.length;
 
         if (totalLines > 0) {
             streak++;
-            // Tính điểm đột biến dựa trên combo hàng và chuỗi Streak ăn liên tục
             score += totalLines * 100 * streak;
             
-            // Kích hoạt hiệu ứng nổ nhẹ mắt
             rowsToClear.forEach(r => {
-                for(let c=0; c<GRID_SIZE; c++) {
-                    getGridCell(r, c).classList.add('clear-anim');
-                    gridData[r][c] = null;
-                }
+                for(let c=0; c<GRID_SIZE; c++) { getGridCell(r, c).classList.add('clear-anim'); gridData[r][c] = null; }
             });
             colsToClear.forEach(c => {
-                for(let r=0; r<GRID_SIZE; r++) {
-                    getGridCell(r, c).classList.add('clear-anim');
-                    gridData[r][c] = null;
-                }
+                for(let r=0; r<GRID_SIZE; r++) { getGridCell(r, c).classList.add('clear-anim'); gridData[r][c] = null; }
             });
 
-            // Hiển thị Banner Combo
             streakEl.innerText = `Combo X${streak}!`;
-            streakEl.style.opacity = '1';
+            streakEl.classList.add('show');
 
             setTimeout(() => {
                 document.querySelectorAll('.cell').forEach(el => el.classList.remove('clear-anim'));
                 drawGrid();
-            }, 150);
-
+            }, 200);
         } else {
-            streak = 0; // Đứt mạch streak
-            streakEl.style.opacity = '0';
+            streak = 0; streakEl.classList.remove('show');
         }
 
         scoreEl.innerText = score;
         if (score > bestScore) {
-            bestScore = score;
-            bestScoreEl.innerText = bestScore;
-            localStorage.setItem('block_blast_best', bestScore);
+            bestScore = score; bestScoreEl.innerText = bestScore;
+            localStorage.setItem('bb_smooth_best', bestScore);
         }
     }
 
-    function getGridCell(r, c) {
-        return document.querySelector(`.cell[data-row='${r}'][data-col='${c}']`);
-    }
+    function getGridCell(r, c) { return document.querySelector(`.cell[data-row='${r}'][data-col='${c}']`); }
 
-    // Thuật toán cốt lõi: Kiểm tra xem các khối còn lại còn khe trống nào nhét vừa không
     function checkGameOver() {
         const remainingPieces = document.querySelectorAll('.piece');
-        if (remainingPieces.length === 0) return;
-
         let anyPieceCanFit = false;
 
         remainingPieces.forEach(piece => {
             const shape = JSON.parse(piece.dataset.shape);
-            
-            // Thử giả lập đặt khối này vào TẤT CẢ các vị trí trên bàn cờ 8x8
+            let pieceCanFit = false;
+
             for (let r = 0; r <= GRID_SIZE - shape.length; r++) {
                 for (let c = 0; c <= GRID_SIZE - shape[0].length; c++) {
-                    let canFitAtThisSpot = true;
-                    
-                    for (let pr = 0; pr < shape.length; pr++) {
-                        for (let pc = 0; pc < shape[0].length; pc++) {
-                            if (shape[pr][pc] && gridData[r + pr][c + pc] !== null) {
-                                canFitAtThisSpot = false;
-                                break;
-                            }
-                        }
-                        if (!canFitAtThisSpot) break;
-                    }
-
-                    if (canFitAtThisSpot) {
-                        anyPieceCanFit = true;
-                        // Làm tối mờ hoặc bình thường khối tùy theo trạng thái có đặt được không (Tính năng ẩn cực hay của bản gốc)
-                        piece.style.opacity = '1';
-                        return;
-                    }
+                    if (isValidMove(shape, r, c)) { pieceCanFit = true; anyPieceCanFit = true; break; }
                 }
+                if (pieceCanFit) break;
             }
-            if (!anyPieceCanFit) {
-                piece.style.opacity = '0.3'; // Khối nào không vừa bất cứ đâu nữa sẽ tự mờ đi
-            }
+            piece.style.opacity = pieceCanFit ? '1' : '0.25'; // Khối không vừa sẽ tự mờ hẳn đi
         });
 
         if (!anyPieceCanFit) {
             setTimeout(() => {
                 document.getElementById('final-score').innerText = score;
                 document.getElementById('game-over-screen').style.display = 'flex';
-            }, 600);
+            }, 500);
         }
     }
 
     function resetGame() {
         gridData = Array(GRID_SIZE).fill().map(() => Array(GRID_SIZE).fill(null));
-        score = 0;
-        streak = 0;
-        scoreEl.innerText = '0';
-        streakEl.style.opacity = '0';
+        score = 0; streak = 0; scoreEl.innerText = '0'; streakEl.classList.remove('show');
         document.getElementById('game-over-screen').style.display = 'none';
-        initGrid();
-        drawGrid();
-        generateDockPieces();
+        initGrid(); drawGrid(); generateDockPieces();
     }
 
-    // Khởi chạy game
     initGrid();
     generateDockPieces();
 </script>

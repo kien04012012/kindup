@@ -3,566 +3,356 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Block Blast - Light Blue Premium Edition</title>
+    <title>School Run - Ultimate Master Edition</title>
     <style>
         :root {
-            --bg-light-blue: #dbeafe; /* Màu nền xanh dương nhạt chuẩn, rất dịu mắt */
-            --panel-bg: rgba(255, 255, 255, 0.85);
-            --grid-bg: #93c5fd; /* Khung bàn cờ màu xanh denim nhạt để tôn khối */
-            --cell-empty: #f0f7ff; /* Ô cờ trống màu trắng xanh nhẹ nhàng */
-            --text-main: #1e40af; /* Chữ màu xanh dương đậm chỉn chu */
+            --bg-blue: #dbeafe;
+            --text-dark: #1e3a8a;
         }
         body {
-            margin: 0; padding: 0;
-            background: linear-gradient(135deg, var(--bg-light-blue) 0%, #bfdbfe 100%);
-            color: var(--text-main);
-            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+            margin: 0; padding: 0; overflow: hidden;
+            background-color: var(--bg-blue);
+            font-family: 'SF Pro Display', -apple-system, sans-serif;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            min-height: 100vh; overflow: hidden; touch-action: none; user-select: none;
+            height: 100vh; touch-action: none; user-select: none;
         }
+        #ui {
+            position: absolute; top: 20px; width: 100%; max-width: 400px;
+            display: flex; justify-content: space-between; padding: 0 20px;
+            box-sizing: border-box; z-index: 10; pointer-events: none;
+        }
+        .stat {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 8px 14px; border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(30, 58, 138, 0.15);
+            font-weight: bold; color: var(--text-dark);
+            font-size: 14px; display: flex; flex-direction: column; align-items: center;
+        }
+        .stat span { font-size: 18px; font-weight: 900; color: #2563eb; }
         
-        #game-container {
-            display: flex; flex-direction: column; align-items: center;
-            width: 100%; max-width: 420px; padding: 15px; box-sizing: border-box;
-            position: relative;
+        #powerup-bar {
+            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
+            width: 200px; height: 10px; background: rgba(255,255,255,0.5);
+            border-radius: 5px; display: none; overflow: hidden; border: 1px solid #fff;
         }
-
-        /* Hiệu ứng Rung màn hình khi ăn combo lớn */
-        .shake {
-            animation: shakeAnim 0.2s ease-in-out;
+        #powerup-progress {
+            width: 100%; height: 100%; background: #00e676; transition: width 0.1s linear;
         }
-        @keyframes shakeAnim {
-            0%, 100% { transform: translate(0, 0); }
-            20%, 60% { transform: translate(-3px, 3px); }
-            40%, 80% { transform: translate(3px, -3px); }
-        }
-
-        /* Bảng điểm Header */
-        .header {
-            display: flex; justify-content: space-between; align-items: center;
-            width: 100%; margin-bottom: 25px;
-        }
-        .score-box {
-            background: var(--panel-bg);
-            backdrop-filter: blur(10px);
-            padding: 10px 22px; border-radius: 20px; text-align: center; min-width: 95px;
-            border: 1px solid rgba(255,255,255,0.7);
-            box-shadow: 0 8px 24px rgba(30, 64, 175, 0.12);
-        }
-        .score-label { font-size: 10px; color: #3b82f6; text-transform: uppercase; font-weight: 700; letter-spacing: 1.5px;}
-        .score-val { font-size: 28px; font-weight: 900; color: #1e3a8a; }
-        
-        #streak-banner {
-            font-size: 24px; font-weight: 900; color: #ef4444;
-            text-transform: uppercase; font-style: italic;
-            text-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);
-            opacity: 0; transform: scale(0.5) rotate(-5deg); 
-            transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        #streak-banner.show { opacity: 1; transform: scale(1.1) rotate(-3deg); }
-        
-        /* Bàn Cờ Xanh Dương Nhạt */
-        #grid-wrapper {
-            position: relative; width: 100%; aspect-ratio: 1;
-            background: var(--grid-bg);
-            padding: 12px; border-radius: 30px; box-sizing: border-box;
-            box-shadow: 0 20px 45px rgba(30, 64, 175, 0.2), inset 0 2px 4px rgba(255,255,255,1);
-            border: 2px solid #60a5fa;
-        }
-        #grid {
-            display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr);
-            gap: 6px; width: 100%; height: 100%;
-        }
-        .cell {
-            background-color: var(--cell-empty); border-radius: 8px;
-            box-shadow: inset 0 2px 3px rgba(30, 64, 175, 0.08);
-            transition: background-color 0.1s ease, transform 0.1s; 
-            position: relative; overflow: hidden;
-        }
-        /* Khối màu rực rỡ đổ bóng đậm sắc nét trên nền sáng giúp dễ nhìn */
-        .cell.filled {
-            box-shadow: 0 4px 8px rgba(0,0,0,0.15), inset 0 2px 3px rgba(255,255,255,0.5);
-        }
-        /* Vị trí bóng ma chuẩn bị thả xuống tương phản cao */
-        .cell.preview {
-            opacity: 0.6;
-            background-color: #38bdf8 !important;
-            box-shadow: inset 0 0 0 3px #1e40af;
-        }
-        /* Animation nổ khối */
-        .cell.clear-anim {
-            animation: blastEffect 0.3s cubic-bezier(0.19, 1, 0.22, 1) forwards;
-        }
-        @keyframes blastEffect {
-            0% { transform: scale(1); background-color: #ffffff; filter: brightness(1.5); box-shadow: 0 0 25px #fff; }
-            100% { transform: scale(0); opacity: 0; }
-        }
-
-        /* Khay chứa khối dưới */
-        #dock {
-            display: flex; justify-content: space-around; align-items: center;
-            width: 100%; height: 140px; margin-top: 30px;
-            background: var(--panel-bg); backdrop-filter: blur(5px);
-            border-radius: 26px; padding: 10px; box-sizing: border-box;
-            border: 1px solid rgba(255,255,255,0.7);
-            box-shadow: 0 10px 30px rgba(30, 64, 175, 0.08);
-        }
-        .dock-slot {
-            width: 110px; height: 110px; display: flex; align-items: center; justify-content: center;
-        }
-        .piece {
-            display: grid; gap: 4px; cursor: grab;
-            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-            transform-origin: center center;
-        }
-        /* Khi nhấc khối: đẩy cao tránh ngón tay, tạo bóng mờ đổ xuống nền sáng */
-        .piece.dragging {
-            cursor: grabbing; opacity: 0.95; z-index: 1000; pointer-events: none; position: fixed !important;
-            transform: scale(1.32) translateY(-55px) !important;
-            filter: drop-shadow(0 15px 15px rgba(0, 0, 0, 0.25));
-        }
-        .p-cell { 
-            border-radius: 6px; 
-            box-shadow: inset 0 2px 3px rgba(255,255,255,0.6), 0 2px 4px rgba(0,0,0,0.15);
-        }
-
-        /* Canvas hiệu ứng nổ hạt sắc màu */
-        #particle-canvas {
+        #game-over {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none; z-index: 500;
+            background: rgba(219, 234, 254, 0.97);
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 100;
         }
-
-        /* Màn hình Game Over */
-        #game-over-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(219, 234, 254, 0.97); backdrop-filter: blur(15px);
-            display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 2000;
-        }
-        #game-over-screen h1 { 
-            font-size: 46px; font-weight: 900; letter-spacing: -1px;
-            color: #ef4444; margin-bottom: 5px; 
-        }
-        #restart-btn {
+        button {
+            padding: 15px 45px; font-size: 18px; font-weight: 800;
             background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-            color: white; border: none; padding: 16px 45px;
-            font-size: 18px; font-weight: 800; border-radius: 16px; cursor: pointer; margin-top: 30px;
-            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.4); transition: all 0.2s;
+            color: white; border: none; border-radius: 16px;
+            cursor: pointer; margin-top: 25px; box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4);
         }
-        #restart-btn:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(37, 99, 235, 0.6); }
     </style>
 </head>
 <body>
 
-<div id="game-container">
-    <div class="header">
-        <div class="score-box">
-            <div class="score-label">Score</div>
-            <div id="score" class="score-val">0</div>
-        </div>
-        <div id="streak-banner">Combo X1</div>
-        <div class="score-box">
-            <div class="score-label">Best</div>
-            <div id="best-score" class="score-val">0</div>
-        </div>
-    </div>
-
-    <div id="grid-wrapper">
-        <div id="grid"></div>
-        <canvas id="particle-canvas"></canvas>
-    </div>
-    
-    <div id="dock"></div>
+<div id="ui">
+    <div class="stat">SCORE<span id="score">0</span></div>
+    <div class="stat">COINS<span id="coins" style="color: #ffaa00;">0</span></div>
+    <div class="stat">SPEED<span id="speed">1.0x</span></div>
 </div>
 
-<div id="game-over-screen">
-    <h1>GAME OVER</h1>
-    <p style="font-size: 16px; color: #1e40af; font-weight: 500; letter-spacing: 0.5px;">YOUR SCORE</p>
-    <div id="final-score" style="font-size: 56px; font-weight: 900; color: #ef4444;">0</div>
-    <button id="restart-btn" onclick="resetGame()">CHƠI LẠI NGAY</button>
+<div id="powerup-bar"><div id="powerup-progress"></div></div>
+
+<canvas id="gameCanvas"></canvas>
+
+<div id="game-over">
+    <h1 style="color: #ef4444; font-size: 42px; font-weight: 900; margin-bottom: 5px;">TOANG RỒI!</h1>
+    <p style="font-size: 16px; color: #1e40af; font-weight: bold; margin: 5px 0;">TỔNG ĐIỂM CỦA BẠN</p>
+    <div id="final-score" style="font-size: 50px; font-weight: 900; color: #2563eb;">0</div>
+    <button onclick="resetGame()">CHẠY LẠI NGAY</button>
 </div>
 
 <script>
-    const GRID_SIZE = 8;
-    let gridData = Array(GRID_SIZE).fill().map(() => Array(GRID_SIZE).fill(null));
-    let score = 0;
-    let bestScore = localStorage.getItem('bb_vibrant_best') || 0;
-    let streak = 0;
-
-    // Hệ màu Khối Cực Kỳ Rực Rỡ & Nổi Bật Đậm Đặc (Vibrant Solid Bold Colors)
-    const COLORS = [
-        '#ff1744', // Đỏ tươi rực rỡ
-        '#00e676', // Xanh Lá Neon phát sáng
-        '#2979ff', // Xanh Dương Hoàng Gia đậm nét
-        '#ffea00', // Vàng Chanh nguyên bản
-        '#ff9100', // Cam Mặt Trời chói lọi
-        '#f50057'  // Hồng Hot-Pink tương phản cực mạnh
-    ];
-    
-    // Danh sách khối thân thiện, dễ chơi trúng combo
-    const SHAPES = [
-        [[1]], 
-        [[1, 1]], [[1], [1]], 
-        [[1, 1, 1]], [[1], [1], [1]], 
-        [[1, 1], [1, 1]], 
-        [[1, 1, 1], [0, 1, 0]], 
-        [[1, 1], [1, 0]], [[1, 0], [1, 1]]
-    ];
-
-    const gridWrapper = document.getElementById('grid-wrapper');
-    const gridEl = document.getElementById('grid');
-    const dockEl = document.getElementById('dock');
-    const scoreEl = document.getElementById('score');
-    const bestScoreEl = document.getElementById('best-score');
-    const streakEl = document.getElementById('streak-banner');
-    
-    const canvas = document.getElementById('particle-canvas');
+    const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
+    const scoreEl = document.getElementById('score');
+    const coinsEl = document.getElementById('coins');
+    const speedEl = document.getElementById('speed');
+    const gameOverScreen = document.getElementById('game-over');
+    const pBar = document.getElementById('powerup-bar');
+    const pProgress = document.getElementById('powerup-progress');
+
+    let gameActive = true;
+    let score = 0;
+    let coins = 0;
+    let gameSpeed = 5;
+    
+    // Hệ thống Nhân vật
+    const player = {
+        lane: 1, x: 0, y: 0, width: 46, height: 75, targetX: 0,
+        jumpY: 0, isJumping: false, isSliding: false, slideTimer: 0,
+        activePowerup: null, powerupTime: 0, maxPowerupTime: 0
+    };
+
+    let obstacles = [];
+    let collectables = []; // Vàng và Item bổ trợ
     let particles = [];
 
-    function resizeCanvas() {
-        canvas.width = gridWrapper.clientWidth;
-        canvas.height = gridWrapper.clientHeight;
+    function resize() {
+        canvas.width = Math.min(window.innerWidth, 400);
+        canvas.height = window.innerHeight;
+        player.targetX = (player.lane * (canvas.width / 3)) + (canvas.width / 6) - player.width/2;
+        player.x = player.targetX;
+        player.y = canvas.height - 160;
     }
 
-    function initGrid() {
-        gridEl.innerHTML = '';
-        for (let r = 0; r < GRID_SIZE; r++) {
-            for (let c = 0; c < GRID_SIZE; c++) {
-                const cell = document.createElement('div');
-                cell.classList.add('cell');
-                cell.dataset.row = r; cell.dataset.col = c;
-                gridEl.appendChild(cell);
-            }
+    // Điều khiển bàn phím
+    window.addEventListener('keydown', (e) => {
+        if (!gameActive) return;
+        if ((e.key === 'ArrowLeft' || e.key === 'a') && player.lane > 0) player.lane--;
+        if ((e.key === 'ArrowRight' || e.key === 'd') && player.lane < 2) player.lane++;
+        if ((e.key === 'ArrowUp' || e.key === 'w') && !player.isJumping && !player.isSliding) {
+            player.isJumping = true;
+            let jumpHeight = 0;
+            const jumpInterval = setInterval(() => {
+                if(!gameActive) { clearInterval(jumpInterval); return; }
+                jumpHeight += 6;
+                player.jumpY = Math.sin(jumpHeight * (Math.PI / 180)) * 130;
+                if (jumpHeight >= 180) { player.isJumping = false; player.jumpY = 0; clearInterval(jumpInterval); }
+            }, 6);
         }
-        bestScoreEl.innerText = bestScore;
-        resizeCanvas();
-    }
-
-    function drawGrid() {
-        document.querySelectorAll('.cell').forEach(cell => {
-            const r = cell.dataset.row; const c = cell.dataset.col;
-            if (gridData[r][c]) {
-                cell.style.backgroundColor = gridData[r][c];
-                cell.classList.add('filled');
-            } else {
-                cell.style.backgroundColor = 'var(--cell-empty)';
-                cell.classList.remove('filled');
-            }
-            cell.classList.remove('preview');
-        });
-    }
-
-    function generateDockPieces() {
-        dockEl.innerHTML = '';
-        for (let i = 0; i < 3; i++) {
-            const slot = document.createElement('div');
-            slot.classList.add('dock-slot');
-            slot.appendChild(createPieceElement());
-            dockEl.appendChild(slot);
+        if ((e.key === 'ArrowDown' || e.key === 's') && !player.isJumping && !player.isSliding) {
+            player.isSliding = true;
+            player.slideTimer = 35; // Co người né vật cản cao
         }
-        checkGameOver();
-    }
+    });
 
-    function createPieceElement() {
-        const shape = SHAPES[Math.floor(Math.random() * SHAPES.length)];
-        const color = COLORS[Math.floor(Math.random() * COLORS.length)];
-        
-        const piece = document.createElement('div');
-        piece.classList.add('piece');
-        piece.style.gridTemplateRows = `repeat(${shape.length}, 1fr)`;
-        piece.style.gridTemplateColumns = `repeat(${shape[0].length}, 1fr)`;
-        piece.dataset.shape = JSON.stringify(shape);
-        piece.dataset.color = color;
-
-        const miniSize = 20; 
-        shape.forEach(row => {
-            row.forEach(val => {
-                const pCell = document.createElement('div');
-                pCell.classList.add('p-cell');
-                pCell.style.width = miniSize + 'px';
-                pCell.style.height = miniSize + 'px';
-                pCell.style.backgroundColor = val ? color : 'transparent';
-                piece.appendChild(pCell);
-            });
-        });
-
-        addDragEvents(piece);
-        return piece;
-    }
-
-    function addDragEvents(piece) {
-        let active = false;
-        
-        const handleStart = (e) => {
-            active = true;
-            piece.classList.add('dragging');
-            
-            const realCellSize = (gridEl.clientWidth / 8) - 7;
-            piece.querySelectorAll('.p-cell').forEach(cell => {
-                cell.style.width = realCellSize + 'px';
-                cell.style.height = realCellSize + 'px';
-            });
-
-            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-            movePiece(clientX, clientY);
-        };
-
-        const handleMove = (e) => {
-            if (!active) return;
-            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-            movePiece(clientX, clientY);
-            updatePreview(piece, clientX, clientY);
-        };
-
-        const handleEnd = (e) => {
-            if (!active) return;
-            active = false;
-            piece.classList.remove('dragging');
-            
-            piece.querySelectorAll('.p-cell').forEach(cell => {
-                cell.style.width = '20px'; cell.style.height = '20px';
-            });
-
-            const clientX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
-            const clientY = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
-
-            attemptPlacePiece(piece, clientX, clientY);
-        };
-
-        function movePiece(cx, cy) {
-            // Đẩy cao khối lên 55px so với ngón tay để không bao giờ bị tay che khuất khối hình
-            piece.style.left = (cx - piece.clientWidth / 2) + 'px';
-            piece.style.top = (cy - piece.clientHeight / 2 - 55) + 'px';
-        }
-
-        piece.addEventListener('mousedown', handleStart);
-        window.addEventListener('mousemove', handleMove);
-        window.addEventListener('mouseup', handleEnd);
-
-        piece.addEventListener('touchstart', handleStart, { passive: false });
-        window.addEventListener('touchmove', handleMove, { passive: false });
-        window.addEventListener('touchend', handleEnd);
-    }
-
-    function getTargetGridCoords(piece, cx, cy) {
-        const shape = JSON.parse(piece.dataset.shape);
-        const testY = cy - 55; // Căn chỉnh tọa độ theo độ lệch ngón tay
-        
-        let targetCell = null;
-        document.querySelectorAll('.cell').forEach(cell => {
-            const rect = cell.getBoundingClientRect();
-            if (cx >= rect.left && cx <= rect.right && testY >= rect.top && testY <= rect.bottom) {
-                targetCell = cell;
-            }
-        });
-
-        if (!targetCell) return null;
-
-        const baseR = parseInt(targetCell.dataset.row) - Math.floor(shape.length / 2);
-        const baseC = parseInt(targetCell.dataset.col) - Math.floor(shape[0].length / 2);
-        
-        return { r: baseR, c: baseC };
-    }
-
-    function updatePreview(piece, cx, cy) {
-        drawGrid();
-        const coords = getTargetGridCoords(piece, cx, cy);
-        if (!coords) return;
-
-        const shape = JSON.parse(piece.dataset.shape);
-        if (isValidMove(shape, coords.r, coords.c)) {
-            for (let r = 0; r < shape.length; r++) {
-                for (let c = 0; c < shape[0].length; c++) {
-                    if (shape[r][c]) {
-                        const cell = getGridCell(coords.r + r, coords.c + c);
-                        if (cell) cell.classList.add('preview');
-                    }
-                }
-            }
-        }
-    }
-
-    function isValidMove(shape, baseR, baseC) {
-        for (let r = 0; r < shape.length; r++) {
-            for (let c = 0; c < shape[0].length; c++) {
-                if (shape[r][c]) {
-                    const gridR = baseR + r; const gridC = baseC + c;
-                    if (gridR < 0 || gridR >= GRID_SIZE || gridC < 0 || gridC >= GRID_SIZE || gridData[gridR][gridC] !== null) {
-                        return false;
-                    }
-                }
-            }
-        }
-        return true;
-    }
-
-    function attemptPlacePiece(piece, cx, cy) {
-        const coords = getTargetGridCoords(piece, cx, cy);
-        const shape = JSON.parse(piece.dataset.shape);
-        const color = piece.dataset.color;
-
-        if (coords && isValidMove(shape, coords.r, coords.c)) {
-            for (let r = 0; r < shape.length; r++) {
-                for (let c = 0; c < shape[0].length; c++) {
-                    if (shape[r][c]) gridData[coords.r + r][coords.c + c] = color;
-                }
-            }
-            score += shape.flat().filter(v => v).length * 10;
-            piece.parentElement.innerHTML = ''; 
-
-            drawGrid();
-            checkLines();
-
-            if (document.querySelectorAll('.piece').length === 0) {
-                generateDockPieces();
-            } else {
-                checkGameOver();
-            }
+    // Vuốt trên Điện thoại
+    let touchStartX = 0; let touchStartY = 0;
+    window.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; touchStartY = e.touches[0].clientY; });
+    window.addEventListener('touchend', e => {
+        const dx = e.changedTouches[0].clientX - touchStartX; const dy = e.changedTouches[0].clientY - touchStartY;
+        if (Math.abs(dx) > Math.abs(dy)) {
+            if (dx > 35 && player.lane < 2) player.lane++;
+            else if (dx < -35 && player.lane > 0) player.lane--;
         } else {
-            drawGrid();
+            if (dy < -35) window.dispatchEvent(new KeyboardEvent('keydown', {'key': 'ArrowUp'}));
+            else if (dy > 35) window.dispatchEvent(new KeyboardEvent('keydown', {'key': 'ArrowDown'}));
         }
-    }
+    });
 
-    function checkLines() {
-        let rowsToClear = []; let colsToClear = [];
-
-        for (let r = 0; r < GRID_SIZE; r++) {
-            if (gridData[r].every(cell => cell !== null)) rowsToClear.push(r);
+    // Sinh Vật Cản & Vật Phẩm Ngẫu Nhiên
+    function spawnSpawns() {
+        if (Math.random() < 0.02) { // Sinh vật cản
+            const lane = Math.floor(Math.random() * 3);
+            const type = Math.random() > 0.45 ? 'low' : 'high';
+            obstacles.push({
+                lane: lane, y: -100, width: 64, height: type === 'low' ? 38 : 95, type: type,
+                color: type === 'low' ? '#ff1744' : '#f50057' // Đỏ rực rỡ hoặc Hồng Hot-Pink
+            });
         }
-        for (let c = 0; c < GRID_SIZE; c++) {
-            if (gridData.every(row => row[c] !== null)) colsToClear.push(c);
-        }
-
-        const totalLines = rowsToClear.length + colsToClear.length;
-
-        if (totalLines > 0) {
-            streak++;
-            score += totalLines * 150 * streak;
+        if (Math.random() < 0.04) { // Sinh Vàng hoặc Power-up
+            const lane = Math.floor(Math.random() * 3);
+            // Kiểm tra tránh trùng tọa độ vật cản vừa tạo
+            if(obstacles.some(o => o.lane === lane && o.y < 100)) return;
             
-            document.getElementById('game-container').classList.add('shake');
-            setTimeout(() => document.getElementById('game-container').classList.remove('shake'), 200);
-
-            rowsToClear.forEach(r => {
-                for(let c=0; c<GRID_SIZE; c++) { 
-                    createParticlesForCell(r, c, gridData[r][c]);
-                    getGridCell(r, c).classList.add('clear-anim'); 
-                    gridData[r][c] = null; 
-                }
-            });
-            colsToClear.forEach(c => {
-                for(let r=0; r<GRID_SIZE; r++) { 
-                    createParticlesForCell(r, c, gridData[r][c]);
-                    getGridCell(r, c).classList.add('clear-anim'); 
-                    gridData[r][c] = null; 
-                }
-            });
-
-            streakEl.innerText = `Combo X${streak}!`;
-            streakEl.classList.add('show');
-
-            setTimeout(() => {
-                document.querySelectorAll('.cell').forEach(el => el.classList.remove('clear-anim'));
-                drawGrid();
-            }, 300);
-        } else {
-            streak = 0; streakEl.classList.remove('show');
-        }
-
-        scoreEl.innerText = score;
-        if (score > bestScore) {
-            bestScore = score; bestScoreEl.innerText = bestScore;
-            localStorage.setItem('bb_vibrant_best', bestScore);
+            let type = 'coin';
+            if (Math.random() < 0.15) {
+                type = Math.random() > 0.5 ? 'magnet' : 'shield';
+            }
+            collectables.push({ lane: lane, y: -50, type: type, radius: type === 'coin' ? 12 : 16 });
         }
     }
 
-    function getGridCell(r, c) { return document.querySelector(`.cell[data-row='${r}'][data-col='${c}']`); }
-
-    function createParticlesForCell(r, c, color) {
-        if (!color) return;
-        const cell = getGridCell(r, c);
-        if (!cell) return;
-        const rect = cell.getBoundingClientRect();
-        const wrapperRect = gridWrapper.getBoundingClientRect();
-
-        const x = rect.left - wrapperRect.left + rect.width / 2;
-        const y = rect.top - wrapperRect.top + rect.height / 2;
-
-        for (let i = 0; i < 10; i++) {
+    // Hiệu ứng nổ hạt tung tóe khi ăn điểm hoặc chết
+    function createExplosion(x, y, color, count = 12) {
+        for (let i = 0; i < count; i++) {
             particles.push({
                 x: x, y: y,
-                vx: (Math.random() - 0.5) * 7,
-                vy: (Math.random() - 0.5) * 7,
-                radius: Math.random() * 3 + 2,
-                color: color,
-                alpha: 1,
-                decay: Math.random() * 0.03 + 0.02
+                vx: (Math.random() - 0.5) * 8, vy: (Math.random() - 0.5) * 8,
+                radius: Math.random() * 4 + 2, color: color, alpha: 1, decay: Math.random() * 0.03 + 0.02
             });
         }
     }
 
-    function updateParticles() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
-        for (let i = particles.length - 1; i >= 0; i--) {
-            let p = particles[i];
-            p.x += p.vx;
-            p.y += p.vy;
-            p.alpha -= p.decay;
+    function update() {
+        if (!gameActive) return;
 
-            if (p.alpha <= 0) {
-                particles.splice(i, 1);
+        score++;
+        scoreEl.innerText = Math.floor(score / 10);
+        gameSpeed = 5.5 + (score / 1200);
+        speedEl.innerText = (gameSpeed / 5.5).toFixed(1) + 'x';
+
+        // Di chuyển làn mượt
+        player.targetX = (player.lane * (canvas.width / 3)) + (canvas.width / 6) - player.width/2;
+        player.x += (player.targetX - player.x) * 0.22;
+
+        if (player.slideTimer > 0) {
+            player.slideTimer--;
+            if (player.slideTimer <= 0) player.isSliding = false;
+        }
+
+        // Đếm ngược thời gian hiệu lực của Power-up
+        if (player.activePowerup) {
+            player.powerupTime--;
+            pBar.style.display = 'block';
+            pProgress.style.width = (player.powerupTime / player.maxPowerupTime * 100) + '%';
+            pProgress.style.backgroundColor = player.activePowerup === 'magnet' ? '#00e676' : '#2979ff';
+            if (player.powerupTime <= 0) { player.activePowerup = null; pBar.style.display = 'none'; }
+        }
+
+        spawnSpawns();
+
+        // Xử lý logic Vật phẩm (Coins / Power-ups)
+        for (let i = collectables.length - 1; i >= 0; i--) {
+            let c = collectables[i];
+            c.y += gameSpeed;
+            
+            let cX = (c.lane * (canvas.width / 3)) + (canvas.width / 6);
+            let pX = player.x + player.width/2;
+            let pY = player.y - player.jumpY + player.height/2;
+
+            // Tính năng NAM CHÂM: Tự động hút vàng từ xa vào người
+            if (player.activePowerup === 'magnet' && c.type === 'coin' && c.y > 100) {
+                cX += (pX - cX) * 0.25;
+                c.y += (pY - c.y) * 0.25;
+            }
+
+            // Kiểm tra va chạm ăn vật phẩm
+            let dist = Math.hypot(cX - pX, c.y - pY);
+            if (dist < c.radius + player.width) {
+                if (c.type === 'coin') {
+                    coins++; coinsEl.innerText = coins;
+                    createExplosion(cX, c.y, '#ffea00', 6);
+                } else {
+                    // Nhặt được kỹ năng bổ trợ
+                    player.activePowerup = c.type;
+                    player.powerupTime = 400; // chạy được khoảng 6-7 giây
+                    player.maxPowerupTime = 400;
+                    createExplosion(cX, c.y, c.type === 'magnet' ? '#00e676' : '#2979ff', 15);
+                }
+                collectables.splice(i, 1);
                 continue;
             }
-
-            ctx.save();
-            ctx.globalAlpha = p.alpha;
-            ctx.fillStyle = p.color;
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.restore();
+            if (c.y > canvas.height) collectables.splice(i, 1);
         }
-        requestAnimationFrame(updateParticles);
+
+        // Xử lý logic Vật cản
+        for (let i = obstacles.length - 1; i >= 0; i--) {
+            let o = obstacles[i];
+            o.y += gameSpeed;
+
+            let pX = player.x;
+            let pY = player.y - player.jumpY;
+            let pW = player.width;
+            let pH = player.isSliding ? player.height/2 : player.height;
+            let realPY = player.isSliding ? pY + player.height/2 : pY;
+            let oX = (o.lane * (canvas.width / 3)) + (canvas.width / 6) - o.width/2;
+
+            if (pX < oX + o.width && pX + pW > oX && realPY < o.y + o.height && realPY + pH > o.y) {
+                if (o.type === 'high' && player.isSliding) { /* Né thành công */ } 
+                else if (o.type === 'low' && player.isJumping && player.jumpY > 35) { /* Né thành công */ } 
+                else {
+                    // NẾU CÓ KHIÊN BẤT TỬ: Phá hủy vật cản bảo vệ mạng sống
+                    if (player.activePowerup === 'shield') {
+                        player.activePowerup = null; pBar.style.display = 'none';
+                        createExplosion(oX + o.width/2, o.y + o.height/2, '#2979ff', 25);
+                        obstacles.splice(i, 1);
+                        continue;
+                    }
+
+                    // THUA CUỘC: Nổ tung xác pháo khối hình nhân vật
+                    gameActive = false;
+                    createExplosion(player.x + player.width/2, realPY + pH/2, '#1e40af', 40);
+                    setTimeout(() => {
+                        document.getElementById('final-score').innerText = Math.floor(score / 10) + coins * 10;
+                        gameOverScreen.style.display = 'flex';
+                    }, 500);
+                }
+            }
+            if (o.y > canvas.height) obstacles.splice(i, 1);
+        }
+
+        // Cập nhật hạt hiệu ứng nổ
+        for (let i = particles.length - 1; i >= 0; i--) {
+            let p = particles[i]; p.x += p.vx; p.y += p.vy; p.alpha -= p.decay;
+            if (p.alpha <= 0) particles.splice(i, 1);
+        }
     }
 
-    function checkGameOver() {
-        const remainingPieces = document.querySelectorAll('.piece');
-        let anyPieceCanFit = false;
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        remainingPieces.forEach(piece => {
-            const shape = JSON.parse(piece.dataset.shape);
-            let pieceCanFit = false;
+        // Vẽ 3 làn đường kẻ phong cách Neon Denim
+        ctx.fillStyle = '#93c5fd';
+        for(let i=1; i<3; i++) { ctx.fillRect(i * (canvas.width/3) - 2, 0, 4, canvas.height); }
 
-            for (let r = 0; r <= GRID_SIZE - shape.length; r++) {
-                for (let c = 0; c <= GRID_SIZE - shape[0].length; c++) {
-                    if (isValidMove(shape, r, c)) { pieceCanFit = true; anyPieceCanFit = true; break; }
-                }
-                if (pieceCanFit) break;
+        // Vẽ Coins & Kỹ năng
+        collectables.forEach(c => {
+            let cX = (c.lane * (canvas.width / 3)) + (canvas.width / 6);
+            ctx.beginPath();
+            if (c.type === 'coin') {
+                ctx.fillStyle = '#ffea00'; ctx.shadowBlur = 12; ctx.shadowColor = '#ffea00';
+                ctx.arc(cX, c.y, c.radius, 0, Math.PI * 2); ctx.fill();
+            } else if (c.type === 'magnet') { // Nam châm xanh neon
+                ctx.fillStyle = '#00e676'; ctx.shadowBlur = 15; ctx.shadowColor = '#00e676';
+                ctx.arc(cX, c.y, c.radius, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = '#fff'; ctx.font = 'bold 12px sans-serif'; ctx.fillText('M', cX - 5, c.y + 4);
+            } else { // Khiên bảo vệ xanh dương đậm đặc
+                ctx.fillStyle = '#2979ff'; ctx.shadowBlur = 15; ctx.shadowColor = '#2979ff';
+                ctx.arc(cX, c.y, c.radius, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = '#fff'; ctx.font = 'bold 12px sans-serif'; ctx.fillText('S', cX - 4, c.y + 4);
             }
-            piece.style.opacity = pieceCanFit ? '1' : '0.2';
+            ctx.shadowBlur = 0;
         });
 
-        if (!anyPieceCanFit) {
-            setTimeout(() => {
-                document.getElementById('final-score').innerText = score;
-                document.getElementById('game-over-screen').style.display = 'flex';
-            }, 600);
+        // Vẽ Vật Cản Sắc Màu Nổi Bật
+        obstacles.forEach(o => {
+            let oX = (o.lane * (canvas.width / 3)) + (canvas.width / 6) - o.width/2;
+            ctx.fillStyle = o.color; ctx.shadowBlur = 15; ctx.shadowColor = o.color;
+            if (o.type === 'low') {
+                ctx.fillRect(oX, o.y, o.width, o.height);
+            } else {
+                ctx.fillRect(oX, o.y, o.width, 22); ctx.fillRect(oX, o.y, 12, o.height); ctx.fillRect(oX + o.width - 12, o.y, 12, o.height);
+            }
+            ctx.shadowBlur = 0;
+        });
+
+        // Vẽ Hạt Hiệu Ứng Nổ
+        particles.forEach(p => {
+            ctx.save(); ctx.globalAlpha = p.alpha; ctx.fillStyle = p.color;
+            ctx.beginPath(); ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+        });
+
+        // Vẽ Nhân Vật Chính (Khối xanh dương sẫm)
+        if (gameActive || particles.length > 0) {
+            ctx.fillStyle = '#1e40af';
+            let pDrawH = player.isSliding ? player.height / 2 : player.height;
+            let pDrawY = player.isSliding ? (player.y + player.height/2) : (player.y - player.jumpY);
+            
+            ctx.shadowBlur = 20; ctx.shadowColor = 'rgba(30, 64, 175, 0.4)';
+            ctx.fillRect(player.x, pDrawY, player.width, pDrawH);
+            
+            // Vẽ hào quang bảo vệ quanh nhân vật nếu đang sở hữu Khiên
+            if (player.activePowerup === 'shield') {
+                ctx.strokeStyle = '#2979ff'; ctx.lineWidth = 4; ctx.shadowColor = '#2979ff'; ctx.shadowBlur = 15;
+                ctx.strokeRect(player.x - 6, pDrawY - 6, player.width + 12, pDrawH + 12);
+            }
+            ctx.shadowBlur = 0;
         }
+
+        update();
+        requestAnimationFrame(draw);
     }
 
     function resetGame() {
-        gridData = Array(GRID_SIZE).fill().map(() => Array(GRID_SIZE).fill(null));
-        score = 0; streak = 0; scoreEl.innerText = '0'; streakEl.classList.remove('show');
-        document.getElementById('game-over-screen').style.display = 'none';
-        initGrid(); drawGrid(); generateDockPieces();
+        score = 0; coins = 0; gameSpeed = 5.5; obstacles = []; collectables = []; particles = []; gameActive = true;
+        player.lane = 1; player.activePowerup = null; pBar.style.display = 'none';
+        coinsEl.innerText = '0'; scoreEl.innerText = '0'; gameOverScreen.style.display = 'none';
     }
 
-    initGrid();
-    generateDockPieces();
-    updateParticles();
-    window.addEventListener('resize', resizeCanvas);
+    resize();
+    window.addEventListener('resize', resize);
+    draw();
 </script>
 </body>
 </html>

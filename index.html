@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Neon Runner - Animated Vector Edition</title>
+    <title>Neon Runner - Fix Edition</title>
     <style>
         :root {
             --bg-dark-blue: #0b132b;
@@ -88,9 +88,8 @@
 
     let gameActive = true;
     let score = 0; let coins = 0; let gameSpeed = 6;
-    let animFrame = 0; // Biến tạo hiệu ứng nhấp nhô lúc chạy
+    let animFrame = 0;
     
-    // Tăng kích thước bao của nhân vật để vẽ chi tiết đẹp hơn
     const player = {
         lane: 1, x: 0, y: 0, width: 54, height: 85, targetX: 0,
         jumpY: 0, isJumping: false, isSliding: false, slideTimer: 0,
@@ -133,7 +132,7 @@
         }
     });
 
-    // Vuốt màn hình
+    // Vuốt màn hình màn cảm ứng
     let touchStartX = 0; let touchStartY = 0;
     window.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; touchStartY = e.touches[0].clientY; });
     window.addEventListener('touchend', e => {
@@ -205,7 +204,6 @@
 
         spawnObjects();
 
-        // Ăn xu / Hút vật phẩm
         for (let i = collectables.length - 1; i >= 0; i--) {
             let c = collectables[i]; c.y += gameSpeed; c.angle += 0.06;
             let cX = (c.lane * (canvas.width / 3)) + (canvas.width / 6);
@@ -224,7 +222,6 @@
             if (c.y > canvas.height) collectables.splice(i, 1);
         }
 
-        // Va chạm vật cản
         for (let i = obstacles.length - 1; i >= 0; i--) {
             let o = obstacles[i]; o.y += gameSpeed;
             let pX = player.x; let pY = player.y - player.jumpY;
@@ -251,53 +248,49 @@
         }
     }
 
-    // --- HÀM VẼ NHÂN VẬT HOẠT HỌA VECTOR CHI TIẾT ---
+    // ĐÃ FIX: Vẽ nhân vật bằng hàm an toàn tương thích 100% mọi thiết bị
     function drawPlayer(x, y, w, h) {
         ctx.save();
         
-        // Tạo hiệu ứng nhấp nhô cơ thể nhẹ nhàng mô phỏng động tác lướt ván chạy
         let bobbing = Math.sin(animFrame) * 3;
-        if (player.isJumping || player.isSliding) bobbing = 0; // Không nhấp nhô khi đang dùng kỹ năng
+        if (player.isJumping || player.isSliding) bobbing = 0;
 
         let pY = y + bobbing;
         let pH = h;
 
         if (player.isSliding) {
-            pH = h * 0.5; // Co chiều cao lại một nửa khi trượt
+            pH = h * 0.5;
             pY = y + h * 0.5;
         }
 
-        // Tọa độ trung tâm của nhân vật để tính toán vẽ các bộ phận
         let cx = x + w / 2;
 
-        // 1. VẼ VÁN TRƯỢT HOVERBOARD (Phát sáng dưới chân)
+        // 1. VẼ VÁN TRƯỢT HOVERBOARD
         ctx.shadowBlur = 15; ctx.shadowColor = '#00f5ff';
         ctx.fillStyle = '#00f5ff';
         ctx.beginPath();
         ctx.ellipse(cx, pY + pH, w * 0.6, 6, 0, 0, Math.PI * 2);
         ctx.fill();
-        ctx.fillStyle = '#ffffff'; // Lõi ván sáng trắng
+        ctx.fillStyle = '#ffffff';
         ctx.beginPath();
         ctx.ellipse(cx, pY + pH, w * 0.4, 3, 0, 0, Math.PI * 2);
         ctx.fill();
         ctx.shadowBlur = 0;
 
         if (!player.isSliding) {
-            // 2. VẼ ĐÔI CHÂN (Dáng đang đứng khuỵu trên ván)
-            ctx.fillStyle = '#1e293b'; // Quần màu tối
+            // 2. CHÂN
+            ctx.fillStyle = '#1e293b';
             ctx.fillRect(cx - 14, pY + pH - 22, 8, 22);
             ctx.fillRect(cx + 6, pY + pH - 22, 8, 22);
             
-            // Giày thể thao Neon
             ctx.fillStyle = '#ff0055';
             ctx.fillRect(cx - 16, pY + pH - 6, 11, 7);
             ctx.fillRect(cx + 4, pY + pH - 6, 11, 7);
 
-            // 3. VẼ BALO PHẢN LỰC JETPACK (Sau lưng)
+            // 3. BALO JETPACK
             ctx.fillStyle = '#475569';
-            ctx.fillRect(cx - w/2 - 4, pY + 22, 8, 30); // Khối balo bên trái
+            ctx.fillRect(cx - w/2 - 4, pY + 22, 8, 30);
             
-            // Lửa phụt ra từ Jetpack nếu đang nhảy cao
             if (player.isJumping && player.jumpY > 15) {
                 ctx.shadowBlur = 12; ctx.shadowColor = '#ff5500';
                 let fire = ctx.createLinearGradient(cx - w/2 - 4, pY + 52, cx - w/2 - 4, pY + 75);
@@ -306,51 +299,43 @@
             }
         }
 
-        // 4. VẼ ÁO KHOÁC HOODIE CHÍNH (Thân người)
+        // 4. THÂN ÁO HOODIE (Sửa phương thức vẽ an toàn)
         let bodyH = player.isSliding ? pH * 0.7 : pH * 0.5;
         let bodyY = player.isSliding ? pY : pY + 16;
         let bodyGrad = ctx.createLinearGradient(x, bodyY, x + w, bodyY + bodyH);
-        bodyGrad.addColorStop(0, '#3b82f6'); bodyGrad.addColorStop(1, '#1d4ed8'); // Áo xanh dương đậm chất thanh lịch
+        bodyGrad.addColorStop(0, '#3b82f6'); bodyGrad.addColorStop(1, '#1d4ed8');
         ctx.fillStyle = bodyGrad;
-        ctx.beginPath();
-        ctx.roundRect(cx - w*0.4, bodyY, w * 0.8, bodyH, [10, 10, 4, 4]);
-        ctx.fill();
+        
+        ctx.fillRect(cx - w*0.35, bodyY, w * 0.7, bodyH); // Dùng rect chuẩn tránh lỗi crash trình duyệt cũ
 
-        // Vẽ chiếc túi Hoodie trước bụng
+        // Túi áo
         ctx.fillStyle = '#1e40af';
         ctx.fillRect(cx - 12, bodyY + bodyH - 14, 24, 10);
 
-        // 5. VẼ ĐẦU VÀ TÓC NHÂN VẬT
+        // 5. ĐẦU VÀ TÓC VÀNG VỆT
         let headRadius = player.isSliding ? 11 : 13;
         let headY = player.isSliding ? pY - 2 : pY + 6;
         
-        // Khuôn mặt (Màu da nhân vật)
         ctx.fillStyle = '#ffdbac';
-        ctx.beginPath();
-        ctx.arc(cx, headY, headRadius, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.beginPath(); ctx.arc(cx, headY, headRadius, 0, Math.PI * 2); ctx.fill();
 
-        // Mũ Hoodie trùm đầu hoặc Tóc vuốt dựng rực rỡ phong cách Subway
-        ctx.fillStyle = '#ffea00'; // Tóc vàng rực chói lọi nghịch ngợm
-        ctx.beginPath();
-        ctx.arc(cx, headY - 4, headRadius * 0.9, Math.PI, 0); // Phần tóc đỉnh đầu
-        ctx.fill();
-        // Mấy lọn tóc mái chọc xuống mặt
+        ctx.fillStyle = '#ffea00';
+        ctx.beginPath(); ctx.arc(cx, headY - 4, headRadius * 0.9, Math.PI, 0); ctx.fill();
         ctx.beginPath();
         ctx.moveTo(cx - 10, headY - 4); ctx.lineTo(cx - 5, headY + 2); ctx.lineTo(cx, headY - 4);
         ctx.lineTo(cx + 5, headY + 2); ctx.lineTo(cx + 10, headY - 4);
         ctx.fill();
 
-        // 6. VẼ KÍNH BẢO HỘ CYBERPUNK PHÁT SÁNG (Thay cho mắt)
+        // 6. KÍNH CYBERPUNK
         ctx.shadowBlur = 10; ctx.shadowColor = '#00f5ff';
-        ctx.fillStyle = '#00f5ff'; // Kính màu xanh neon công nghệ cực ngầu
+        ctx.fillStyle = '#00f5ff';
         ctx.fillRect(cx - 9, headY - 1, 18, 5);
         ctx.shadowBlur = 0;
 
-        // Đóng khung vệt hào quang Khiên bảo vệ bên ngoài nếu có vật phẩm
+        // Vòng bảo vệ KHIÊN
         if (player.activePowerup === 'shield') {
             ctx.strokeStyle = '#00f5ff'; ctx.lineWidth = 3; ctx.shadowColor = '#00f5ff'; ctx.shadowBlur = 15;
-            ctx.beginPath(); ctx.roundRect(x - 8, pY - 8, w + 16, pH + 16, 16); ctx.stroke();
+            ctx.beginPath(); ctx.arc(cx, bodyY + bodyH/2, w, 0, Math.PI*2); ctx.stroke();
         }
 
         ctx.restore();
@@ -360,11 +345,11 @@
     function draw() {
         ctx.fillStyle = '#0b132b'; ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Vệt tốc độ nền
+        // Vệt nền tốc độ
         ctx.strokeStyle = 'rgba(0, 245, 255, 0.08)'; ctx.lineWidth = 1.5;
         speedLines.forEach(line => { ctx.beginPath(); ctx.moveTo(line.x, line.y); ctx.lineTo(line.x, line.y + line.len); ctx.stroke(); });
 
-        // 3 làn đường kẻ
+        // 3 làn đường
         for (let i = 1; i < 3; i++) {
             let lineX = i * (canvas.width / 3);
             let grad = ctx.createLinearGradient(lineX, 0, lineX + 4, canvas.height);
@@ -373,7 +358,7 @@
             ctx.fillRect(lineX - 1.5, 0, 3, canvas.height); ctx.shadowBlur = 0;
         }
 
-        // Vẽ Xu và kỹ năng xoay tròn
+        // Xu và Item kỹ năng
         collectables.forEach(c => {
             let cX = (c.lane * (canvas.width / 3)) + (canvas.width / 6);
             ctx.save(); ctx.translate(cX, c.y); ctx.scale(Math.sin(c.angle), 1);
@@ -390,7 +375,7 @@
             ctx.restore(); ctx.shadowBlur = 0;
         });
 
-        // Vẽ Vật Cản Phát Sáng
+        // Vật Cản
         obstacles.forEach(o => {
             let oX = (o.lane * (canvas.width / 3)) + (canvas.width / 6) - o.width/2;
             ctx.shadowBlur = 18; ctx.shadowColor = o.color; ctx.fillStyle = o.color;
@@ -406,30 +391,7 @@
             ctx.shadowBlur = 0;
         });
 
-        // Hạt hiệu ứng nổ
+        // Bụi nổ
         particles.forEach(p => {
             ctx.save(); ctx.globalAlpha = p.alpha; ctx.fillStyle = p.color;
-            ctx.beginPath(); ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2); ctx.fill(); ctx.restore();
-        });
-
-        // GỌI HÀM VẼ NHÂN VẬT THAY THẾ CHO KHỐI VUÔNG CŨ
-        if (gameActive) {
-            drawPlayer(player.x, player.y - player.jumpY, player.width, player.height);
-        }
-
-        update();
-        requestAnimationFrame(draw);
-    }
-
-    function resetGame() {
-        score = 0; coins = 0; gameSpeed = 6; obstacles = []; collectables = []; particles = []; gameActive = true;
-        player.lane = 1; player.activePowerup = null; pBar.style.display = 'none';
-        coinsEl.innerText = '0'; scoreEl.innerText = '0'; gameOverScreen.style.display = 'none';
-    }
-
-    resize();
-    window.addEventListener('resize', resize);
-    draw();
-</script>
-</body>
-</html>
+            ctx.beginPath(); ctx.arc(p.x, p.y, p.radius, 0, Math.

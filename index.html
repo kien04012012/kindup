@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Neon Runner - Fix Edition</title>
+    <title>Neon Runner - Final Fixed</title>
     <style>
         :root {
             --bg-dark-blue: #0b132b;
@@ -87,11 +87,11 @@
     const pProgress = document.getElementById('powerup-progress');
 
     let gameActive = true;
-    let score = 0; let coins = 0; let gameSpeed = 6;
+    let score = 0; let coins = 0; let gameSpeed = 5.5;
     let animFrame = 0;
     
     const player = {
-        lane: 1, x: 0, y: 0, width: 54, height: 85, targetX: 0,
+        lane: 1, x: 0, y: 0, width: 50, height: 80, targetX: 0,
         jumpY: 0, isJumping: false, isSliding: false, slideTimer: 0,
         activePowerup: null, powerupTime: 0, maxPowerupTime: 0
     };
@@ -103,7 +103,7 @@
         canvas.height = window.innerHeight;
         player.targetX = (player.lane * (canvas.width / 3)) + (canvas.width / 6) - player.width/2;
         player.x = player.targetX;
-        player.y = canvas.height - 180;
+        player.y = canvas.height - 160; // Điều chỉnh lại vị trí đứng an toàn
         
         speedLines = [];
         for(let i=0; i<12; i++) {
@@ -111,7 +111,7 @@
         }
     }
 
-    // Điều khiển
+    // Điều khiển bàn phím
     window.addEventListener('keydown', (e) => {
         if (!gameActive) return;
         if ((e.key === 'ArrowLeft' || e.key === 'a') && player.lane > 0) player.lane--;
@@ -122,7 +122,7 @@
             const jumpInterval = setInterval(() => {
                 if(!gameActive) { clearInterval(jumpInterval); return; }
                 jumpHeight += 6;
-                player.jumpY = Math.sin(jumpHeight * (Math.PI / 180)) * 140;
+                player.jumpY = Math.sin(jumpHeight * (Math.PI / 180)) * 135;
                 if (jumpHeight >= 180) { player.isJumping = false; player.jumpY = 0; clearInterval(jumpInterval); }
             }, 5);
         }
@@ -132,7 +132,7 @@
         }
     });
 
-    // Vuốt màn hình màn cảm ứng
+    // Vuốt màn hình điện thoại
     let touchStartX = 0; let touchStartY = 0;
     window.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; touchStartY = e.touches[0].clientY; });
     window.addEventListener('touchend', e => {
@@ -147,20 +147,20 @@
     });
 
     function spawnObjects() {
-        if (Math.random() < 0.022) {
+        if (Math.random() < 0.02) {
             const lane = Math.floor(Math.random() * 3);
-            const type = Math.random() > 0.55 ? 'low' : 'high';
+            const type = Math.random() > 0.5 ? 'low' : 'high';
             obstacles.push({
-                lane: lane, y: -120, width: 70, height: type === 'low' ? 40 : 90, type: type,
+                lane: lane, y: -100, width: 66, height: type === 'low' ? 35 : 85, type: type,
                 color: type === 'low' ? '#ff0055' : '#ff9900'
             });
         }
-        if (Math.random() < 0.045) {
+        if (Math.random() < 0.04) {
             const lane = Math.floor(Math.random() * 3);
-            if(obstacles.some(o => o.lane === lane && o.y < 150)) return;
+            if(obstacles.some(o => o.lane === lane && o.y < 120)) return;
             let type = 'coin';
-            if (Math.random() < 0.15) type = Math.random() > 0.5 ? 'magnet' : 'shield';
-            collectables.push({ lane: lane, y: -50, type: type, angle: 0 });
+            if (Math.random() < 0.12) type = Math.random() > 0.5 ? 'magnet' : 'shield';
+            collectables.push({ lane: lane, y: -40, type: type, angle: 0 });
         }
     }
 
@@ -168,26 +168,28 @@
         for (let i = 0; i < count; i++) {
             particles.push({
                 x: x, y: y,
-                vx: (Math.random() - 0.5) * 10, vy: (Math.random() - 0.5) * 10,
-                radius: Math.random() * 3 + 1.5, color: color, alpha: 1, decay: Math.random() * 0.025 + 0.015
+                vx: (Math.random() - 0.5) * 8, vy: (Math.random() - 0.5) * 8,
+                radius: Math.random() * 3 + 1, color: color, alpha: 1, decay: Math.random() * 0.02 + 0.02
             });
         }
     }
 
+    // Tách biệt hoàn toàn phần xử lý logic chuyển động
     function update() {
         if (!gameActive) return;
 
         score++;
         scoreEl.innerText = Math.floor(score / 10);
-        gameSpeed = 5.5 + (score / 1100);
+        gameSpeed = 5.5 + (score / 1200);
         speedEl.innerText = (gameSpeed / 5.5).toFixed(1) + 'x';
         animFrame += 0.15;
 
         speedLines.forEach(line => {
-            line.y += gameSpeed * 1.6;
+            line.y += gameSpeed * 1.5;
             if(line.y > canvas.height) { line.y = -50; line.x = Math.random() * canvas.width; }
         });
 
+        player.targetX = (player.lane * (canvas.width / 3)) + (canvas.width / 6) - player.width/2;
         player.x += (player.targetX - player.x) * 0.22;
 
         if (player.slideTimer > 0) {
@@ -204,6 +206,7 @@
 
         spawnObjects();
 
+        // Xu và kỹ năng bổ trợ
         for (let i = collectables.length - 1; i >= 0; i--) {
             let c = collectables[i]; c.y += gameSpeed; c.angle += 0.06;
             let cX = (c.lane * (canvas.width / 3)) + (canvas.width / 6);
@@ -211,17 +214,18 @@
             let pY = player.y - player.jumpY + player.height/2;
 
             if (player.activePowerup === 'magnet' && c.type === 'coin' && c.y > 50) {
-                cX += (pX - cX) * 0.32; c.y += (pY - c.y) * 0.32;
+                cX += (pX - cX) * 0.3; c.y += (pY - c.y) * 0.3;
             }
 
-            if (Math.hypot(cX - pX, c.y - pY) < 45) {
+            if (Math.hypot(cX - pX, c.y - pY) < 40) {
                 if (c.type === 'coin') { coins++; coinsEl.innerText = coins; createExplosion(cX, c.y, '#ffcc00', 6); } 
-                else { player.activePowerup = c.type; player.powerupTime = 400; player.maxPowerupTime = 400; createExplosion(cX, c.y, '#00f5ff', 15); }
+                else { player.activePowerup = c.type; player.powerupTime = 400; player.maxPowerupTime = 400; createExplosion(cX, c.y, '#00f5ff', 12); }
                 collectables.splice(i, 1); continue;
             }
             if (c.y > canvas.height) collectables.splice(i, 1);
         }
 
+        // Kiểm tra vật cản va chạm
         for (let i = obstacles.length - 1; i >= 0; i--) {
             let o = obstacles[i]; o.y += gameSpeed;
             let pX = player.x; let pY = player.y - player.jumpY;
@@ -231,11 +235,11 @@
 
             if (pX < oX + o.width && pX + pW > oX && realPY < o.y + o.height && realPY + pH > o.y) {
                 if (o.type === 'high' && player.isSliding) {} 
-                else if (o.type === 'low' && player.isJumping && player.jumpY > 35) {} 
+                else if (o.type === 'low' && player.isJumping && player.jumpY > 30) {} 
                 else {
-                    if (player.activePowerup === 'shield') { player.activePowerup = null; pBar.style.display = 'none'; createExplosion(oX + o.width/2, o.y + o.height/2, '#00f5ff', 25); obstacles.splice(i, 1); continue; }
+                    if (player.activePowerup === 'shield') { player.activePowerup = null; pBar.style.display = 'none'; createExplosion(oX + o.width/2, o.y + o.height/2, '#00f5ff', 20); obstacles.splice(i, 1); continue; }
                     gameActive = false;
-                    createExplosion(player.x + player.width/2, realPY + pH/2, '#ff0055', 30);
+                    createExplosion(player.x + player.width/2, realPY + pH/2, '#ff0055', 25);
                     setTimeout(() => { document.getElementById('final-score').innerText = Math.floor(score / 10) + coins * 15; gameOverScreen.style.display = 'flex'; }, 500);
                 }
             }
@@ -248,88 +252,56 @@
         }
     }
 
-    // ĐÃ FIX: Vẽ nhân vật bằng hàm an toàn tương thích 100% mọi thiết bị
+    // Hàm vẽ nhân vật an toàn 100%
     function drawPlayer(x, y, w, h) {
         ctx.save();
-        
         let bobbing = Math.sin(animFrame) * 3;
         if (player.isJumping || player.isSliding) bobbing = 0;
 
         let pY = y + bobbing;
         let pH = h;
 
-        if (player.isSliding) {
-            pH = h * 0.5;
-            pY = y + h * 0.5;
-        }
-
+        if (player.isSliding) { pH = h * 0.5; pY = y + h * 0.5; }
         let cx = x + w / 2;
 
-        // 1. VẼ VÁN TRƯỢT HOVERBOARD
+        // Ván trượt Neon
         ctx.shadowBlur = 15; ctx.shadowColor = '#00f5ff';
-        ctx.fillStyle = '#00f5ff';
-        ctx.beginPath();
-        ctx.ellipse(cx, pY + pH, w * 0.6, 6, 0, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = '#ffffff';
-        ctx.beginPath();
-        ctx.ellipse(cx, pY + pH, w * 0.4, 3, 0, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.fillStyle = '#00f5ff'; ctx.beginPath(); ctx.ellipse(cx, pY + pH, w * 0.6, 5, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.ellipse(cx, pY + pH, w * 0.4, 2.5, 0, 0, Math.PI * 2); ctx.fill();
         ctx.shadowBlur = 0;
 
         if (!player.isSliding) {
-            // 2. CHÂN
+            // Đôi chân
             ctx.fillStyle = '#1e293b';
-            ctx.fillRect(cx - 14, pY + pH - 22, 8, 22);
-            ctx.fillRect(cx + 6, pY + pH - 22, 8, 22);
-            
+            ctx.fillRect(cx - 12, pY + pH - 20, 7, 20); ctx.fillRect(cx + 5, pY + pH - 20, 7, 20);
             ctx.fillStyle = '#ff0055';
-            ctx.fillRect(cx - 16, pY + pH - 6, 11, 7);
-            ctx.fillRect(cx + 4, pY + pH - 6, 11, 7);
-
-            // 3. BALO JETPACK
-            ctx.fillStyle = '#475569';
-            ctx.fillRect(cx - w/2 - 4, pY + 22, 8, 30);
-            
+            ctx.fillRect(cx - 14, pY + pH - 5, 9, 6); ctx.fillRect(cx + 3, pY + pH - 5, 9, 6);
+            // Balo Jetpack
+            ctx.fillStyle = '#475569'; ctx.fillRect(cx - w/2 - 2, pY + 20, 6, 26);
             if (player.isJumping && player.jumpY > 15) {
-                ctx.shadowBlur = 12; ctx.shadowColor = '#ff5500';
-                let fire = ctx.createLinearGradient(cx - w/2 - 4, pY + 52, cx - w/2 - 4, pY + 75);
+                ctx.shadowBlur = 10; ctx.shadowColor = '#ff5500';
+                let fire = ctx.createLinearGradient(cx - w/2 - 2, pY + 46, cx - w/2 - 2, pY + 65);
                 fire.addColorStop(0, '#ffea00'); fire.addColorStop(1, 'transparent');
-                ctx.fillStyle = fire; ctx.fillRect(cx - w/2 - 2, pY + 52, 5, 20);
+                ctx.fillStyle = fire; ctx.fillRect(cx - w/2 - 2, pY + 46, 5, 15);
             }
         }
 
-        // 4. THÂN ÁO HOODIE (Sửa phương thức vẽ an toàn)
-        let bodyH = player.isSliding ? pH * 0.7 : pH * 0.5;
-        let bodyY = player.isSliding ? pY : pY + 16;
+        // Thân áo Hoodie
+        let bodyH = player.isSliding ? pH * 0.75 : pH * 0.52;
+        let bodyY = player.isSliding ? pY : pY + 14;
         let bodyGrad = ctx.createLinearGradient(x, bodyY, x + w, bodyY + bodyH);
         bodyGrad.addColorStop(0, '#3b82f6'); bodyGrad.addColorStop(1, '#1d4ed8');
-        ctx.fillStyle = bodyGrad;
-        
-        ctx.fillRect(cx - w*0.35, bodyY, w * 0.7, bodyH); // Dùng rect chuẩn tránh lỗi crash trình duyệt cũ
+        ctx.fillStyle = bodyGrad; ctx.fillRect(cx - w * 0.35, bodyY, w * 0.7, bodyH);
 
-        // Túi áo
-        ctx.fillStyle = '#1e40af';
-        ctx.fillRect(cx - 12, bodyY + bodyH - 14, 24, 10);
+        // Đầu và tóc vàng
+        let headRadius = player.isSliding ? 11 : 12.5;
+        let headY = player.isSliding ? pY - 2 : pY + 5;
+        ctx.fillStyle = '#ffdbac'; ctx.beginPath(); ctx.arc(cx, headY, headRadius, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#ffea00'; ctx.beginPath(); ctx.arc(cx, headY - 4, headRadius * 0.9, Math.PI, 0); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(cx - 9, headY - 4); ctx.lineTo(cx - 4, headY + 2); ctx.lineTo(cx, headY - 4); ctx.lineTo(cx + 4, headY + 2); ctx.lineTo(cx + 9, headY - 4); ctx.fill();
 
-        // 5. ĐẦU VÀ TÓC VÀNG VỆT
-        let headRadius = player.isSliding ? 11 : 13;
-        let headY = player.isSliding ? pY - 2 : pY + 6;
-        
-        ctx.fillStyle = '#ffdbac';
-        ctx.beginPath(); ctx.arc(cx, headY, headRadius, 0, Math.PI * 2); ctx.fill();
-
-        ctx.fillStyle = '#ffea00';
-        ctx.beginPath(); ctx.arc(cx, headY - 4, headRadius * 0.9, Math.PI, 0); ctx.fill();
-        ctx.beginPath();
-        ctx.moveTo(cx - 10, headY - 4); ctx.lineTo(cx - 5, headY + 2); ctx.lineTo(cx, headY - 4);
-        ctx.lineTo(cx + 5, headY + 2); ctx.lineTo(cx + 10, headY - 4);
-        ctx.fill();
-
-        // 6. KÍNH CYBERPUNK
-        ctx.shadowBlur = 10; ctx.shadowColor = '#00f5ff';
-        ctx.fillStyle = '#00f5ff';
-        ctx.fillRect(cx - 9, headY - 1, 18, 5);
+        // Kính bảo hộ Cyberpunk
+        ctx.shadowBlur = 10; ctx.shadowColor = '#00f5ff'; ctx.fillStyle = '#00f5ff'; ctx.fillRect(cx - 8, headY - 1, 16, 4);
         ctx.shadowBlur = 0;
 
         // Vòng bảo vệ KHIÊN
@@ -337,19 +309,21 @@
             ctx.strokeStyle = '#00f5ff'; ctx.lineWidth = 3; ctx.shadowColor = '#00f5ff'; ctx.shadowBlur = 15;
             ctx.beginPath(); ctx.arc(cx, bodyY + bodyH/2, w, 0, Math.PI*2); ctx.stroke();
         }
-
-        ctx.restore();
-        ctx.shadowBlur = 0;
+        ctx.restore(); ctx.shadowBlur = 0;
     }
 
+    // Hàm vẽ vòng lặp đồ họa chính
     function draw() {
+        // GỌI UPDATE TRƯỚC KHI VẼ ĐỂ TRÁNH TRỐNG MÀN HÌNH
+        update();
+
         ctx.fillStyle = '#0b132b'; ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Vệt nền tốc độ
+        // Vệt nền tốc độ chạy dọc
         ctx.strokeStyle = 'rgba(0, 245, 255, 0.08)'; ctx.lineWidth = 1.5;
         speedLines.forEach(line => { ctx.beginPath(); ctx.moveTo(line.x, line.y); ctx.lineTo(line.x, line.y + line.len); ctx.stroke(); });
 
-        // 3 làn đường
+        // 3 làn đường chạy
         for (let i = 1; i < 3; i++) {
             let lineX = i * (canvas.width / 3);
             let grad = ctx.createLinearGradient(lineX, 0, lineX + 4, canvas.height);
@@ -358,7 +332,7 @@
             ctx.fillRect(lineX - 1.5, 0, 3, canvas.height); ctx.shadowBlur = 0;
         }
 
-        // Xu và Item kỹ năng
+        // Xu và Item kỹ năng xoay 3D
         collectables.forEach(c => {
             let cX = (c.lane * (canvas.width / 3)) + (canvas.width / 6);
             ctx.save(); ctx.translate(cX, c.y); ctx.scale(Math.sin(c.angle), 1);
@@ -375,7 +349,7 @@
             ctx.restore(); ctx.shadowBlur = 0;
         });
 
-        // Vật Cản
+        // Vật cản rực rỡ đổ bóng Neon
         obstacles.forEach(o => {
             let oX = (o.lane * (canvas.width / 3)) + (canvas.width / 6) - o.width/2;
             ctx.shadowBlur = 18; ctx.shadowColor = o.color; ctx.fillStyle = o.color;
@@ -391,7 +365,29 @@
             ctx.shadowBlur = 0;
         });
 
-        // Bụi nổ
+        // Hạt bụi nổ vỡ vụn
         particles.forEach(p => {
             ctx.save(); ctx.globalAlpha = p.alpha; ctx.fillStyle = p.color;
-            ctx.beginPath(); ctx.arc(p.x, p.y, p.radius, 0, Math.
+            ctx.beginPath(); ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+        });
+
+        // Vẽ nhân vật lướt ván hoạt họa
+        if (gameActive) {
+            drawPlayer(player.x, player.y - player.jumpY, player.width, player.height);
+        }
+
+        requestAnimationFrame(draw);
+    }
+
+    function resetGame() {
+        score = 0; coins = 0; gameSpeed = 5.5; obstacles = []; collectables = []; particles = []; gameActive = true;
+        player.lane = 1; player.activePowerup = null; pBar.style.display = 'none';
+        coinsEl.innerText = '0'; scoreEl.innerText = '0'; gameOverScreen.style.display = 'none';
+    }
+
+    resize();
+    window.addEventListener('resize', resize);
+    draw();
+</script>
+</body>
+</html>

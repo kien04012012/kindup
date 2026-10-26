@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tech AI Edu Community (TAEC)</title>
+  <title>TAEC - Học tập AI</title>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
   <style>
     :root{
@@ -23,20 +23,18 @@
       --shadow:0 18px 28px rgba(15, 93, 45, 0.14);
     }
 
-    * { box-sizing:border-box; }
-    html, body {
+    *{ box-sizing:border-box; }
+    html,body{
       margin:0;
+      width:100%;
       height:100%;
-      font-family:'Nunito', sans-serif;
-      background:linear-gradient(180deg, var(--bg1) 0%, var(--bg2) 100%);
+      font-family:'Nunito',sans-serif;
+      background:linear-gradient(180deg, var(--bg1), var(--bg2));
       color:var(--text);
     }
 
     body{
       min-height:100vh;
-      display:flex;
-      align-items:center;
-      justify-content:center;
       overflow:hidden;
     }
 
@@ -49,23 +47,24 @@
       position:relative;
       overflow:hidden;
       background:linear-gradient(180deg, #139b44 0%, #0d7f39 100%);
+      padding:18px;
     }
 
     .auth-screen::before{
       content:"";
       position:absolute;
-      width:180px;
-      height:180px;
+      width:160px;
+      height:160px;
       left:50%;
-      top:-30px;
+      top:-20px;
       transform:translateX(-50%);
-      background:radial-gradient(circle at 50% 50%, rgba(255,255,255,0.26), rgba(255,255,255,0) 60%);
+      background:radial-gradient(circle at 50% 50%, rgba(255,255,255,0.26), rgba(255,255,255,0) 62%);
       border-radius:50%;
       pointer-events:none;
     }
 
     .auth-box{
-      width:min(480px, calc(100% - 28px));
+      width:min(420px, 100%);
       text-align:center;
       color:#fff;
       position:relative;
@@ -73,19 +72,19 @@
     }
 
     .brand{
+      margin:0;
       font-family:'Baloo 2', cursive;
-      font-size:clamp(3rem, 6vw, 4.6rem);
-      line-height:0.9;
+      font-size:clamp(2.5rem, 6vw, 3.8rem);
+      line-height:0.95;
       letter-spacing:-0.05em;
       font-weight:800;
-      margin:0;
+      word-break:break-word;
     }
 
     .tagline{
-      margin-top:10px;
+      margin-top:8px;
       font-family:'Baloo 2', cursive;
-      font-size:clamp(1.2rem, 3vw, 1.9rem);
-      font-weight:700;
+      font-size:clamp(1rem, 3vw, 1.5rem);
       color:#f3fff7;
       display:flex;
       align-items:center;
@@ -95,8 +94,8 @@
     }
 
     .switcher{
-      width:min(420px, 100%);
-      margin:26px auto 0;
+      width:min(360px, 100%);
+      margin:20px auto 0;
       background:rgba(255,255,255,0.12);
       border:1px solid rgba(255,255,255,0.2);
       border-radius:999px;
@@ -109,11 +108,11 @@
       flex:1;
       border:none;
       background:transparent;
-      padding:12px 16px;
+      padding:11px 12px;
       border-radius:999px;
       color:rgba(255,255,255,0.8);
       font-weight:800;
-      font-size:1rem;
+      font-size:0.96rem;
       cursor:pointer;
       font-family:'Nunito', sans-serif;
       transition:all 0.2s ease;
@@ -126,34 +125,38 @@
     }
 
     .card{
-      width:min(420px, 100%);
-      margin:20px auto 0;
+      width:min(360px, 100%);
+      margin:18px auto 0;
       background:rgba(255,255,255,0.12);
       border:1.5px solid rgba(255,255,255,0.18);
-      border-radius:28px;
-      padding:22px 20px 18px;
+      border-radius:24px;
+      padding:18px 16px 14px;
       backdrop-filter:blur(8px);
       box-shadow:0 16px 22px rgba(10,70,30,0.14);
     }
 
-    .field{ text-align:left; margin-bottom:16px; }
+    .field{
+      text-align:left;
+      margin-bottom:14px;
+    }
+
     .label{
       display:block;
       color:#fff;
       font-weight:800;
-      font-size:1rem;
-      margin-bottom:10px;
+      font-size:0.95rem;
+      margin-bottom:8px;
     }
 
     .input{
       width:100%;
       border:none;
       outline:none;
-      border-radius:18px;
-      background:rgba(255,255,255,0.92);
+      border-radius:15px;
+      background:rgba(255,255,255,0.94);
       color:var(--text);
-      font-size:1.05rem;
-      padding:16px 16px;
+      font-size:0.98rem;
+      padding:14px 14px;
       font-family:'Nunito', sans-serif;
       box-shadow:inset 0 2px 0 rgba(255,255,255,0.85);
     }
@@ -165,13 +168,13 @@
     .primary-btn{
       width:100%;
       border:none;
-      border-radius:18px;
+      border-radius:16px;
       background:linear-gradient(180deg, var(--gold) 0%, var(--gold-2) 100%);
       color:#1f341f;
-      font-family:'Baloo 2', cursive;
-      font-weight:800;
-      font-size:2rem;
-      padding:16px 14px 14px;
+      font-family:'Nunito', sans-serif;
+      font-weight:900;
+      font-size:1.05rem;
+      padding:14px 12px;
       cursor:pointer;
       box-shadow:0 10px 18px rgba(238,174,43,0.2);
       transition:transform 0.15s ease;
@@ -182,14 +185,16 @@
     }
 
     .message{
-      margin-top:16px;
+      margin-top:12px;
       min-height:22px;
-      font-size:0.96rem;
-      line-height:1.55;
-      color:rgba(255,255,255,0.95);
+      font-size:0.92rem;
+      color:rgba(255,255,255,0.96);
+      line-height:1.5;
     }
 
-    .hidden{ display:none !important; }
+    .hidden{
+      display:none !important;
+    }
 
     .dashboard{
       display:none;
@@ -250,7 +255,7 @@
     .content{
       height:calc(100vh - 72px);
       overflow-y:auto;
-      padding:18px 16px 30px;
+      padding:18px 16px 24px;
     }
 
     .panel{
@@ -281,7 +286,7 @@
     .hero h2{
       margin:0 0 8px;
       font-family:'Baloo 2', cursive;
-      font-size:2.1rem;
+      font-size:2rem;
       color:var(--green-3);
     }
 
@@ -308,7 +313,7 @@
 
     .stat .num{
       font-family:'Baloo 2', cursive;
-      font-size:2.1rem;
+      font-size:2rem;
       color:var(--green-2);
       line-height:1;
     }
@@ -318,7 +323,7 @@
       margin-top:8px;
       text-align:center;
       color:var(--muted);
-      font-size:0.77rem;
+      font-size:0.78rem;
       font-weight:800;
     }
 
@@ -392,43 +397,19 @@
       margin:0 0 8px;
       font-family:'Baloo 2', cursive;
       color:var(--green-3);
-      font-size:1.2rem;
+      font-size:1.15rem;
     }
 
     .result b{
       color:var(--green-3);
     }
 
-    .dot-loader{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:6px;
-      min-height:48px;
-      color:var(--green-2);
-      font-weight:800;
-      font-size:0.88rem;
-    }
-
-    .dot-loader span{
-      width:7px;
-      height:7px;
-      display:inline-block;
-      border-radius:50%;
-      background:var(--green-1);
-      animation:bop 0.8s infinite ease-in-out;
-    }
-    .dot-loader span:nth-child(2){ animation-delay:0.15s; }
-    .dot-loader span:nth-child(3){ animation-delay:0.3s; }
-
-    @keyframes bop{
-      0%,100% { transform:translateY(0); opacity:0.66; }
-      50% { transform:translateY(-4px); opacity:1; }
-    }
-
     @media (max-width: 560px){
       .field-row, .btn-row, .stats{
         grid-template-columns:1fr;
+      }
+      .brand{
+        font-size:2.6rem;
       }
     }
   </style>
@@ -436,10 +417,10 @@
 <body>
   <div id="authScreen" class="auth-screen">
     <div class="auth-box">
-      <h1 class="brand">Tech AI Edu Community (TAEC)</h1>
+      <h1 class="brand">Tech AI Edu Community</h1>
 
       <div class="tagline">
-        <span>Học tập thông minh mỗi ngày</span>
+        <span>Học tập thông minh</span>
         <span>✨</span>
       </div>
 
@@ -507,7 +488,7 @@
         <div class="stats">
           <div class="stat">
             <div class="num" id="statTasks">0</div>
-            <span class="label">Bài học / nhiệm vụ</span>
+            <span class="label">Bài học</span>
           </div>
           <div class="stat">
             <div class="num" id="statPoints">0</div>
@@ -739,32 +720,6 @@
       document.getElementById("topPoints").textContent = "⭐ " + (current.points || 0) + " điểm";
     }
 
-    function updateUserStat() {
-      const session = JSON.parse(localStorage.getItem(SESSION_KEY) || "null");
-      if (!session) return;
-
-      const users = getUsers();
-      const current = users[session.uid];
-      if (!current) return;
-
-      document.getElementById("statTasks").textContent = current.tasks || 0;
-      document.getElementById("statPoints").textContent = current.points || 0;
-      document.getElementById("topPoints").textContent = "⭐ " + (current.points || 0) + " điểm";
-    }
-
-    function addPoints(points) {
-      const session = JSON.parse(localStorage.getItem(SESSION_KEY) || "null");
-      if (!session) return;
-
-      const users = getUsers();
-      if (!users[session.uid]) return;
-
-      users[session.uid].points = (users[session.uid].points || 0) + points;
-      users[session.uid].tasks = (users[session.uid].tasks || 0) + 1;
-      saveUsers(users);
-      updateUserStat();
-    }
-
     function logout() {
       clearSession();
       document.getElementById("authScreen").style.display = "flex";
@@ -772,25 +727,15 @@
       setTab("login");
     }
 
-    function renderLoading(text) {
-      return `
-        <div class="dot-loader">
-          ${text}
-          <span></span><span></span><span></span>
-        </div>
-      `;
-    }
-
     function parseJson(raw) {
       if (!raw) return null;
       const clean = String(raw).replace(/```json|```/g, "").trim();
 
-      try {
-        return JSON.parse(clean);
-      } catch {}
+      try { return JSON.parse(clean); }
+      catch {}
 
       try {
-        const match = clean.match(/\\{[\\s\\S]*\\}/);
+        const match = clean.match(/\{[\s\S]*\}/);
         if (match) return JSON.parse(match[0]);
       } catch {}
 
@@ -826,6 +771,23 @@
       }
     }
 
+    function renderLoading(text) {
+      return `
+        <div style="display:flex;align-items:center;justify-content:center;gap:6px;min-height:46px;color:#166534;font-weight:800;font-size:0.88rem;">
+          ${text}
+          <span style="display:inline-block;width:7px;height:7px;background:#16a34a;border-radius:50%;animation:bop 0.8s infinite ease-in-out;"></span>
+          <span style="display:inline-block;width:7px;height:7px;background:#16a34a;border-radius:50%;animation:bop 0.8s infinite ease-in-out 0.15s;"></span>
+          <span style="display:inline-block;width:7px;height:7px;background:#16a34a;border-radius:50%;animation:bop 0.8s infinite ease-in-out 0.3s;"></span>
+        </div>
+        <style>
+          @keyframes bop{
+            0%,100%{transform:translateY(0);opacity:0.6;}
+            50%{transform:translateY(-4px);opacity:1;}
+          }
+        </style>
+      `;
+    }
+
     async function generateTutorOutput() {
       const subject = document.getElementById("subject").value;
       const grade = document.getElementById("grade").value;
@@ -846,7 +808,7 @@
         Yêu cầu:
         - phù hợp năng lực học sinh
         - đúng kiến thức
-        - dễ hiểu, ngắn gọn
+        - dễ hiểu
         - theo hướng Socratic
         Trả về JSON:
         {
@@ -858,7 +820,7 @@
         }
       `;
 
-      const system = "Bạn là gia sư AI Socratic của TAEC. Hãy luôn hướng dẫn bằng câu hỏi từng bước, không cho đáp án ngay. Chỉ trả về JSON hợp lệ, tiếng Việt, đúng chương trình GDPT 2018, ngắn gọn nhưng rõ ràng.";
+      const system = "Bạn là gia sư AI Socratic của TAEC. Luôn hướng dẫn bằng câu hỏi từng bước, không cho đáp án ngay. Chỉ trả về JSON hợp lệ, tiếng Việt, đúng chương trình GDPT 2018.";
 
       const raw = await callAI(prompt, system);
       const data = parseJson(raw);
@@ -920,163 +882,5 @@
         - phù hợp với học sinh
       `;
 
-      const system = "Bạn là gia sư AI Socratic. Trả lời tiếng Việt, thân thiện, rõ ràng. Không cho đáp án ngay từ đầu. Luôn gợi ý bằng các câu hỏi dẫn và bước nhỏ.";
-
-      const raw = await callAI(prompt, system);
-
-      resultBox.innerHTML = raw || `
-        <h4>Gợi ý</h4>
-        Hãy bắt đầu bằng 3 câu hỏi sau:<br>
-        <b>1.</b> Đề bài cho biết gì?<br>
-        <b>2.</b> Bài toán yêu cầu tìm gì?<br>
-        <b>3.</b> Có mối quan hệ nào giữa dữ kiện và yêu cầu?<br>
-        Khi trả lời được 3 câu hỏi này, bạn sẽ dễ đi tiếp.
-      `;
-    }
-
-    async function showSocraticGuide() {
-      const question = document.getElementById("studentQuestion").value.trim() || "Tại sao cần phải hiểu dữ kiện trước khi giải?";
-      const subject = document.getElementById("subject").value;
-      const grade = document.getElementById("grade").value;
-      const topic = document.getElementById("topic").value.trim() || "Bài học hiện tại";
-
-      const resultBox = document.getElementById("tutorResult");
-      resultBox.innerHTML = renderLoading("AI đang giải thích từng bước");
-
-      const prompt = `
-        Học sinh đặt câu hỏi: "${question}"
-        Môn: ${subject}
-        Lớp: ${grade}
-        Chủ đề: ${topic}
-        Hãy trả lời bằng phương pháp Socratic:
-        - bắt đầu bằng 1 câu gợi ý
-        - không tra đáp án ngay
-        - chỉ cho tối đa 3 bước hướng dẫn
-        Trả về JSON:
-        {
-          "steps":["...","...","..."],
-          "answer":"..."
-        }
-      `;
-
-      const system = "Bạn là gia sư AI Socratic. Luôn dẫn dắt bằng câu hỏi, không nêu đáp án ngay. Chỉ trả về JSON hợp lệ, tiếng Việt.";
-
-      const raw = await callAI(prompt, system);
-      const data = parseJson(raw);
-
-      if (!data) {
-        resultBox.innerHTML = `
-          <h4>Hướng dẫn Socratic</h4>
-          <b>Bước 1:</b> Đọc kỹ đề bài và xác định dữ kiện.<br>
-          <b>Bước 2:</b> Xác định điều kiện và yêu cầu của bài toán.<br>
-          <b>Bước 3:</b> Tìm mối liên hệ giữa dữ kiện và yêu cầu để suy luận.
-        `;
-        return;
-      }
-
-      const steps = Array.isArray(data.steps) ? data.steps : [];
-      const answer = data.answer || "Hãy bắt đầu bằng cách xác định điều đã cho và điều cần tìm.";
-
-      resultBox.innerHTML = `
-        <h4>Hướng dẫn Socratic</h4>
-        ${steps.map((s, i) => `<div><b>Bước ${i + 1}:</b> ${s}</div>`).join("")}
-        <br>
-        <b>Nhận xét:</b> ${answer}
-      `;
-    }
-
-    async function gradeEssay() {
-      const answer = document.getElementById("studentQuestion").value.trim();
-      if (!answer) {
-        document.getElementById("tutorResult").innerHTML = "<h4>Thông báo</h4>Vui lòng nhập bài làm hoặc câu trả lời trước khi chấm.";
-        return;
-      }
-
-      const resultBox = document.getElementById("tutorResult");
-      resultBox.innerHTML = renderLoading("AI đang chấm điểm");
-
-      const prompt = `
-        Chấm bài tự luận theo chương trình GDPT 2018.
-        Môn: ${document.getElementById("subject").value}
-        Lớp: ${document.getElementById("grade").value}
-        Chủ đề: ${document.getElementById("topic").value || "Bài học"}
-        Mức độ: ${document.getElementById("level").value}
-        Bài làm:
-        "${answer}"
-        Yêu cầu:
-        - chấm công bằng
-        - đúng kiến thức
-        - logic rõ
-        - trình bày tốt
-        Trả về JSON:
-        {
-          "score": 0,
-          "summary":"...",
-          "strengths":["..."],
-          "improvements":["..."],
-          "next":"..."
-        }
-      `;
-
-      const system = "Bạn là AI chấm bài công bằng và chính xác. Chỉ trả về JSON hợp lệ, tiếng Việt, theo chương trình GDPT 2018.";
-
-      const raw = await callAI(prompt, system);
-      const data = parseJson(raw);
-
-      if (!data) {
-        resultBox.innerHTML = `
-          <h4>Kết quả chấm</h4>
-          <b>Điểm gợi ý:</b> 7/10<br>
-          <b>Nhận xét:</b> Bài làm có logic tốt nhưng cần làm rõ hơn các bước và kết luận.
-        `;
-        return;
-      }
-
-      const score = data.score || 0;
-      const summary = data.summary || "Bài làm có chất lượng khá tốt.";
-      const strengths = Array.isArray(data.strengths) ? data.strengths : [];
-      const improvements = Array.isArray(data.improvements) ? data.improvements : [];
-      const next = data.next || "Bạn nên giải thích từng bước để thấy mối liên hệ giữa dữ kiện và câu trả lời.";
-
-      resultBox.innerHTML = `
-        <h4>Kết quả chấm</h4>
-        <b>Điểm:</b> ${score}/10<br><br>
-        <b>Tổng kết:</b> ${summary}<br><br>
-        <b>Điểm mạnh:</b><br>
-        ${strengths.map(x => `• ${x}<br>`).join("") || "• Bài có logic rõ ràng."}<br>
-        <b>Cần cải thiện:</b><br>
-        ${improvements.map(x => `• ${x}<br>`).join("") || "• Cần làm rõ hơn các bước suy luận."}<br>
-        <b>Câu hỏi gợi ý:</b> ${next}
-      `;
-    }
-
-    function bootstrapDemoUser() {
-      const users = getUsers();
-      const demoId = "kien-1234";
-      if (!users[demoId]) {
-        users[demoId] = {
-          uid: demoId,
-          name: "Kiên",
-          pin: hashPin("1234"),
-          points: 120,
-          tasks: 5
-        };
-        saveUsers(users);
-      }
-    }
-
-    function autoLogin() {
-      const session = JSON.parse(localStorage.getItem(SESSION_KEY) || "null");
-      const users = getUsers();
-
-      if (session && users[session.uid]) {
-        showDashboard(users[session.uid]);
-      }
-    }
-
-    bootstrapDemoUser();
-    autoLogin();
-    setTab("login");
-  </script>
-</body>
-</html>
+      const system = "Bạn là gia sư AI Socratic. Trả`
+

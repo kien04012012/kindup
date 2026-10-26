@@ -2,245 +2,1199 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TAEC - Học tập AI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Kindup AI Tutor</title>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
   <style>
     :root{
-      --green-1:#16a34a;
-      --green-2:#15803d;
-      --green-3:#0f5d2d;
-      --gold:#f5c94d;
-      --gold-2:#eeae2b;
-      --bg1:#13a047;
-      --bg2:#0a7e39;
-      --white:#ffffff;
-      --text:#173f29;
-      --muted:#5d7b66;
-      --line:#dfeee3;
-      --card:#ffffff;
-      --shadow:0 18px 28px rgba(15, 93, 45, 0.14);
+      --green:#22c55e;--green-dark:#15803d;--green-light:#bbf7d0;--green-bg:#dff5e5;
+      --yellow:#fbbf24;--orange:#f97316;--purple:#8b5cf6;--red:#ef4444;
+      --text:#1d2a1d;--muted:#5e715f;--border:#cfeed8;--radius:18px;
+      --shadow:0 14px 30px rgba(21,128,61,.12);
+      --nav-h:60px;--bottom-h:64px;
+      --bg-1:#dff7e9;--bg-2:#ebfff1;
     }
-
-    *{ box-sizing:border-box; }
-    html,body{
-      margin:0;
-      width:100%;
-      height:100%;
-      font-family:'Nunito',sans-serif;
-      background:linear-gradient(180deg, var(--bg1), var(--bg2));
-      color:var(--text);
-    }
-
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+    html,body{height:100%;overflow:hidden}
     body{
-      min-height:100vh;
-      overflow:hidden;
-    }
-
-    .auth-screen{
-      width:100%;
-      height:100vh;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      position:relative;
-      overflow:hidden;
-      background:linear-gradient(180deg, #139b44 0%, #0d7f39 100%);
-      padding:18px;
-    }
-
-    .auth-screen::before{
-      content:"";
-      position:absolute;
-      width:160px;
-      height:160px;
-      left:50%;
-      top:-20px;
-      transform:translateX(-50%);
-      background:radial-gradient(circle at 50% 50%, rgba(255,255,255,0.26), rgba(255,255,255,0) 62%);
-      border-radius:50%;
-      pointer-events:none;
-    }
-
-    .auth-box{
-      width:min(420px, 100%);
-      text-align:center;
-      color:#fff;
-      position:relative;
-      z-index:1;
-    }
-
-    .brand{
-      margin:0;
-      font-family:'Baloo 2', cursive;
-      font-size:clamp(2.5rem, 6vw, 3.8rem);
-      line-height:0.95;
-      letter-spacing:-0.05em;
-      font-weight:800;
-      word-break:break-word;
-    }
-
-    .tagline{
-      margin-top:8px;
-      font-family:'Baloo 2', cursive;
-      font-size:clamp(1rem, 3vw, 1.5rem);
-      color:#f3fff7;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:8px;
-      flex-wrap:wrap;
-    }
-
-    .switcher{
-      width:min(360px, 100%);
-      margin:20px auto 0;
-      background:rgba(255,255,255,0.12);
-      border:1px solid rgba(255,255,255,0.2);
-      border-radius:999px;
-      padding:5px;
-      display:flex;
-      box-shadow:0 10px 18px rgba(0,0,0,0.08);
-    }
-
-    .switch-btn{
-      flex:1;
-      border:none;
-      background:transparent;
-      padding:11px 12px;
-      border-radius:999px;
-      color:rgba(255,255,255,0.8);
-      font-weight:800;
-      font-size:0.96rem;
-      cursor:pointer;
-      font-family:'Nunito', sans-serif;
-      transition:all 0.2s ease;
-    }
-
-    .switch-btn.active{
-      background:#fff;
-      color:var(--green-3);
-      box-shadow:0 8px 18px rgba(15,93,45,0.12);
-    }
-
-    .card{
-      width:min(360px, 100%);
-      margin:18px auto 0;
-      background:rgba(255,255,255,0.12);
-      border:1.5px solid rgba(255,255,255,0.18);
-      border-radius:24px;
-      padding:18px 16px 14px;
-      backdrop-filter:blur(8px);
-      box-shadow:0 16px 22px rgba(10,70,30,0.14);
-    }
-
-    .field{
-      text-align:left;
-      margin-bottom:14px;
-    }
-
-    .label{
-      display:block;
-      color:#fff;
-      font-weight:800;
-      font-size:0.95rem;
-      margin-bottom:8px;
-    }
-
-    .input{
-      width:100%;
-      border:none;
-      outline:none;
-      border-radius:15px;
-      background:rgba(255,255,255,0.94);
+      font-family:'Nunito',sans-serif;
+      background:linear-gradient(180deg,#d7f0df 0%,#d6f4df 36%,#edfdf3 100%);
       color:var(--text);
-      font-size:0.98rem;
-      padding:14px 14px;
-      font-family:'Nunito', sans-serif;
-      box-shadow:inset 0 2px 0 rgba(255,255,255,0.85);
+      display:flex;flex-direction:column;
     }
-
-    .input::placeholder{
-      color:#738a79;
+    button,input,select,textarea{font-family:'Nunito',sans-serif}
+    .main{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
+    .page{display:none;padding:18px 16px 100px;max-width:480px;margin:0 auto}
+    .page.active{display:block}
+    .topbar{
+      height:var(--nav-h);background:white;border-bottom:2px solid var(--border);
+      display:flex;align-items:center;justify-content:space-between;padding:0 16px;
+      box-shadow:0 2px 10px rgba(34,197,94,.08);position:relative;z-index:30;
     }
-
-    .primary-btn{
-      width:100%;
-      border:none;
-      border-radius:16px;
-      background:linear-gradient(180deg, var(--gold) 0%, var(--gold-2) 100%);
-      color:#1f341f;
-      font-family:'Nunito', sans-serif;
-      font-weight:900;
-      font-size:1.05rem;
-      padding:14px 12px;
-      cursor:pointer;
-      box-shadow:0 10px 18px rgba(238,174,43,0.2);
+    .topbar-logo{font-family:'Baloo 2',cursive;font-size:1.5rem;color:var(--green-dark)}
+    .topbar-right{display:flex;align-items:center;gap:10px}
+    .pts-chip{
+      background:linear-gradient(135deg,var(--yellow),var(--orange));
+      color:white;padding:6px 12px;border-radius:50px;font-weight:800;font-size:.8rem;
     }
-
-    .message{
-      margin-top:12px;
-      min-height:22px;
-      font-size:0.92rem;
-      color:rgba(255,255,255,0.96);
-      line-height:1.5;
+    .user-ava{
+      width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+      background:linear-gradient(180deg,#f3fff6 0%,#d2f4dc 46%,#8dd89f 100%);
+      border:1px solid rgba(255,255,255,.9);box-shadow:0 7px 15px rgba(34,197,94,.18);cursor:pointer;
+      font-weight:800;color:#0f4d2d;
     }
-
-    .hidden{
-      display:none !important;
+    .bottomnav{
+      height:var(--bottom-h);background:white;border-top:2px solid var(--border);
+      display:flex;align-items:stretch;box-shadow:0 -2px 16px rgba(34,197,94,.12);flex-shrink:0;
     }
-
-    .dashboard{
-      display:none;
-      width:100%;
-      height:100vh;
-      background:linear-gradient(180deg, #f0fff4 0%, #eafaf0 100%);
+    .bnav-btn{
+      flex:1;border:none;background:transparent;cursor:pointer;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+      font-size:.68rem;font-weight:800;color:var(--muted);padding:0;border-top:3px solid transparent;
+      transition:all .15s ease;
+    }
+    .bnav-btn span.ic{
+      width:30px;height:30px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+      background:linear-gradient(180deg,#ffffff 0%,#eefbf2 48%,#d5f4dd 100%);
+      border:1px solid rgba(220,252,231,.95);
+      box-shadow:inset 0 2px 0 rgba(255,255,255,.9),0 5px 10px rgba(34,197,94,.08);
+    }
+    .bnav-btn.active{color:var(--green-dark);background:#f0fdf4;border-top-color:var(--green)}
+    .bnav-btn.active span.ic{
+      background:linear-gradient(180deg,#f7fff8 0%,#c9f4d4 52%,#76d58d 100%);
+      transform:translateY(-1px);
+      box-shadow:inset 0 2px 0 rgba(255,255,255,.9),0 9px 16px rgba(34,197,94,.18);
+    }
+    .sec{
+      font-family:'Baloo 2',cursive;
+      font-size:1.15rem;color:var(--green-dark);margin-bottom:12px;
+      display:flex;align-items:center;gap:6px;
+    }
+    .lbl{display:block;font-size:.86rem;font-weight:800;margin-bottom:8px;color:var(--text)}
+    .inp,.sel,.ta{
+      width:100%;border:2px solid var(--border);background:#fafafa;border-radius:12px;
+      padding:11px 14px;color:var(--text);font-size:.94rem;outline:none;
+      margin-bottom:12px;
+    }
+    .inp:focus,.sel:focus,.ta:focus{border-color:var(--green);background:white}
+    .ta{min-height:90px;resize:vertical}
+    .btn{
+      padding:12px 20px;border:none;border-radius:50px;cursor:pointer;
+      font-weight:900;font-size:.95rem;display:flex;align-items:center;justify-content:center;gap:8px;
+      transition:transform .15s ease;
+    }
+    .btn:active{transform:scale(.97)}
+    .btn-green{
+      width:100%;background:linear-gradient(135deg,var(--green),var(--green-dark));color:white;
+      box-shadow:0 8px 22px rgba(34,197,94,.26);
+    }
+    .btn-outline{
+      background:var(--green-light);color:var(--green-dark);padding:9px 18px;font-size:.82rem;
+    }
+    .setup-screen{
+      position:fixed;inset:0;z-index:1000;background:linear-gradient(160deg,#166534,#15803d 40%,#22c55e);
+      display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px; color:white;
+      text-align:center;
+    }
+    .setup-card{
+      background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.28);
+      border-radius:18px;padding:24px;width:100%;max-width:360px;backdrop-filter:blur(10px);
+    }
+    .setup-label{display:block;margin-bottom:8px;text-align:left;font-weight:800;font-size:.88rem;opacity:.95}
+    .setup-input{
+      width:100%;background:rgba(255,255,255,.18);border:1.5px solid rgba(255,255,255,.3);
+      border-radius:12px;padding:12px 16px;color:white;font-size:0.95rem;outline:none;margin-bottom:16px;
+    }
+    .setup-input::placeholder{color:rgba(255,255,255,.6)}
+    .setup-note{font-size:.78rem;opacity:.7;margin-top:12px;line-height:1.5}
+    .btn-setup{
+      width:100%;padding:14px;border:none;border-radius:50px;background:var(--yellow);
+      font-weight:900;color:#1c2b1c;cursor:pointer;
+    }
+    .home-scene{
+      position:relative;margin:-16px -16px 0;padding:18px 16px 96px;
+      background:
+        radial-gradient(circle at 20% 10%,rgba(255,255,255,.92) 0 8%,transparent 9%),
+        radial-gradient(circle at 82% 12%,rgba(255,255,255,.88) 0 10%,transparent 11%),
+        radial-gradient(circle at 12% 42%,rgba(187,247,208,.7) 0 12%,transparent 13%),
+        radial-gradient(circle at 88% 78%,rgba(134,239,172,.36) 0 14%,transparent 15%),
+        linear-gradient(180deg,#afe2bf 0%,#d4f1dc 26%,#eefbf2 58%,#e1f5e7 100%);
       overflow:hidden;
     }
+    .home-logo{font-family:'Baloo 2',cursive;font-size:3rem;line-height:1;text-align:center;color:#fefefe;text-shadow:0 8px 25px rgba(32,118,61,.15)}
+    .home-logo .accent{color:#22c55e}
+    .greeting{font-family:'Baloo 2',cursive;font-size:1.5rem;text-align:center;color:#17603a;margin-top:8px}
+    .greeting-sub{font-size:.88rem;color:#4d7a58;text-align:center;margin-top:4px}
+    .feature-shell,.tutor-panel,.form-card,.board,.story-card,.ach-stat,.ach-cat,.chat-wrap{
+      background:#fff;border-radius:var(--radius);box-shadow:0 14px 30px rgba(21,128,61,.11);
+    }
+    .feature-shell{padding:12px;border:1px solid #d9f2df;background:rgba(226,247,231,.92)}
+    .feature-card{background:linear-gradient(180deg,#ffffff,#f5fff7);border-radius:22px;padding:16px;border:1px solid #d9f2df}
+    .section-hd{
+      display:flex;justify-content:center;align-items:center;gap:8px;
+      font-family:'Baloo 2',cursive;color:#18723f;font-size:1.15rem;margin-bottom:12px;
+    }
+    .stats-row{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+    .stat-box{
+      position:relative;overflow:hidden;background:linear-gradient(180deg,rgba(255,255,255,.98),rgba(247,255,249,.94));
+      border-radius:22px;padding:18px 16px 16px;border:1px solid #d9f2df;min-height:128px;
+    }
+    .stat-art{font-size:2.1rem;width:54px;height:54px;border-radius:18px;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,#fffef7 0%,#ecfdf3 42%,#c8f1d3 100%);box-shadow:0 10px 16px rgba(34,197,94,.12)}
+    .stat-num{font-family:'Baloo 2',cursive;font-size:2.15rem;line-height:1;color:#15803d}
+    .stat-lbl{margin-top:6px;font-size:.88rem;font-weight:800;color:#47634b}
+    .challenge-card{
+      padding:18px 16px;border-radius:26px;color:white;
+      background:linear-gradient(135deg,#0f766e,#14b8a6,#34d399);
+      box-shadow:0 18px 30px rgba(20,184,166,.24);position:relative;overflow:hidden;
+    }
+    .challenge-card::after{
+      content:'';position:absolute;right:-20px;top:-30px;width:120px;height:120px;border-radius:50%;
+      background:radial-gradient(circle,rgba(255,255,255,.3) 0%,transparent 68%);
+    }
+    .challenge-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:10px;position:relative}
+    .challenge-kicker{font-size:.75rem;letter-spacing:.04em;text-transform:uppercase;opacity:.9}
+    .challenge-title{font-family:'Baloo 2',cursive;font-size:1.25rem;line-height:1.15}
+    .challenge-desc{font-size:.85rem;line-height:1.55;opacity:.95;margin:8px 0 12px}
+    .challenge-badge{
+      flex-shrink:0;min-width:80px;padding:10px 8px;border-radius:16px;
+      background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.22);
+      text-align:center;
+    }
+    .challenge-badge strong{display:block;font-family:'Baloo 2',cursive;font-size:1.2rem}
+    .challenge-badge span{display:block;margin-top:4px;font-size:.7rem;opacity:.9}
+    .pbar{height:10px;border-radius:50px;background:rgba(255,255,255,.25);overflow:hidden}
+    .pbar-fill{height:100%;border-radius:50px;background:linear-gradient(90deg,#ffe480,#ffd34d);transition:width .6s ease}
+    .challenge-meta{
+      display:flex;justify-content:space-between;align-items:center;gap:10px;
+      font-size:.78rem;font-weight:800;opacity:.95;margin-top:8px;
+    }
+    .challenge-note{margin-top:10px;font-size:.75rem;opacity:.9;line-height:1.5}
+    .value-chip-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+    .value-chip{
+      display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border-radius:999px;
+      background:rgba(255,255,255,.88);border:1px solid #d9f2df;color:#22543d;
+      font-size:.8rem;font-weight:800;
+    }
+    .home-action-card{
+      background:linear-gradient(180deg,rgba(255,255,255,.9),rgba(245,255,247,.8));
+      padding:18px 14px;border-radius:26px;border:1px solid rgba(255,255,255,.88);
+      box-shadow:0 18px 34px rgba(34,139,84,.12);
+    }
+    .home-rank-mini{
+      margin-bottom:12px;padding:12px 14px;border-radius:18px;background:linear-gradient(135deg,#5aaf6c,#228a5b);color:white;
+    }
+    .rank-hero-name{font-family:'Baloo 2',cursive;font-size:1.08rem;margin-bottom:4px}
+    .rank-hero-pts{font-size:.82rem;opacity:.92;margin-bottom:10px}
+    .home-pill-btn{
+      width:100%;padding:14px 26px;border:none;border-radius:999px;color:white;
+      font-family:'Baloo 2',cursive;font-size:1.05rem;background:linear-gradient(135deg,#22c55e,#15803d);
+      box-shadow:0 12px 24px rgba(21,128,61,.22);
+    }
+    .tasks-list{display:flex;flex-direction:column;gap:10px;margin:14px 0 18px}
+    .task-item{
+      display:flex;align-items:center;gap:12px;padding:14px;border-radius:18px;background:rgba(255,255,255,.92);
+      border:1px solid rgba(255,255,255,.8);box-shadow:0 10px 22px rgba(86,164,108,.08);cursor:pointer;
+    }
+    .task-ic{
+      width:42px;height:42px;border-radius:14px;display:flex;align-items:center;justify-content:center;
+      background:linear-gradient(180deg,#ffffff 0%,#eafbf0 42%,#c6efd1 100%);
+      box-shadow:inset 0 2px 0 rgba(255,255,255,.92),0 10px 14px rgba(34,197,94,.1);
+      font-size:1.5rem;
+    }
+    .task-info{flex:1}
+    .task-name{font-weight:800;font-size:.92rem;color:#22543d}
+    .task-pts{font-size:.78rem;color:#5f7c63;font-weight:700}
+    .task-check{font-size:.76rem;color:var(--green-dark);font-weight:800}
+    .special-card{
+      display:flex;align-items:center;gap:14px;padding:16px;border-radius:24px;
+      background:linear-gradient(135deg,#15803d,#22c55e,#4ade80);color:white;box-shadow:0 16px 26px rgba(34,197,94,.22);
+      cursor:pointer;
+    }
+    .special-card .icon-wrap{
+      width:52px;height:52px;border-radius:18px;display:flex;align-items:center;justify-content:center;
+      background:linear-gradient(180deg,rgba(255,255,255,.45),rgba(255,255,255,.16));
+      font-size:1.9rem;
+    }
+    .special-card h3{font-family:'Baloo 2',cursive;font-size:1.08rem;margin-bottom:2px}
+    .special-card p{font-size:.8rem;opacity:.92;line-height:1.4}
+    .form-card{padding:18px;border:1px solid #d8f2df}
+    .ai-box{margin-top:14px;background:#f0fdf4;border:2px solid #bbf7d0;border-radius:14px;padding:14px;display:none}
+    .ai-box.show{display:block}
+    .ai-box-hd{display:flex;align-items:center;gap:8px;font-weight:800;color:var(--green-dark);font-size:.85rem;margin-bottom:8px}
+    .ai-box-txt{font-size:.9rem;color:var(--text);line-height:1.6}
+    .img-upload-wrap{border:2px dashed var(--border);border-radius:14px;padding:14px;margin-bottom:14px;background:#fafafa}
+    .img-btn-row{display:flex;gap:8px;margin-bottom:6px}
+    .img-btn{flex:1;padding:10px 6px;border:1.5px solid var(--border);border-radius:10px;background:white;cursor:pointer;font-weight:700;color:var(--green-dark)}
+    .img-preview{width:100%;max-height:200px;object-fit:cover;border-radius:10px;margin-top:10px;display:none}
+    .feed{display:flex;flex-direction:column;gap:12px}
+    .fcard{
+      background:#fff;border:2px solid var(--border);border-radius:16px;padding:16px;cursor:pointer;
+      box-shadow:0 12px 24px rgba(21,128,61,.08);
+    }
+    .fhd{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+    .fava{
+      width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+      font-size:1.2rem;font-weight:800;border:1px solid rgba(255,255,255,.88);
+    }
+    .fname{font-weight:800;font-size:.9rem}
+    .ftime{font-size:.74rem;color:var(--muted)}
+    .ftag{
+      display:inline-block;background:var(--green-light);color:var(--green-dark);
+      padding:3px 10px;border-radius:50px;font-size:.76rem;font-weight:800;margin-bottom:8px;
+    }
+    .fdesc{font-size:.88rem;color:#374151;line-height:1.5}
+    .fimg{width:100%;max-height:180px;object-fit:cover;border-radius:10px;margin:8px 0}
+    .fbtns{display:flex;gap:10px;margin-top:10px}
+    .fbtn{
+      border:none;border-radius:50px;padding:6px 16px;background:var(--green-bg);color:var(--muted);
+      font-weight:800;font-size:.78rem;cursor:pointer;
+    }
+    .fbtn.liked{background:#fef9c3;color:var(--orange)}
+    .comm-tabs{display:flex;gap:6px;margin-bottom:12px}
+    .comm-tab{
+      flex:1;padding:10px;border-radius:50px;border:2px solid var(--border);background:white;
+      color:var(--muted);font-weight:800;cursor:pointer;
+    }
+    .comm-tab.active{background:var(--green-dark);border-color:var(--green-dark);color:white}
+    .story-card{
+      margin-bottom:16px;overflow:hidden;border:2px solid var(--border);
+    }
+    .story-header{background:linear-gradient(135deg,#166534,#22c55e);padding:16px;color:white}
+    .story-week{font-size:.75rem;opacity:.8;margin-bottom:4px;font-weight:700}
+    .story-title{font-family:'Baloo 2',cursive;font-size:1.15rem;line-height:1.3}
+    .story-body{padding:16px;font-size:.9rem;line-height:1.8;color:var(--text)}
+    .story-footer{padding:10px 16px 14px;border-top:2px solid var(--border);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .story-tag{background:var(--green-light);color:var(--green-dark);padding:3px 10px;border-radius:50px;font-size:.72rem;font-weight:800}
+    .chat-wrap{
+      overflow:hidden;display:flex;flex-direction:column;height:calc(100vh - var(--nav-h) - var(--bottom-h) - 100px);min-height:340px;border:1px solid #dcfce7;
+    }
+    .chat-hd{background:linear-gradient(135deg,#166534,#22c55e);padding:14px 16px;color:white;display:flex;align-items:center;gap:10px}
+    .chat-hd-ic{width:42px;height:42px;border-radius:16px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.15)}
+    .chat-hd h3{font-family:'Baloo 2',cursive;font-size:1.1rem}
+    .chat-hd p{font-size:.76rem;opacity:.85}
+    .chat-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
+    .msg{max-width:82%;padding:11px 14px;border-radius:16px;font-size:.88rem;line-height:1.55}
+    .msg.ai{background:#edfdf1;color:var(--text);align-self:flex-start;border-bottom-left-radius:4px}
+    .msg.user{background:linear-gradient(135deg,var(--green),var(--green-dark));color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
+    .chat-inp-wrap{padding:12px;border-top:2px solid var(--border);display:flex;gap:8px}
+    .chat-inp{flex:1;border:2px solid var(--border);border-radius:50px;padding:9px 16px;outline:none}
+    .chat-inp:focus{border-color:var(--green)}
+    .chat-send{width:40px;height:40px;border:none;border-radius:50%;background:linear-gradient(135deg,#16a34a,#15803d);color:white;font-size:1.1rem;cursor:pointer}
+    .quick-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
+    .ranks-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+    .rcard{background:white;border:2px solid var(--border);border-radius:14px;padding:14px;text-align:center}
+    .rcard.unlocked{border-color:var(--green);background:linear-gradient(135deg,#f0fdf4,#dcfce7)}
+    .rcard.locked{opacity:.45;filter:grayscale(.5)}
+    .rcard-ic{
+      width:58px;height:58px;border-radius:18px;display:flex;align-items:center;justify-content:center;
+      background:linear-gradient(180deg,#ffffff 0%,#eefcf2 46%,#ccf1d4 100%);
+      margin:0 auto 8px;font-size:2.1rem;
+    }
+    .rcard-name{font-weight:800;font-size:.82rem;margin-bottom:4px}
+    .rcard-req{font-size:.73rem;color:var(--muted)}
+    .ach-overview{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:6px}
+    .ach-stat{padding:14px 12px;text-align:center;border:2px solid var(--border)}
+    .ach-stat-num{font-family:'Baloo 2',cursive;font-size:1.8rem;color:var(--green-dark)}
+    .ach-stat-lbl{font-size:.72rem;color:var(--muted);font-weight:800;margin-top:2px}
+    .ach-streak-card{
+      background:linear-gradient(135deg,var(--orange),#f97316);border-radius:16px;padding:16px;color:white;
+      display:flex;align-items:center;gap:14px;box-shadow:0 4px 14px rgba(249,115,22,.28);
+    }
+    .ach-streak-num{font-family:'Baloo 2',cursive;font-size:3rem;line-height:1}
+    .ach-streak-info h3{font-size:1rem;font-weight:800;margin-bottom:2px}
+    .ach-streak-info p{font-size:.8rem;opacity:.85}
+    .values-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+    .value-card{
+      background:white;border:2px solid var(--border);border-radius:16px;padding:14px 12px;
+      box-shadow:0 12px 24px rgba(21,128,61,.08);
+    }
+    .value-card-top{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+    .value-card-ic{
+      width:42px;height:42px;border-radius:14px;display:flex;align-items:center;justify-content:center;
+      background:linear-gradient(180deg,#ffffff 0%,#eefcf2 46%,#ccf1d4 100%);
+      font-size:1.3rem;
+    }
+    .value-card-name{font-weight:800;font-size:.84rem}
+    .value-card-count{font-size:.74rem;color:var(--muted);font-weight:700}
+    .value-card-desc{font-size:.76rem;line-height:1.45;color:#53705a;margin-bottom:8px}
+    .value-card-bar{height:7px;border-radius:999px;background:#dcfce7;overflow:hidden}
+    .value-card-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#16a34a,#15803d)}
+    .ach-cats{display:flex;flex-direction:column;gap:8px}
+    .ach-cat{padding:12px 14px;border:2px solid var(--border);border-radius:12px}
+    .ach-cat-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+    .ach-cat-name{font-weight:800;font-size:.88rem}
+    .ach-cat-count{font-size:.78rem;color:var(--muted);font-weight:700}
+    .ach-cat-bar{height:6px;border-radius:50px;background:var(--green-light);overflow:hidden}
+    .ach-cat-fill{height:100%;border-radius:50px;background:linear-gradient(90deg,var(--green),var(--green-dark));transition:width .6s ease}
+    .board{padding:0;overflow:hidden;border:1px solid #d3efdb}
+    .brow{display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid var(--border)}
+    .brow:last-child{border-bottom:none}
+    .brow.me{background:#f0fdf4}
+    .brank{
+      width:34px;height:34px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+      background:linear-gradient(180deg,#fff 0%,#edfdf1 48%,#d3f4db 100%);
+      font-family:'Baloo 2',cursive;font-size:1.08rem;
+    }
+    .bava{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+    .bname-wrap{flex:1}
+    .bname{font-weight:800;font-size:.9rem}
+    .btitle{font-size:.74rem;color:var(--green-dark);font-weight:700}
+    .bstat{font-size:.72rem;color:var(--muted)}
+    .bpts{font-family:'Baloo 2',cursive;font-size:1rem;color:var(--orange)}
+    .toast{
+      position:fixed;bottom:calc(var(--bottom-h) + 12px);left:50%;transform:translateX(-50%) translateY(20px);
+      background:linear-gradient(135deg,var(--green),var(--green-dark));color:white;padding:12px 22px;border-radius:50px;
+      font-weight:800;font-size:.9rem;z-index:900;opacity:0;transition:all .35s ease;
+      white-space:nowrap;max-width:90vw;text-align:center;pointer-events:none;box-shadow:0 6px 20px rgba(0,0,0,.2);
+    }
+    .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+    .pt-popup{
+      position:fixed;pointer-events:none;z-index:600;
+      font-family:'Baloo 2',cursive;font-size:1.4rem;font-weight:800;color:var(--yellow);
+      text-shadow:0 2px 8px rgba(0,0,0,.25);animation:ptFloat 1.4s ease-out forwards;
+    }
+    @keyframes ptFloat{
+      0%{transform:translateY(0) scale(1);opacity:1}
+      60%{transform:translateY(-60px) scale(1.2);opacity:1}
+      100%{transform:translateY(-100px) scale(.8);opacity:0}
+    }
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:flex-end;justify-content:center;z-index:700}
+    .modal-overlay.open{display:flex}
+    .modal-sheet{
+      width:100%;max-width:480px;height:88vh;background:white;border-radius:20px 20px 0 0;
+      display:flex;flex-direction:column;overflow:hidden;animation:slideUp .3s ease;
+    }
+    @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+    .modal-hd{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border)}
+    .modal-hd-title{font-family:'Baloo 2',cursive;font-size:1.1rem;color:var(--green-dark)}
+    .modal-close{
+      width:34px;height:34px;border:none;border-radius:12px;background:linear-gradient(180deg,#fff 0%,#ecfdf3 48%,#c9f4d4 100%);
+      color:var(--green-dark);font-size:1.15rem;cursor:pointer;
+    }
+    .modal-info{padding:14px 18px 10px;border-bottom:1px solid var(--border);flex-shrink:0}
+    .modal-cmts-wrap{flex:1;overflow-y:auto;padding:12px 18px;display:flex;flex-direction:column;gap:8px}
+    .cmts-list{display:flex;flex-direction:column;gap:10px}
+    .cmt-item{display:flex;gap:8px}
+    .cmt-ava{width:28px;height:28px;border-radius:50%;background:var(--green-light);display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--green-dark);font-size:.8rem}
+    .cmt-body{flex:1;background:#f8fafb;border-radius:10px;padding:8px 10px}
+    .cmt-name{font-weight:800;font-size:.78rem;color:var(--green-dark)}
+    .cmt-text{font-size:.84rem;color:var(--text);line-height:1.45;margin-top:2px}
+    .cmt-inp-row{display:flex;gap:8px;padding:12px 18px;border-top:2px solid var(--border);background:white;flex-shrink:0}
+    .cmt-inp{flex:1;border:2px solid var(--border);border-radius:50px;padding:9px 16px;outline:none}
+    .cmt-inp:focus{border-color:var(--green)}
+    .cmt-send{background:var(--green);color:white;border:none;border-radius:50px;padding:9px 18px;font-weight:800;cursor:pointer}
+    .tutor-shell{display:flex;flex-direction:column;gap:14px}
+    .tutor-panel{
+      background:linear-gradient(180deg,#ffffff,#f5fff7);
+      border:1px solid #d5f2dc;border-radius:22px;padding:16px;
+      box-shadow:0 14px 28px rgba(21,128,61,.08);
+    }
+    .tutor-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .tutor-row{display:flex;flex-wrap:wrap;gap:8px}
+    .tutor-tag{
+      display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border-radius:999px;
+      background:#f8fff9;border:1px solid var(--border);color:var(--green-dark);font-size:.76rem;font-weight:800;
+    }
+    .tutor-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+    .tutor-btn{
+      width:100%;padding:12px 10px;border:none;border-radius:14px;background:linear-gradient(135deg,#16a34a,#15803d);
+      color:white;font-weight:800;cursor:pointer;
+    }
+    .tutor-btn.secondary{
+      background:linear-gradient(135deg,#f8fafc,#ecfdf5);color:var(--green-dark);border:1px solid #d6f1db;
+    }
+    .tutor-output{
+      background:#f9fffa;border:1px solid #d9f2df;border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:10px;
+    }
+    .tutor-lesson-title{
+      font-family:'Baloo 2',cursive;font-size:1.3rem;color:#14532d;
+    }
+    .tutor-badges{display:flex;flex-wrap:wrap;gap:8px}
+    .tutor-badge{
+      padding:8px 12px;border-radius:999px;background:linear-gradient(135deg,#ecfdf5,#dcfce7);
+      color:#166534;font-size:.76rem;font-weight:800;border:1px solid #c7f0d3;
+    }
+    .tutor-list{padding-left:18px;color:#2f4637;font-size:.88rem;line-height:1.6}
+    .tutor-list li{list-style:disc}
+    .tutor-qcard{
+      background:white;border:1px solid #ddeee0;border-radius:14px;padding:12px;
+      box-shadow:0 10px 16px rgba(21,128,61,.04);
+    }
+    .tutor-qcard h5{font-size:.92rem;color:#166534;margin-bottom:8px;font-weight:800}
+    .mcq-option{
+      display:flex;align-items:center;gap:8px;background:#f8faf8;border:1px solid var(--border);
+      border-radius:10px;padding:9px 10px;margin:6px 0;font-size:.82rem;
+    }
+    .mcq-option strong{color:#166534;font-size:.8rem}
+    .rubric-pill{
+      display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;
+      background:#fef3c7;color:#92400e;border:1px solid #fcd34d;font-size:.76rem;font-weight:800;
+    }
+    .tutor-textarea{
+      width:100%;min-height:110px;resize:vertical;border:2px solid var(--border);border-radius:12px;
+      padding:12px 14px;background:#fff;color:var(--text);font-size:.9rem;outline:none;
+    }
+    .tutor-textarea:focus{border-color:var(--green)}
+    .result-box{
+      background:#f0fdf4;border:2px solid #bbf7d0;border-radius:16px;padding:12px;
+    }
+    .label{
+      font-size:.72rem;letter-spacing:.04em;text-transform:uppercase;color:#166534;font-weight:800;margin-bottom:8px;
+    }
+    .socratic-step{
+      background:white;border:1px solid #dfeee2;border-radius:12px;padding:10px 12px;color:#2d4935;
+      font-size:.86rem;line-height:1.5;margin-bottom:8px;
+    }
+    .socratic-step strong{color:#0f766e}
+    .dots-wrap{display:flex;align-items:center;gap:6px;color:var(--green-dark);font-weight:700;font-size:.85rem}
+    .dots span{display:inline-block;width:5px;height:5px;background:var(--green);border-radius:50%;animation:bop .8s infinite}
+    .dots span:nth-child(2){animation-delay:.15s}.dots span:nth-child(3){animation-delay:.3s}
+    @keyframes bop{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+    .hide{display:none !important}
+    @media (max-width:380px){
+      .tutor-grid,.tutor-actions,.stats-row,.values-grid{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
 
-    .topbar{
-      height:72px;
-      background:#fff;
-      border-bottom:2px solid var(--line);
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      padding:0 18px;
-      box-shadow:0 10px 18px rgba(15,93,45,0.05);
+  <div id="setupScreen" class="setup-screen">
+    <div style="font-size:3.5rem;margin-bottom:10px">🌱</div>
+    <h1 style="font-family:'Baloo 2',cursive;font-size:2.4rem;margin-bottom:8px;">Kindup</h1>
+    <p style="opacity:.85;font-size:1rem;margin-bottom:24px;line-height:1.6;">Việc tốt mỗi ngày ✨</p>
+    <div style="display:flex;background:rgba(255,255,255,.15);border-radius:50px;padding:4px;margin-bottom:20px;width:100%;max-width:320px;">
+      <button id="tabLogin" onclick="switchTab('login')" style="flex:1;padding:9px;border:none;border-radius:50px;font-weight:800;cursor:pointer;background:white;color:var(--green-dark);">Đăng nhập</button>
+      <button id="tabReg" onclick="switchTab('reg')" style="flex:1;padding:9px;border:none;border-radius:50px;font-weight:800;cursor:pointer;background:transparent;color:rgba(255,255,255,.8);">Đăng ký</button>
+    </div>
+    <div class="setup-card">
+      <div id="formLogin">
+        <div class="setup-label">Tên của bạn</div>
+        <input class="setup-input" id="loginName" placeholder="Minh Tuấn..." maxlength="30" />
+        <div class="setup-label">Mã PIN 4 số</div>
+        <input class="setup-input" id="loginPin" type="password" inputmode="numeric" maxlength="4" placeholder="••••" onkeydown="if(event.key==='Enter')doLogin()" />
+        <button class="btn-setup" id="btnLogin" onclick="doLogin()">Đăng nhập 🚀</button>
+        <div class="setup-note" id="loginMsg">Nhập tên và PIN bạn đã đăng ký.</div>
+      </div>
+      <div id="formReg" style="display:none">
+        <div class="setup-label">Tên hiển thị</div>
+        <input class="setup-input" id="regName" placeholder="Ví dụ: Minh Tuấn..." maxlength="30" />
+        <div class="setup-label">Chọn mã PIN 4 số</div>
+        <input class="setup-input" id="regPin" type="password" inputmode="numeric" maxlength="4" placeholder="••••" />
+        <div class="setup-label">Nhập lại PIN</div>
+        <input class="setup-input" id="regPin2" type="password" inputmode="numeric" maxlength="4" placeholder="••••" onkeydown="if(event.key==='Enter')doRegister()" />
+        <button class="btn-setup" id="btnReg" onclick="doRegister()">Tạo tài khoản ✨</button>
+        <div class="setup-note" id="regMsg">PIN dùng để đăng nhập lại trên thiết bị khác.</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="logoutMenu" style="display:none;position:fixed;top:68px;right:12px;z-index:300;background:white;border:2px solid var(--border);border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.12);overflow:hidden;min-width:160px;">
+    <div style="padding:12px 16px;font-size:.82rem;color:var(--muted);border-bottom:1px solid var(--border);" id="menuUserName">👤 Bạn</div>
+    <button onclick="logout()" style="width:100%;padding:12px 16px;border:none;background:white;font-weight:800;font-size:.9rem;color:#ef4444;cursor:pointer;text-align:left;">🚪 Đăng xuất</button>
+  </div>
+
+  <div class="topbar">
+    <div class="topbar-logo">🌱 Kindup</div>
+    <div class="topbar-right">
+      <div class="pts-chip" id="ptsChip">⭐ 0 điểm</div>
+      <div class="user-ava" id="userAva" onclick="toggleMenu()">😊</div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="page active" id="page-home">
+      <div class="home-scene">
+        <div class="home-logo">Kind<span class="accent">Up</span></div>
+        <div class="greeting" id="greeting">Chào buổi sáng! ☀️</div>
+        <div class="greeting-sub" id="subDate">Đang tải...</div>
+
+        <div style="margin-top:18px">
+          <div class="feature-shell">
+            <div class="feature-card">
+              <div class="section-hd">🌟 Việc tốt nổi bật</div>
+              <div style="font-size:.82rem;font-weight:800;color:#4d7a58;margin-bottom:8px" id="homeStoryWeek">Đang cập nhật...</div>
+              <div style="font-family:'Baloo 2',cursive;font-size:1.3rem;color:#166534;margin-bottom:8px" id="homeStoryTitle">Những điều tử tế đang được lan tỏa</div>
+              <div style="font-size:.96rem;line-height:1.7;color:#264931;white-space:pre-line" id="homeStoryText">Mỗi việc tốt nhỏ đều có thể tạo nên thay đổi lớn.</div>
+              <div style="display:flex;justify-content:center;margin-top:16px">
+                <button class="btn" style="background:linear-gradient(135deg,#22c55e,#15803d);color:white;border-radius:999px;padding:12px 18px;font-family:'Baloo 2',cursive;font-size:1.05rem;" onclick="openFeaturedStory()">Xem tất cả ›</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:18px">
+          <div class="section-hd">Tuần này chúng mình đã ghi nhận</div>
+          <div class="stats-row">
+            <div class="stat-box">
+              <div class="stat-art">⭐</div>
+              <div class="stat-num" id="statDone">0</div>
+              <div class="stat-lbl" id="statDoneLabel">Việc tốt toàn cộng đồng</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-art">💖</div>
+              <div class="stat-num" id="statPts">0</div>
+              <div class="stat-lbl" id="statPtsLabel">Bạn tham gia KindUp</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="challenge-card" id="challengeCard" style="margin-top:18px">
+          <div class="challenge-top">
+            <div>
+              <div class="challenge-kicker">Thử thách tuần</div>
+              <div class="challenge-title" id="challengeTitle">Đang tạo thử thách...</div>
+            </div>
+            <div class="challenge-badge">
+              <strong id="challengeProgressNum">0/0</strong>
+              <span>Tiến độ</span>
+            </div>
+          </div>
+          <div class="challenge-desc" id="challengeDesc">KindUp sẽ tạo thử thách phù hợp với hành vi tích cực của bạn trong tuần.</div>
+          <div class="pbar"><div class="pbar-fill" id="challengeFill" style="width:0%"></div></div>
+          <div class="challenge-meta">
+            <span id="challengeMetaLeft">Mục tiêu tuần</span>
+            <span id="challengeMetaRight">Chưa bắt đầu</span>
+          </div>
+          <div class="challenge-note" id="challengeNote">Hoàn thành thử thách giúp bạn hình thành thói quen tốt và phát triển bền vững.</div>
+        </div>
+
+        <div style="margin-top:18px">
+          <div class="section-hd">Giá trị bạn đang lan tỏa</div>
+          <div class="value-chip-row" id="homeValues"></div>
+        </div>
+
+        <div style="margin-top:18px">
+          <div class="section-hd">Tác động cộng đồng tuần này</div>
+          <div class="stats-row">
+            <div class="stat-box" style="min-height:100px">
+              <div class="stat-num" id="impactTasks">0</div>
+              <div class="stat-lbl" id="impactTasksLabel">Việc tốt trong tuần</div>
+            </div>
+            <div class="stat-box" style="min-height:100px">
+              <div class="stat-num" id="impactUsers">0</div>
+              <div class="stat-lbl" id="impactUsersLabel">Người tham gia</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:18px">
+          <div class="section-hd">Bạn đã làm việc tốt gì hôm nay?</div>
+          <div class="home-action-card">
+            <div class="home-rank-mini">
+              <div class="rank-hero-name" id="rankName">🌱 Tân Binh Việc Tốt</div>
+              <div class="rank-hero-pts" id="rankPts">0 / 50 điểm</div>
+              <div class="pbar"><div class="pbar-fill" id="pbarFill" style="width:0%"></div></div>
+              <div style="font-size:.74rem;opacity:.9;margin-top:6px" id="pbarLbl">Còn 50 điểm nữa thăng cấp! 💪</div>
+            </div>
+            <button class="home-pill-btn" onclick="showPage('log')">＋ Ghi nhận việc tốt</button>
+          </div>
+        </div>
+
+        <div style="margin-top:18px">
+          <div class="section-hd">Gợi ý việc tốt hôm nay</div>
+          <div id="homeAiLoading" style="display:flex;align-items:center;justify-content:center;gap:8px;color:var(--muted);font-size:.88rem;padding:8px 4px">
+            <div class="dots"><span></span><span></span><span></span></div> AI đang gợi ý...
+          </div>
+          <div class="tasks-list" id="tasksList"></div>
+        </div>
+
+        <div class="special-card" onclick="showPage('ai')" style="margin-top:10px">
+          <div class="icon-wrap">🤖</div>
+          <div>
+            <h3>Trợ lý AI Kindup</h3>
+            <p>Hỏi AI để được gợi ý và động viên riêng cho bạn</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="page-log">
+      <div class="sec">✏️ Ghi lại việc tốt</div>
+      <div class="form-card">
+        <label class="lbl">Chọn việc tốt đã làm</label>
+        <div id="logTaskLoading" style="display:flex;align-items:center;gap:8px;color:var(--muted);font-size:.85rem;padding:8px 4px 12px">
+          <div class="dots"><span></span><span></span><span></span></div> Đang tải gợi ý từ AI...
+        </div>
+        <select class="sel" id="taskSel" onchange="onSelChange()" style="display:none">
+          <option value="">-- Chọn việc tốt --</option>
+          <option value="__other__">➕ Việc tốt khác (tự nhập)</option>
+        </select>
+        <div id="customWrap" style="display:none">
+          <label class="lbl">Tên việc tốt của bạn</label>
+          <input class="inp" id="customTask" placeholder="Ví dụ: Sắp xếp bàn học..." />
+        </div>
+        <label class="lbl">Kể ngắn gọn bạn đã làm gì</label>
+        <textarea class="ta" id="taskDesc" placeholder="Ví dụ: Hôm nay mình đã rửa bát và giúp mẹ dọn bàn ăn..."></textarea>
+
+        <label class="lbl">📷 Thêm ảnh (không bắt buộc)</label>
+        <div class="img-upload-wrap">
+          <div class="img-btn-row">
+            <button type="button" class="img-btn" onclick="document.getElementById('photoGallery').click()">🖼️ Chọn ảnh</button>
+            <button type="button" class="img-btn" onclick="document.getElementById('photoCamera').click()">📸 Chụp ảnh</button>
+          </div>
+          <input type="file" id="photoGallery" accept="image/*" onchange="onPhotoChange(event)" />
+          <input type="file" id="photoCamera" accept="image/*" capture="environment" onchange="onPhotoChange(event)" />
+          <div id="photoPlaceholder" style="text-align:center;color:var(--muted);font-size:.82rem">Chưa có ảnh</div>
+          <img id="photoPreview" class="img-preview" />
+          <div id="photoRemove" style="display:none;text-align:center;margin-top:6px">
+            <button type="button" onclick="removePhoto()" style="background:none;border:none;color:#ef4444;font-weight:700;cursor:pointer">✕ Xoá ảnh</button>
+          </div>
+        </div>
+
+        <button class="btn btn-green" id="btnSubmit" onclick="submitTask()">🎉 Ghi lại & nhận điểm</button>
+
+        <div class="ai-box" id="praiseBox">
+          <div class="ai-box-hd">
+            <span style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:12px;background:linear-gradient(180deg,#fff,#dcfce7);font-size:1rem">🤖</span>
+            Lời khen từ AI Kindup
+          </div>
+          <div class="ai-box-txt" id="praiseTxt"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="page-community">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div class="sec" style="margin-bottom:0">🌍 Cộng đồng việc tốt</div>
+        <button onclick="forceRefreshFeed()" style="background:var(--green-light);border:none;border-radius:50px;padding:6px 14px;color:var(--green-dark);font-weight:800;cursor:pointer">🔄 Làm mới</button>
+      </div>
+
+      <div class="comm-tabs">
+        <button class="comm-tab active" id="ctab-feed" onclick="switchCommTab('feed')">📢 Bảng tin</button>
+        <button class="comm-tab" id="ctab-story" onclick="switchCommTab('story')">✨ Câu chuyện tuần</button>
+      </div>
+
+      <div id="panel-feed">
+        <div id="feedCount" style="font-size:.78rem;color:var(--muted);margin-bottom:10px"></div>
+        <div class="feed" id="feed"></div>
+      </div>
+
+      <div id="panel-story" style="display:none">
+        <div id="storyList"></div>
+      </div>
+    </div>
+
+    <div class="page" id="page-ai">
+      <div class="sec">🤖 Trợ lý AI Kindup</div>
+      <div class="chat-wrap">
+        <div class="chat-hd">
+          <div class="chat-hd-ic">🤖</div>
+          <div>
+            <h3>AI Kindup</h3>
+            <p>Gợi ý • Khen ngợi • Động viên</p>
+          </div>
+        </div>
+        <div class="chat-msgs" id="chatMsgs">
+          <div class="msg ai">Xin chào! 👋 Mình là AI Kindup.<br>Mình có thể giúp bạn:<br>• 💡 Gợi ý việc tốt hôm nay<br>• ⭐ Khen ngợi và động viên<br>• ❓ Vì sao thói quen tốt quan trọng<br><br>Hãy hỏi mình bất cứ điều gì!</div>
+        </div>
+        <div class="chat-inp-wrap">
+          <input class="chat-inp" id="chatInp" placeholder="Nhắn tin với AI..." onkeydown="if(event.key==='Enter')sendChat()" />
+          <button class="chat-send" onclick="sendChat()">➤</button>
+        </div>
+      </div>
+      <div class="quick-chips">
+        <button class="btn btn-outline" onclick="quickMsg('Gợi ý việc tốt cho tôi hôm nay')">💡 Gợi ý hôm nay</button>
+        <button class="btn btn-outline" onclick="quickMsg('Động viên tôi đi, tôi hơi lười!')">💪 Động viên tôi</button>
+        <button class="btn btn-outline" onclick="quickMsg('Tại sao cần rèn luyện thói quen tốt?')">❓ Tại sao?</button>
+      </div>
+    </div>
+
+    <div class="page" id="page-tutor">
+      <div class="sec">🧠 Gia sư AI Socratic</div>
+
+      <div class="tutor-shell">
+        <div class="tutor-panel">
+          <div class="tutor-grid">
+            <div>
+              <label class="lbl">Môn học</label>
+              <select class="sel" id="tutorSubject">
+                <option value="Toán">Toán</option>
+                <option value="Văn">Văn</option>
+                <option value="Tiếng Anh">Tiếng Anh</option>
+                <option value="Khoa học tự nhiên">Khoa học tự nhiên</option>
+                <option value="Lịch sử">Lịch sử</option>
+                <option value="Địa lý">Địa lý</option>
+              </select>
+            </div>
+            <div>
+              <label class="lbl">Lớp</label>
+              <select class="sel" id="tutorGrade">
+                <option value="Lớp 1">Lớp 1</option>
+                <option value="Lớp 2">Lớp 2</option>
+                <option value="Lớp 3">Lớp 3</option>
+                <option value="Lớp 4">Lớp 4</option>
+                <option value="Lớp 5">Lớp 5</option>
+                <option value="Lớp 6">Lớp 6</option>
+                <option value="Lớp 7">Lớp 7</option>
+                <option value="Lớp 8" selected>Lớp 8</option>
+                <option value="Lớp 9">Lớp 9</option>
+              </select>
+            </div>
+          </div>
+
+          <label class="lbl">Chủ đề / bài học</label>
+          <input class="inp" id="tutorTopic" value="Phân số" placeholder="Ví dụ: Phân số, Cấu tạo của tế bào..." />
+
+          <label class="lbl">Mức độ</label>
+          <select class="sel" id="tutorLevel">
+            <option value="Mức cơ bản">Cơ bản</option>
+            <option value="Mức trung bình" selected>Trung bình</option>
+            <option value="Mức nâng cao">Nâng cao</option>
+          </select>
+
+          <div class="tutor-row">
+            <span class="tutor-tag">📘 GDPT 2018</span>
+            <span class="tutor-tag">🧠 Socratic</span>
+            <span class="tutor-tag">🎯 Theo năng lực</span>
+          </div>
+
+          <div class="tutor-actions">
+            <button class="tutor-btn" onclick="generateTutorLesson()">Xây dựng bài học</button>
+            <button class="tutor-btn secondary" onclick="generateTutorQuiz()">Ra đề trắc nghiệm</button>
+          </div>
+        </div>
+
+        <div class="tutor-panel">
+          <div class="tutor-output" id="tutorOutput">
+            <h4 style="font-family:'Baloo 2',cursive;font-size:1.15rem;color:#166534">Trợ lý học tập</h4>
+            <div style="font-size:.88rem;color:var(--muted);line-height:1.7">
+              AI sẽ giúp bạn:<br>
+              • xây dựng bài học theo chương trình 2018<br>
+              • tạo đề trắc nghiệm / tự luận<br>
+              • hướng dẫn bằng câu hỏi Socratic từng bước<br>
+              • chấm điểm công bằng và giải thích cách làm
+            </div>
+          </div>
+        </div>
+
+        <div class="tutor-panel">
+          <label class="lbl">Câu hỏi của học sinh</label>
+          <textarea class="tutor-textarea" id="tutorStudentQuestion" placeholder="Ví dụ: Tôi không hiểu vì sao khi rút gọn phân số 12/18 = 2/3?"></textarea>
+          <div class="tutor-actions">
+            <button class="tutor-btn" onclick="answerStudentQuestion()">Giải thích theo hướng dẫn</button>
+            <button class="tutor-btn secondary" onclick="generateTutorRubric()">Chấm bài tự luận</button>
+          </div>
+        </div>
+
+        <div class="tutor-panel">
+          <label class="lbl">Bài làm tự luận</label>
+          <textarea class="tutor-textarea" id="tutorEssayAnswer" placeholder="Nhập bài làm của học sinh để AI chấm điểm..."></textarea>
+          <div class="tutor-actions">
+            <button class="tutor-btn" onclick="gradeTutorEssay()">Chấm điểm & nhận xét</button>
+          </div>
+        </div>
+
+        <div class="tutor-panel">
+          <div class="tutor-output">
+            <h4 style="font-family:'Baloo 2',cursive;font-size:1.15rem;color:#166534">AI giáo viên</h4>
+            <div class="chat-wrap" style="height:360px;min-height:300px">
+              <div class="chat-hd">
+                <div class="chat-hd-ic">🧠</div>
+                <div>
+                  <h3>Gia sư Socratic</h3>
+                  <p>Hỏi đáp • suy nghĩ • từng bước</p>
+                </div>
+              </div>
+              <div class="chat-msgs" id="tutorChatMsgs">
+                <div class="msg ai">Xin chào! Mình là gia sư AI Socratic. Mình sẽ không cho đáp án ngay, mà sẽ gợi ý từng bước để bạn tự tìm ra cách giải. Hãy đặt câu hỏi cho bài học của bạn.</div>
+              </div>
+              <div class="chat-inp-wrap">
+                <input class="chat-inp" id="tutorChatInput" placeholder="Ví dụ: Hướng dẫn tôi giải bài này như thế nào?" onkeydown="if(event.key==='Enter')sendTutorChat()" />
+                <button class="chat-send" onclick="sendTutorChat()">➤</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="page-ranks">
+      <div class="sec">🏆 Thành tích của tôi</div>
+      <div class="ach-overview" id="achOverview"></div>
+
+      <div class="ach-streak-card" id="achStreakCard">
+        <div class="ach-streak-num" id="streakNum">0</div>
+        <div class="ach-streak-info">
+          <h3 id="streakTitle">Chuỗi tử tế đang chờ bạn</h3>
+          <p id="streakDesc">Mỗi ngày một việc tốt nhỏ sẽ tạo nên thay đổi lớn.</p>
+        </div>
+      </div>
+
+      <div class="sec" style="margin-top:16px;margin-bottom:10px;font-size:1rem">📊 Thống kê theo chủ đề</div>
+      <div class="ach-cats" id="achCats"></div>
+
+      <div class="sec" style="margin-top:16px;margin-bottom:10px;font-size:1rem">💎 Huy hiệu giá trị sống</div>
+      <div class="values-grid" id="valuesGrid"></div>
+
+      <div class="sec" style="margin-top:16px;margin-bottom:10px;font-size:1rem">🎖️ Danh hiệu</div>
+      <div class="ranks-grid" id="ranksGrid"></div>
+
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:16px;margin-bottom:10px">
+        <div class="sec" style="margin-bottom:0;font-size:1rem">📅 Lịch sử việc tốt</div>
+        <span id="historyCount" style="font-size:.78rem;color:var(--muted)"></span>
+      </div>
+      <div id="historyList"></div>
+    </div>
+
+    <div class="page" id="page-board">
+      <div class="sec">📊 Bảng xếp hạng</div>
+      <div class="board" id="board"></div>
+    </div>
+  </div>
+
+  <div class="bottomnav">
+    <button class="bnav-btn active" onclick="showPage('home')" id="bn-home"><span class="ic">🏠</span><span>Trang chủ</span></button>
+    <button class="bnav-btn" onclick="showPage('log')" id="bn-log"><span class="ic">✏️</span><span>Ghi việc tốt</span></button>
+    <button class="bnav-btn" onclick="showPage('community')" id="bn-community"><span class="ic">🌍</span><span>Cộng đồng</span></button>
+    <button class="bnav-btn" onclick="showPage('ai')" id="bn-ai"><span class="ic">🤖</span><span>AI</span></button>
+    <button class="bnav-btn" onclick="showPage('tutor')" id="bn-tutor"><span class="ic">🧠</span><span>Gia sư AI</span></button>
+    <button class="bnav-btn" onclick="showPage('ranks')" id="bn-ranks"><span class="ic">🏆</span><span>Thành tích</span></button>
+    <button class="bnav-btn" onclick="showPage('board')" id="bn-board"><span class="ic">📊</span><span>Xếp hạng</span></button>
+  </div>
+
+  <button id="scrollTopBtn" style="position:fixed;right:16px;bottom:calc(var(--bottom-h) + 18px);width:46px;height:46px;border:none;border-radius:50%;background:linear-gradient(135deg,#16a34a,#15803d);color:white;font-size:1.15rem;cursor:pointer;z-index:850;opacity:0;pointer-events:none;transform:translateY(12px);transition:all .2s ease;box-shadow:0 12px 20px rgba(21,128,61,.26);" onclick="scrollMainToTop()">↑</button>
+
+  <div class="modal-overlay" id="postModal" onclick="closeModal(event)">
+    <div class="modal-sheet">
+      <div class="modal-hd">
+        <div class="modal-hd-title">Chi tiết việc tốt</div>
+        <button class="modal-close" onclick="closeModalDirect()">✕</button>
+      </div>
+      <div class="modal-info" id="modalInfo"></div>
+      <div class="modal-cmts-wrap">
+        <div style="font-family:'Baloo 2',cursive;font-size:1rem;color:var(--green-dark);margin-bottom:8px">💬 Bình luận</div>
+        <div class="cmts-list" id="modalCmtsList"><div style="font-size:.84rem;color:var(--muted)">Đang tải...</div></div>
+      </div>
+      <div class="cmt-inp-row">
+        <input class="cmt-inp" id="modalCmtInp" placeholder="Viết bình luận..." onkeydown="if(event.key==='Enter')modalPostComment()" />
+        <button class="cmt-send" onclick="modalPostComment()">Gửi</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script>
+    // =========================
+    // Firebase + Groq Config
+    // =========================
+    const FB_CFG = {
+      apiKey: "AIzaSyB_YlQ99oal3RrfN8wX9oN5GjuW1QH4g-E",
+      authDomain: "kindup-22cea.firebaseapp.com",
+      databaseURL: "https://kindup-22cea-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "kindup-22cea",
+      storageBucket: "kindup-22cea.firebasestorage.app",
+      messagingSenderId: "776886224726",
+      appId: "1:776886224726:web:b30634ca93d58d6d1238f7"
+    };
+
+    // BẮT BUỘC: đổi URL này thành URL Vercel proxy thực tế của bạn
+    const GROQ_PROXY_URL = "https://your-vercel-project-name.vercel.app/api/groq";
+
+    const ALLOW_REGISTER = true;
+    firebase.initializeApp(FB_CFG);
+    const db = firebase.database();
+
+    // =========================
+    // Global state
+    // =========================
+    let G = {
+      uid: null,
+      name: "",
+      points: 0,
+      weekDone: 0,
+      doneToday: [],
+      emoji: "😊",
+      bg: "#bbf7d0",
+      likedPosts: {},
+      chatHistory: []
+    };
+
+    let _feedListening = false;
+    let _boardListening = false;
+    let _storyGenerating = false;
+    let _storyGeneratingPromise = null;
+    let _modalFeedId = null;
+    let _modalCmtsUnsub = null;
+    let _photoBase64 = "";
+    let _aiSuggestions = [];
+    let _aiSuggestLoading = false;
+
+    const BG_COLORS = ["#bbf7d0","#fce7f3","#dbeafe","#fef9c3","#ede9fe","#ffedd5"];
+    const EMOJIS = ["😄","🌸","🦁","🌺","⭐","🐬","🌻","🦋"];
+
+    const RANKS = [
+      {name:"Tân Binh Việc Tốt", icon:"🌱", req:0},
+      {name:"Người Gieo Hạt", icon:"🌿", req:50},
+      {name:"Chiến Binh Tích Cực", icon:"⚡", req:200},
+      {name:"Người Lan Toả Yêu Thương", icon:"❤️", req:500},
+      {name:"Đại Sứ Nhân Ái", icon:"🌟", req:1000},
+      {name:"Huyền Thoại Tử Tế", icon:"👑", req:2000}
+    ];
+
+    // =========================
+    // Utility
+    // =========================
+    function escHtml(s) {
+      return String(s || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+    }
+    function timeAgo(ts) {
+      const s = Math.floor((Date.now() - ts) / 1000);
+      if (s < 60) return "Vừa xong";
+      if (s < 3600) return Math.floor(s / 60) + " phút trước";
+      if (s < 86400) return Math.floor(s / 3600) + " giờ trước";
+      return Math.floor(s / 86400) + " ngày trước";
+    }
+    function makeUID(name, pin) {
+      return (name.trim().toLowerCase().replace(/\s+/g, "-") + "-" + pin).replace(/[^a-z0-9\-]/g, "");
+    }
+    function getRankFor(pts) {
+      let r = RANKS[0];
+      for (let i = RANKS.length - 1; i >= 0; i--) {
+        if (pts >= RANKS[i].req) { r = RANKS[i]; break; }
+      }
+      return r;
+    }
+    function hashPin(pin) {
+      return btoa("kindup-" + pin);
+    }
+    function safeJsonParse(raw) {
+      if (!raw) return null;
+      const clean = String(raw).replace(/```json|```/g, "").trim();
+      try { return JSON.parse(clean); } catch (e) {}
+      const match = clean.match(/\{[\s\S]*\}/);
+      if (match) {
+        try { return JSON.parse(match[0]); } catch (e2) {}
+      }
+      return null;
+    }
+    function showToast(msg) {
+      const toast = document.getElementById("toast");
+      if (!toast) return;
+      toast.textContent = msg;
+      toast.classList.add("show");
+      clearTimeout(showToast._t);
+      showToast._t = setTimeout(() => toast.classList.remove("show"), 1800);
+    }
+    function showPointPopup(points, anchorEl) {
+      const popup = document.createElement("div");
+      popup.className = "pt-popup";
+      popup.textContent = "+" + points;
+      const rect = anchorEl.getBoundingClientRect();
+      popup.style.left = (rect.left + rect.width / 2) + "px";
+      popup.style.top = (rect.top - 6) + "px";
+      document.body.appendChild(popup);
+      setTimeout(() => popup.remove(), 1400);
+    }
+    function confetti() {
+      for (let i = 0; i < 22; i++) {
+        const p = document.createElement("div");
+        p.className = "confetti-piece";
+        p.style.left = (Math.random() * window.innerWidth) + "px";
+        p.style.top = "10px";
+        p.style.background = ["#22c55e","#fbbf24","#a855f7","#f97316","#34d399"][Math.floor(Math.random() * 5)];
+        p.style.transform = "rotate(" + (Math.random() * 360) + "deg)";
+        p.style.animationDuration = (0.9 + Math.random() * 0.7) + "s";
+        document.body.appendChild(p);
+        setTimeout(() => p.remove(), 1200);
+      }
+    }
+    function setBtn(id, dis, txt) {
+      const b = document.getElementById(id);
+      if (!b) return;
+      b.disabled = dis;
+      b.textContent = txt;
+      b.style.opacity = dis ? ".7" : "1";
     }
 
-    .logo{
-      font-family:'Baloo 2', cursive;
-      font-size:1.8rem;
-      color:var(--green-3);
-      font-weight:800;
+    // =========================
+    // Navigation
+    // =========================
+    function showPage(id) {
+      document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+      const target = document.getElementById("page-" + id);
+      if (target) target.classList.add("active");
+      document.querySelectorAll(".bnav-btn").forEach(b => b.classList.remove("active"));
+      const btn = document.getElementById("bn-" + id);
+      if (btn) btn.classList.add("active");
+
+      if (id === "community") {
+        switchCommTab("feed");
+      }
+      if (id === "tutor") {
+        renderTutorOutput(`
+          <div class="result-box">
+            <div class="label">Trợ lý học tập</div>
+            <div class="socratic-step">Bạn có thể xây dựng bài học, ra đề trắc nghiệm, giải thích theo Socratic, hoặc chấm bài tự luận ở đây.</div>
+          </div>
+        `);
+      }
+    }
+    function toggleMenu() {
+      const el = document.getElementById("logoutMenu");
+      if (!el) return;
+      el.style.display = el.style.display === "block" ? "none" : "block";
+    }
+    function scrollMainToTop() {
+      const main = document.querySelector(".main");
+      if (main) main.scrollTo({top:0,behavior:"smooth"});
     }
 
-    .top-right{
-      display:flex;
-      align-items:center;
-      gap:10px;
+    // =========================
+    // Firebase auth
+    // =========================
+    window.switchTab = function(tab) {
+      const L = tab === "login";
+      document.getElementById("formLogin").style.display = L ? "block" : "none";
+      document.getElementById("formReg").style.display = L ? "none" : "block";
+      const tL = document.getElementById("tabLogin");
+      const tR = document.getElementById("tabReg");
+      if (ALLOW_REGISTER && tR) tR.style.display = "";
+      tL.style.background = L ? "white" : "transparent";
+      tL.style.color = L ? "var(--green-dark)" : "rgba(255,255,255,.8)";
+      tR.style.background = L ? "transparent" : "white";
+      tR.style.color = L ? "rgba(255,255,255,.8)" : "var(--green-dark)";
+    };
+
+    window.doRegister = async function() {
+      if (!ALLOW_REGISTER) { showToast("⚠️ Đăng ký tạm thời bị tắt."); return; }
+      const name = document.getElementById("regName").value.trim();
+      const pin = document.getElementById("regPin").value.trim();
+      const pin2 = document.getElementById("regPin2").value.trim();
+      const msg = document.getElementById("regMsg");
+
+      if (!name) { msg.textContent = "⚠️ Nhập tên đi bạn!"; return; }
+      if (pin.length !== 4 || !/^\\d{4}$/.test(pin)) { msg.textContent = "⚠️ PIN phải đúng 4 chữ số!"; return; }
+      if (pin !== pin2) { msg.textContent = "⚠️ Hai PIN không khớp!"; return; }
+
+      const uid = makeUID(name, pin);
+      setBtn("btnReg", true, "⏳ Đang kiểm tra...");
+      const snap = await db.ref(`users/${uid}`).get();
+      if (snap.exists()) {
+        msg.textContent = "⚠️ Tên + PIN này đã tồn tại!";
+        setBtn("btnReg", false, "Tạo tài khoản ✨");
+        return;
+      }
+
+      const userData = {
+        uid, name, pin: hashPin(pin),
+        points: 0,
+        weekDone: 0,
+        doneToday: [],
+        likedPosts: {},
+        createdAt: Date.now(),
+        emoji: EMOJIS[Math.floor(Math.random() * EMOJIS.length)],
+        bg: BG_COLORS[Math.floor(Math.random() * BG_COLORS.length)]
+      };
+
+      await db.ref(`users/${uid}`).set(userData);
+      msg.textContent = "✅ Đã tạo tài khoản!";
+      setBtn("btnReg", false, "Tạo tài khoản ✨");
+      enterApp(userData);
+    };
+
+    window.doLogin = async function() {
+      const name = document.getElementById("loginName").value.trim();
+      const pin = document.getElementById("loginPin").value.trim();
+      const msg = document.getElementById("loginMsg");
+      if (!name || !pin) { msg.textContent = "⚠️ Nhập đủ tên và PIN nhé!"; return; }
+      const uid = makeUID(name, pin);
+      setBtn("btnLogin", true, "⏳ Đang xác nhận...");
+      const snap = await db.ref(`users/${uid}`).get();
+      if (!snap.exists()) {
+        msg.textContent = "❌ Không tìm thấy tài khoản!";
+        setBtn("btnLogin", false, "Đăng nhập 🚀");
+        return;
+      }
+      const data = snap.val();
+      if (data.pin !== hashPin(pin)) {
+        msg.textContent = "❌ PIN không đúng!";
+        setBtn("btnLogin", false, "Đăng nhập 🚀");
+        return;
+      }
+      setBtn("btnLogin", false, "Đăng nhập 🚀");
+      enterApp(data);
+    };
+
+    function enterApp(data) {
+      G.uid = data.uid;
+      G.name = data.name;
+      G.points = data.points || 0;
+      G.weekDone = data.weekDone || 0;
+      G.doneToday = Array.isArray(data.doneToday) ? data.doneToday : [];
+      G.emoji = data.emoji || "😊";
+      G.bg = data.bg || "#bbf7d0";
+      G.likedPosts = data.likedPosts || {};
+      const today = new Date().toDateString();
+      if ((data.lastActiveDay || "") !== today) {
+        G.doneToday = [];
+        db.ref(`users/${G.uid}`).update({ doneToday: [], lastActiveDay: today });
+      }
+      document.getElementById("setupScreen").style.display = "none";
+      document.getElementById("userAva").textContent = G.name.charAt(0).toUpperCase();
+      document.getElementById("menuUserName").textContent = "👤 " + G.name;
+
+      initApp();
+      subscribeToFeed();
+      subscribeToLeaderboard();
+      checkAndGenerateStories().catch(err => console.error("[Story] Background generate failed:", err));
+      showPage("home");
     }
 
-    .chip{
-      background:linear-gradient(180deg, #f7d557 0%, #efa82d 100%);
-      color:#fff;
-      border-radius:999px;
-      padding:8px 12px;
-      font-weight:800;
-      font-size:0.8rem;
-      box-shadow:0 8px 16px rgba(238,168,45,0.2);
+    window.logout = function() {
+      db.ref("feed").off();
+      db.ref("users").off();
+      _feedListening = false;
+      _boardListening = false;
+      if (_modalCmtsUnsub && _modalFeedId) {
+        try { db.ref(`comments/${_modalFeedId}`).off("value", _modalCmtsUnsub); } catch (e) {}
+        _modalCmtsUnsub = null;
+      }
+      G = { uid:null, name:"", points:0, weekDone:0, doneToday:[], emoji:"😊", bg:"#bbf7d0", likedPosts:{}, chatHistory:[] };
+      document.getElementById("logoutMenu").style.display = "none";
+      document.getElementById("loginName").value = "";
+      document.getElementById("loginPin").value = "";
+      document.getElementById("loginMsg").textContent = "Nhập tên và PIN bạn đã đăng ký.";
+      document.getElementById("chatMsgs").innerHTML = '<div class="msg ai">Xin chào! 👋 Mình là AI Kindup.<br>Mình có thể giúp bạn:<br>• 💡 Gợi ý việc tốt hôm nay<br>• ⭐ Khen ngợi và động viên<br>• ❓ Vì sao thói quen tốt quan trọng<br><br>Hãy hỏi mình bất cứ điều gì!</div>';
+      document.getElementById("feed").innerHTML = "";
+      document.getElementById("board").innerHTML = "";
+      switchTab("login");
+      document.getElementById("setupScreen").style.display = "flex";
+    };
+
+    // =========================
+    // Firebase user save / post feed
+    // =========================
+    function saveUser() {
+      if (!G.uid) return;
+      db.ref(`users/${G.uid}`).update({
+        points: G.points,
+        weekDone: G.weekDone,
+        doneToday: G.doneToday,
+        lastActiveDay: new Date().toDateString(),
+        likedPosts: G.likedPosts
+      });
     }
 
-    .avatar{
-      width:38px;
-      height:38px;
-      border-radius:50%;
-      background:linear-gradient(180deg,#ebfff1,#cbefd3);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-weight:900;
-      color:var(--green-3);
-      box-shadow:0 8px*
-
+    async function postToFeed(task, desc, imageUrl = "", pts = 0) {
+      if (!G.uid) return;
+      const rank = getRankFor(G.points);
+      await db.ref("feed").push({
+        uid: G.uid,
+        name: G.name,
+        emoji: G.emoji,
+        bg: G.bg,
+        task,
+        desc,
+        imageUrl,
+        rank: rank.icon + " " + rank.name,
+        ts: Date.now(),
+        likes: 0,
+        commentCount: 0,
+        pts
+      });
+    }
+
+    //
